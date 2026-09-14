@@ -1,4 +1,4 @@
-# Tideborn
+﻿# Tideborn
 
 Working title for a third-person survival game in **Unreal Engine 5**.
 
@@ -6,7 +6,7 @@ Island Ecology (speculative evolution) · base building · exploration · creatu
 
 ## Status
 
-**Phase 0 — Foundations** (not started in-engine yet).  
+**Phase 0 — Foundations** (UE project skeleton in repo; interact stub still TODO).  
 Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over speed.
 
 ## Pillars
@@ -28,7 +28,7 @@ Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over spee
 
 ## Engine
 
-- Unreal Engine 5 (version pin when `.uproject` lands)
+- Unreal Engine **5.4.4** (Third Person Blueprint template)
 - Blueprints-first
 - Third-person camera
 
