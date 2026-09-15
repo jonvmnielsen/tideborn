@@ -6,7 +6,7 @@ Island Ecology (speculative evolution) · base building · exploration · creatu
 
 ## Status
 
-**Phase 0 — Foundations** (UE project skeleton in repo; interact stub still TODO).  
+**Phase 0 — Foundations** (Interact wired).  
 Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over speed.
 
 ## Pillars
@@ -28,13 +28,18 @@ Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over spee
 
 ## Engine
 
-- Unreal Engine **5.4.4** (Third Person Blueprint template)
-- Blueprints-first
+- Unreal Engine **5.4.4** (Third Person Blueprint template + Tideborn C++ module)
+- Blueprints-first systems; small C++ for input/interact foundation
 - Third-person camera
 
-## Phase 0 exit
+## Phase 0
 
-PIE: walk + look + interact stub. No building/breeding/Followers scope in Phase 0.
+- [x] UE project in repo
+- [x] `IA_Interact` mapped to **E**
+- [x] World stub `Tideborn_InteractStub` (TriggerBox)
+- [x] `UTidebornInteractComponent` on `BP_ThirdPersonCharacter` (line trace + on-screen message)
+
+**Verify:** open `Tideborn.uproject`, Play, walk toward the stub near spawn, press **E** — cyan/yellow debug text + trace line.
 
 ## License / IP
 
