@@ -1,1 +1,3 @@
-OK visible cube Tideborn_InteractMarker + TriggerBox at ~350,0,50
+OK marker at PlayerStart+300: <Struct 'Vector' (0x000002660CD98F10) {x: 1200.000000, y: 1110.000000, z: 92.012604}>
+Tideborn_InteractMarker@<Struct 'Vector' (0x00000266324B0BF0) {x: 1200.000000, y: 1110.000000, z: 92.012604}>
+Tideborn_InteractStub@<Struct 'Vector' (0x00000266324B0BF0) {x: 1200.000000, y: 1110.000000, z: 192.012604}>
