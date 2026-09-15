@@ -1,14 +1,13 @@
 ﻿#include "TidebornInteractComponent.h"
+#include "TidebornInteractable.h"
+#include "TidebornBuildComponent.h"
 #include "EnhancedInputComponent.h"
-#include "EnhancedInputSubsystems.h"
 #include "InputAction.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
-#include "Engine/LocalPlayer.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
-#include "GameFramework/Actor.h"
 #include "Engine/Engine.h"
 
 UTidebornInteractComponent::UTidebornInteractComponent()
@@ -25,7 +24,6 @@ void UTidebornInteractComponent::BeginPlay()
 		InteractAction = LoadObject<UInputAction>(nullptr, TEXT("/Game/ThirdPerson/Input/Actions/IA_Interact.IA_Interact"));
 	}
 
-	// Bind on next tick so the pawn's EnhancedInputComponent exists
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UTidebornInteractComponent::BindInput));
@@ -63,7 +61,6 @@ void UTidebornInteractComponent::BindInput()
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("TidebornInteract: bind deferred/failed (EIC=%d Action=%d)"), EIC != nullptr, InteractAction != nullptr);
-		// Retry once more shortly
 		if (UWorld* World = GetWorld())
 		{
 			FTimerHandle Handle;
@@ -85,6 +82,15 @@ void UTidebornInteractComponent::TryInteract()
 		return;
 	}
 
+	if (UTidebornBuildComponent* Build = Owner->FindComponentByClass<UTidebornBuildComponent>())
+	{
+		if (Build->bBuildMode)
+		{
+			Build->TryCommitPlacement();
+			return;
+		}
+	}
+
 	const FVector Start = Owner->GetActorLocation() + FVector(0.f, 0.f, 60.f);
 	const FVector End = Start + Owner->GetActorForwardVector() * InteractDistance;
 
@@ -96,7 +102,14 @@ void UTidebornInteractComponent::TryInteract()
 
 	if (bHit && Hit.GetActor())
 	{
-		const FString Msg = FString::Printf(TEXT("Tideborn Interact -> %s"), *Hit.GetActor()->GetName());
+		AActor* Target = Hit.GetActor();
+		if (ITidebornInteractable* Interactable = Cast<ITidebornInteractable>(Target))
+		{
+			Interactable->Tideborn_TryInteract(Owner);
+			return;
+		}
+
+		const FString Msg = FString::Printf(TEXT("Tideborn Interact -> %s"), *Target->GetName());
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, Msg);
