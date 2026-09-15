@@ -13,6 +13,8 @@ class TIDEBORN_API ATidebornGatherNode : public AActor, public ITidebornInteract
 public:
 	ATidebornGatherNode();
 
+	virtual void BeginPlay() override;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn")
 	TObjectPtr<UStaticMeshComponent> Mesh;
 

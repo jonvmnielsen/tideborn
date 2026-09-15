@@ -57,20 +57,11 @@ void UTidebornCraftingComponent::BindHotkeys()
 	{
 		PC = GetWorld()->GetFirstPlayerController();
 	}
-	if (!PC)
-	{
-		if (UWorld* World = GetWorld())
-		{
-			FTimerHandle Handle;
-			World->GetTimerManager().SetTimer(Handle, this, &UTidebornCraftingComponent::BindHotkeys, 0.25f, false);
-		}
-		return;
-	}
 
-	UInputComponent* IC = PC->InputComponent;
-	if (!IC)
+	UInputComponent* IC = Pawn ? Pawn->InputComponent : nullptr;
+	if (!IC && PC)
 	{
-		IC = Pawn ? Pawn->InputComponent : nullptr;
+		IC = PC->InputComponent;
 	}
 	if (!IC)
 	{
