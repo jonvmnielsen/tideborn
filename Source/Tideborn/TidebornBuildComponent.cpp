@@ -1,5 +1,6 @@
 ﻿#include "TidebornBuildComponent.h"
 #include "TidebornInventoryComponent.h"
+#include "TidebornCraftingComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Engine/StaticMeshActor.h"
@@ -66,10 +67,36 @@ void UTidebornBuildComponent::ToggleBuildMode()
 		GhostActor->Destroy();
 		GhostActor = nullptr;
 	}
-	if (GEngine)
+
+	UTidebornInventoryComponent* Inv = GetInventory();
+	const int32 Have = Inv ? Inv->CountItem(RequiredItemId) : 0;
+
+	if (bBuildMode)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta,
-			bBuildMode ? TEXT("Tideborn Build ON (E to place, needs Foundation)") : TEXT("Tideborn Build OFF"));
+		// Point craft selection at Foundation so C makes the build piece
+		if (UTidebornCraftingComponent* Craft = GetOwner()->FindComponentByClass<UTidebornCraftingComponent>())
+		{
+			Craft->SelectRecipeById(FName(TEXT("Foundation")));
+		}
+
+		if (GEngine)
+		{
+			if (Have > 0)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Magenta,
+					FString::Printf(TEXT("Build ON: placing %s (you have %d). Aim + E to place. B to cancel."),
+						*RequiredItemId.ToString(), Have));
+			}
+			else
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Orange,
+					TEXT("Build ON but you have 0 Foundation. Gather Wood, then C crafts Foundation (5 Wood). [ ] changes recipe."));
+			}
+		}
+	}
+	else if (GEngine)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta, TEXT("Build OFF"));
 	}
 }
 
@@ -174,7 +201,12 @@ bool UTidebornBuildComponent::TryCommitPlacement()
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Orange, TEXT("Tideborn Build needs Foundation (craft from Wood)"));
+			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Orange,
+				TEXT("Need a Foundation in inventory. Select Foundation with [ ], craft with C (5 Wood)."));
+		}
+		if (UTidebornCraftingComponent* Craft = GetOwner()->FindComponentByClass<UTidebornCraftingComponent>())
+		{
+			Craft->SelectRecipeById(FName(TEXT("Foundation")));
 		}
 		return true;
 	}
@@ -183,9 +215,11 @@ bool UTidebornBuildComponent::TryCommitPlacement()
 	if (Placed)
 	{
 		PlacedActors.Add(Placed);
+		const int32 Left = Inv->CountItem(RequiredItemId);
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta, TEXT("Tideborn Foundation placed"));
+			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Magenta,
+				FString::Printf(TEXT("Foundation placed (%d left)"), Left));
 		}
 	}
 	return true;
