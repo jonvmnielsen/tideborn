@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TidebornInteractable.h"
+#include "Components/BoxComponent.h"
 #include "TidebornGatherNode.generated.h"
 
 UCLASS()
@@ -18,6 +19,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn")
 	TObjectPtr<UStaticMeshComponent> Mesh;
 
+	/** Large hit volume so camera look-at-center gathers reliably */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn")
+	TObjectPtr<UBoxComponent> GatherVolume;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Gather")
 	FName ItemId = FName(TEXT("Wood"));
 
@@ -29,3 +34,4 @@ public:
 
 	virtual bool Tideborn_TryInteract(AActor* Interactor) override;
 };
+

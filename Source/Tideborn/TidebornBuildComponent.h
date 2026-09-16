@@ -5,7 +5,7 @@
 #include "TidebornBuildComponent.generated.h"
 
 class UTidebornInventoryComponent;
-class AStaticMeshActor;
+class ATidebornBuildPiece;
 
 UCLASS(ClassGroup=(Tideborn), meta=(BlueprintSpawnableComponent))
 class TIDEBORN_API UTidebornBuildComponent : public UActorComponent
@@ -22,7 +22,7 @@ public:
 	float SnapSize = 100.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Build")
-	float PlaceDistance = 400.f;
+	float PlaceDistance = 600.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Build")
 	FName RequiredItemId = FName(TEXT("Foundation"));
@@ -41,10 +41,10 @@ public:
 
 private:
 	UPROPERTY()
-	TObjectPtr<AActor> GhostActor;
+	TObjectPtr<ATidebornBuildPiece> GhostActor;
 
 	UPROPERTY()
-	TArray<TObjectPtr<AActor>> PlacedActors;
+	TArray<TObjectPtr<ATidebornBuildPiece>> PlacedActors;
 
 	FTransform GhostTransform;
 	bool bGhostValid = false;
@@ -52,6 +52,7 @@ private:
 	void BindHotkeys();
 	void OnToggleBuildKey();
 	void UpdateGhost();
-	AActor* SpawnBuildPiece(const FTransform& Xform, bool bGhost);
+	ATidebornBuildPiece* SpawnBuildPiece(const FTransform& Xform, bool bGhost);
+	FVector SnapPlaceLocation(const FVector& Raw) const;
 	UTidebornInventoryComponent* GetInventory() const;
 };

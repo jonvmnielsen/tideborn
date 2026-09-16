@@ -16,6 +16,7 @@ public:
 	UTidebornCraftingComponent();
 
 	virtual void BeginPlay() override;
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Craft")
 	TArray<FTidebornRecipe> Recipes;
@@ -41,11 +42,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Tideborn|Craft")
 	void PrintSelected() const;
 
+	UFUNCTION(BlueprintCallable, Category="Tideborn|Craft")
+	void ShowMenu(float Seconds = 20.f);
+
 private:
+	float MenuVisibleUntil = 0.f;
+	float MenuRefreshAccum = 0.f;
+
 	UTidebornInventoryComponent* GetInventory() const;
 	void BindHotkeys();
 	void OnCraftKey();
 	void OnInventoryKey();
 	void OnPrevRecipeKey();
 	void OnNextRecipeKey();
+	void OnScrollUp();
+	void OnScrollDown();
+	void RefreshStickyHud();
 };

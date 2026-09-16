@@ -9,9 +9,8 @@
 
 UTidebornCraftingComponent::UTidebornCraftingComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 
-	// Foundation first so Camp build loop is the default craft target
 	{
 		FTidebornRecipe R;
 		R.RecipeId = FName(TEXT("Foundation"));
@@ -35,7 +34,7 @@ UTidebornCraftingComponent::UTidebornCraftingComponent()
 		Recipes.Add(R);
 	}
 
-	SelectedRecipeIndex = 0; // Foundation
+	SelectedRecipeIndex = 0;
 }
 
 void UTidebornCraftingComponent::BeginPlay()
@@ -44,6 +43,90 @@ void UTidebornCraftingComponent::BeginPlay()
 	if (UWorld* World = GetWorld())
 	{
 		World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UTidebornCraftingComponent::BindHotkeys));
+	}
+	ShowMenu(12.f);
+}
+
+void UTidebornCraftingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	const float Now = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.f;
+	if (Now > MenuVisibleUntil)
+	{
+		return;
+	}
+
+	MenuRefreshAccum += DeltaTime;
+	if (MenuRefreshAccum >= 0.35f)
+	{
+		MenuRefreshAccum = 0.f;
+		RefreshStickyHud();
+	}
+}
+
+void UTidebornCraftingComponent::ShowMenu(float Seconds)
+{
+	if (UWorld* World = GetWorld())
+	{
+		MenuVisibleUntil = World->GetTimeSeconds() + Seconds;
+	}
+	RefreshStickyHud();
+}
+
+void UTidebornCraftingComponent::RefreshStickyHud()
+{
+	if (!GEngine)
+	{
+		return;
+	}
+
+	UTidebornInventoryComponent* Inv = GetInventory();
+	FString InvLine = TEXT("Inv:");
+	bool bAny = false;
+	if (Inv)
+	{
+		for (const FTidebornItemStack& Slot : Inv->Slots)
+		{
+			if (!Slot.IsEmpty())
+			{
+				bAny = true;
+				InvLine += FString::Printf(TEXT(" %sx%d"), *Slot.ItemId.ToString(), Slot.Count);
+			}
+		}
+	}
+	if (!bAny)
+	{
+		InvLine += TEXT(" (empty)");
+	}
+	GEngine->AddOnScreenDebugMessage(92010, 2.f, FColor::Cyan, InvLine);
+
+	if (!Recipes.IsValidIndex(SelectedRecipeIndex))
+	{
+		return;
+	}
+
+	const FTidebornRecipe& R = Recipes[SelectedRecipeIndex];
+	FString Costs;
+	for (const FTidebornItemStack& C : R.Costs)
+	{
+		const int32 Have = Inv ? Inv->CountItem(C.ItemId) : 0;
+		Costs += FString::Printf(TEXT(" %s %d/%d"), *C.ItemId.ToString(), Have, C.Count);
+	}
+
+	const FString Sel = FString::Printf(
+		TEXT("Recipe %d/%d: %s -> %sx%d |%s   (scroll / [ ] cycle, C craft, I refresh)"),
+		SelectedRecipeIndex + 1, Recipes.Num(),
+		*R.RecipeId.ToString(), *R.Output.ItemId.ToString(), R.Output.Count, *Costs);
+	GEngine->AddOnScreenDebugMessage(92011, 2.f, FColor::Yellow, Sel);
+
+	for (int32 i = 0; i < Recipes.Num(); ++i)
+	{
+		const FTidebornRecipe& Row = Recipes[i];
+		const FString Line = FString::Printf(TEXT("%s %d) %s"),
+			(i == SelectedRecipeIndex) ? TEXT(">") : TEXT(" "),
+			i + 1, *Row.RecipeId.ToString());
+		GEngine->AddOnScreenDebugMessage(92020 + i, 2.f, (i == SelectedRecipeIndex) ? FColor::Yellow : FColor::White, Line);
 	}
 }
 
@@ -80,22 +163,20 @@ void UTidebornCraftingComponent::BindHotkeys()
 	IC->BindKey(EKeys::I, IE_Pressed, this, &UTidebornCraftingComponent::OnInventoryKey);
 	IC->BindKey(EKeys::LeftBracket, IE_Pressed, this, &UTidebornCraftingComponent::OnPrevRecipeKey);
 	IC->BindKey(EKeys::RightBracket, IE_Pressed, this, &UTidebornCraftingComponent::OnNextRecipeKey);
-	UE_LOG(LogTemp, Log, TEXT("TidebornCraft: bound C/I/[ /]"));
+	IC->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &UTidebornCraftingComponent::OnScrollUp);
+	IC->BindKey(EKeys::MouseScrollDown, IE_Pressed, this, &UTidebornCraftingComponent::OnScrollDown);
+	UE_LOG(LogTemp, Log, TEXT("TidebornCraft: bound C/I/[ ]/scroll"));
 }
 
 void UTidebornCraftingComponent::OnCraftKey()
 {
+	ShowMenu(20.f);
 	TryCraftSelected();
 }
 
 void UTidebornCraftingComponent::OnInventoryKey()
 {
-	if (UTidebornInventoryComponent* Inv = GetInventory())
-	{
-		Inv->PrintInventory();
-	}
-	PrintRecipes();
-	PrintSelected();
+	ShowMenu(25.f);
 }
 
 void UTidebornCraftingComponent::OnPrevRecipeKey()
@@ -104,6 +185,16 @@ void UTidebornCraftingComponent::OnPrevRecipeKey()
 }
 
 void UTidebornCraftingComponent::OnNextRecipeKey()
+{
+	CycleRecipe(1);
+}
+
+void UTidebornCraftingComponent::OnScrollUp()
+{
+	CycleRecipe(-1);
+}
+
+void UTidebornCraftingComponent::OnScrollDown()
 {
 	CycleRecipe(1);
 }
@@ -119,7 +210,7 @@ void UTidebornCraftingComponent::CycleRecipe(int32 Delta)
 	{
 		SelectedRecipeIndex += Recipes.Num();
 	}
-	PrintSelected();
+	ShowMenu(20.f);
 }
 
 void UTidebornCraftingComponent::SelectRecipeById(FName RecipeId)
@@ -129,7 +220,7 @@ void UTidebornCraftingComponent::SelectRecipeById(FName RecipeId)
 		if (Recipes[i].RecipeId == RecipeId)
 		{
 			SelectedRecipeIndex = i;
-			PrintSelected();
+			ShowMenu(20.f);
 			return;
 		}
 	}
@@ -137,24 +228,12 @@ void UTidebornCraftingComponent::SelectRecipeById(FName RecipeId)
 
 void UTidebornCraftingComponent::PrintSelected() const
 {
-	if (!Recipes.IsValidIndex(SelectedRecipeIndex))
-	{
-		return;
-	}
-	const FTidebornRecipe& R = Recipes[SelectedRecipeIndex];
-	FString Costs;
-	for (const FTidebornItemStack& C : R.Costs)
-	{
-		Costs += FString::Printf(TEXT(" %sx%d"), *C.ItemId.ToString(), C.Count);
-	}
-	const FString Line = FString::Printf(
-		TEXT("Craft selected [%d/%d]: %s -> %s x%d | cost:%s  ( [ ] cycle, C craft )"),
-		SelectedRecipeIndex + 1, Recipes.Num(),
-		*R.RecipeId.ToString(), *R.Output.ItemId.ToString(), R.Output.Count, *Costs);
-	if (GEngine)
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 4.f, FColor::Yellow, Line);
-	}
+	const_cast<UTidebornCraftingComponent*>(this)->RefreshStickyHud();
+}
+
+void UTidebornCraftingComponent::PrintRecipes() const
+{
+	const_cast<UTidebornCraftingComponent*>(this)->RefreshStickyHud();
 }
 
 bool UTidebornCraftingComponent::TryCraft(FName RecipeId)
@@ -175,9 +254,10 @@ bool UTidebornCraftingComponent::TryCraft(FName RecipeId)
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Orange,
-				FString::Printf(TEXT("Need more mats for %s (I shows recipes)"), *RecipeId.ToString()));
+			GEngine->AddOnScreenDebugMessage(92012, 10.f, FColor::Orange,
+				FString::Printf(TEXT("Need more mats for %s"), *RecipeId.ToString()));
 		}
+		ShowMenu(20.f);
 		return false;
 	}
 
@@ -189,9 +269,10 @@ bool UTidebornCraftingComponent::TryCraft(FName RecipeId)
 
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Green,
+		GEngine->AddOnScreenDebugMessage(92012, 10.f, FColor::Green,
 			FString::Printf(TEXT("Crafted %s x%d"), *Found->Output.ItemId.ToString(), Found->Output.Count));
 	}
+	ShowMenu(20.f);
 	return true;
 }
 
@@ -202,23 +283,4 @@ bool UTidebornCraftingComponent::TryCraftSelected()
 		return false;
 	}
 	return TryCraft(Recipes[SelectedRecipeIndex].RecipeId);
-}
-
-void UTidebornCraftingComponent::PrintRecipes() const
-{
-	for (int32 i = 0; i < Recipes.Num(); ++i)
-	{
-		const FTidebornRecipe& R = Recipes[i];
-		FString Line = FString::Printf(TEXT("%s%d) %s -> %s x%d |"),
-			(i == SelectedRecipeIndex) ? TEXT("> ") : TEXT("  "),
-			i + 1, *R.RecipeId.ToString(), *R.Output.ItemId.ToString(), R.Output.Count);
-		for (const FTidebornItemStack& C : R.Costs)
-		{
-			Line += FString::Printf(TEXT(" %s x%d"), *C.ItemId.ToString(), C.Count);
-		}
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, (i == SelectedRecipeIndex) ? FColor::Yellow : FColor::White, Line);
-		}
-	}
 }

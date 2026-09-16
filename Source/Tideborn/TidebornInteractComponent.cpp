@@ -15,7 +15,7 @@
 UTidebornInteractComponent::UTidebornInteractComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-	InteractDistance = 400.f;
+	InteractDistance = 500.f;
 }
 
 void UTidebornInteractComponent::BeginPlay()
@@ -63,7 +63,6 @@ void UTidebornInteractComponent::BindInput()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("TidebornInteract: bind deferred/failed (EIC=%d Action=%d)"), EIC != nullptr, InteractAction != nullptr);
 		if (UWorld* World = GetWorld())
 		{
 			FTimerHandle Handle;
@@ -94,7 +93,6 @@ void UTidebornInteractComponent::TryInteract()
 		}
 	}
 
-	// Trace from the camera (what you look at), not the body facing.
 	FVector CamLoc;
 	FVector Dir = Owner->GetActorForwardVector();
 	if (APawn* Pawn = Cast<APawn>(Owner))
@@ -117,50 +115,71 @@ void UTidebornInteractComponent::TryInteract()
 
 	const FVector TraceEnd = CamLoc + Dir * InteractDistance;
 
-	FHitResult Hit;
 	FCollisionQueryParams Params(SCENE_QUERY_STAT(TidebornInteract), false, Owner);
-	bool bHit = GetWorld()->LineTraceSingleByChannel(Hit, CamLoc, TraceEnd, ECC_Visibility, Params);
-	if (!bHit)
+
+	// Prefer any interactable along the look ray (skip floor/walls if a gather node is behind/along path)
+	TArray<FHitResult> Hits;
+	GetWorld()->LineTraceMultiByChannel(Hits, CamLoc, TraceEnd, ECC_Visibility, Params);
+	if (Hits.Num() == 0)
 	{
-		bHit = GetWorld()->LineTraceSingleByChannel(Hit, CamLoc, TraceEnd, ECC_WorldStatic, Params);
+		GetWorld()->LineTraceMultiByChannel(Hits, CamLoc, TraceEnd, ECC_WorldStatic, Params);
 	}
 
-	// Debug draw from the character forward along the *same* look direction —
-	// never from the camera origin (that draws a fat blob into your face).
+	AActor* InteractableHit = nullptr;
+	AActor* FirstHit = nullptr;
+	FVector HitPoint = TraceEnd;
+	for (const FHitResult& H : Hits)
+	{
+		AActor* A = H.GetActor();
+		if (!A)
+		{
+			continue;
+		}
+		if (!FirstHit)
+		{
+			FirstHit = A;
+			HitPoint = H.ImpactPoint;
+		}
+		if (Cast<ITidebornInteractable>(A))
+		{
+			InteractableHit = A;
+			HitPoint = H.ImpactPoint;
+			break;
+		}
+	}
+
 	const FVector DebugStart = Owner->GetActorLocation() + FVector(0.f, 0.f, 70.f);
-	const FVector DebugEnd = DebugStart + Dir * InteractDistance;
-	DrawDebugLine(GetWorld(), DebugStart, DebugEnd, bHit ? FColor::Green : FColor::Red, false, 1.0f, 0, 2.f);
-	if (bHit)
+	DrawDebugLine(GetWorld(), DebugStart, DebugStart + Dir * InteractDistance, InteractableHit ? FColor::Green : FColor::Red, false, 1.0f, 0, 2.f);
+	if (InteractableHit || FirstHit)
 	{
-		DrawDebugPoint(GetWorld(), Hit.ImpactPoint, 12.f, FColor::Yellow, false, 1.0f);
+		DrawDebugPoint(GetWorld(), HitPoint, 14.f, FColor::Yellow, false, 1.0f);
 	}
 
-	AActor* Target = bHit ? Hit.GetActor() : nullptr;
-
-	auto TryCallInteractable = [&](AActor* Candidate) -> bool
+	auto TryCall = [&](AActor* Candidate) -> bool
 	{
 		if (!Candidate)
 		{
 			return false;
 		}
-		if (ITidebornInteractable* Interactable = Cast<ITidebornInteractable>(Candidate))
+		if (ITidebornInteractable* I = Cast<ITidebornInteractable>(Candidate))
 		{
-			Interactable->Tideborn_TryInteract(Owner);
+			I->Tideborn_TryInteract(Owner);
 			return true;
 		}
 		return false;
 	};
 
-	if (TryCallInteractable(Target))
+	if (TryCall(InteractableHit))
 	{
 		return;
 	}
 
-	// Soft fallback: nearest gather node near the look point (no orange sphere spam)
-	const FVector Probe = CamLoc + Dir * 180.f;
+	// Sphere around look point — catches pillars when crosshair is on upper body but ray grazed floor
+	const FVector Probe = CamLoc + Dir * 220.f;
 	TArray<FOverlapResult> Overlaps;
-	FCollisionShape Sphere = FCollisionShape::MakeSphere(160.f);
+	FCollisionShape Sphere = FCollisionShape::MakeSphere(220.f);
 	FCollisionQueryParams OverlapParams(SCENE_QUERY_STAT(TidebornInteractOverlap), false, Owner);
+	GetWorld()->OverlapMultiByChannel(Overlaps, Probe, FQuat::Identity, ECC_Visibility, Sphere, OverlapParams);
 	GetWorld()->OverlapMultiByChannel(Overlaps, Probe, FQuat::Identity, ECC_WorldStatic, Sphere, OverlapParams);
 
 	AActor* Best = nullptr;
@@ -180,21 +199,18 @@ void UTidebornInteractComponent::TryInteract()
 		}
 	}
 
-	if (TryCallInteractable(Best))
+	if (TryCall(Best))
 	{
 		return;
 	}
 
-	if (Target)
+	if (FirstHit && GEngine)
 	{
-		const FString Msg = FString::Printf(TEXT("Tideborn Interact -> %s (not gatherable)"), *Target->GetName());
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, Msg);
-		}
+		GEngine->AddOnScreenDebugMessage(91002, 6.f, FColor::Cyan,
+			FString::Printf(TEXT("Look at a gather pillar (hit %s)"), *FirstHit->GetName()));
 	}
 	else if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Yellow, TEXT("Tideborn Interact -> look at a gather pillar + E"));
+		GEngine->AddOnScreenDebugMessage(91002, 6.f, FColor::Yellow, TEXT("No gather target — aim nearer a pillar"));
 	}
 }

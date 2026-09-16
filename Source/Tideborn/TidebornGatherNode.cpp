@@ -1,6 +1,7 @@
 ﻿#include "TidebornGatherNode.h"
 #include "TidebornInventoryComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/BoxComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
@@ -20,15 +21,24 @@ ATidebornGatherNode::ATidebornGatherNode()
 	}
 	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	Mesh->SetGenerateOverlapEvents(true);
-	Mesh->SetCanEverAffectNavigation(false);
+
+	GatherVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("GatherVolume"));
+	GatherVolume->SetupAttachment(RootComponent);
+	// Generous volume in local space (mesh will be scaled tall in BeginPlay)
+	GatherVolume->SetBoxExtent(FVector(80.f, 80.f, 120.f));
+	GatherVolume->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	GatherVolume->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	GatherVolume->SetCollisionResponseToAllChannels(ECR_Block);
+	GatherVolume->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
+	GatherVolume->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
+	GatherVolume->SetHiddenInGame(true);
 }
 
 void ATidebornGatherNode::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Tall bright pillar so it is not confused with level greybox
-	SetActorScale3D(FVector(0.8f, 0.8f, 2.2f));
+	SetActorScale3D(FVector(0.9f, 0.9f, 2.4f));
 
 	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
 	{
@@ -56,9 +66,8 @@ bool ATidebornGatherNode::Tideborn_TryInteract(AActor* Interactor)
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("Tideborn: NO inventory on character — reopen map / recompile"));
+			GEngine->AddOnScreenDebugMessage(91001, 8.f, FColor::Red, TEXT("Tideborn: NO inventory on character"));
 		}
-		UE_LOG(LogTemp, Error, TEXT("TidebornGather: interactor has no UTidebornInventoryComponent"));
 		return true;
 	}
 
@@ -66,18 +75,18 @@ bool ATidebornGatherNode::Tideborn_TryInteract(AActor* Interactor)
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Tideborn: inventory full"));
+			GEngine->AddOnScreenDebugMessage(91001, 6.f, FColor::Red, TEXT("Tideborn: inventory full"));
 		}
 		return true;
 	}
 
 	--RemainingUses;
-	const FString Msg = FString::Printf(TEXT("Tideborn Gathered %s x%d (left %d)"), *ItemId.ToString(), AmountPerGather, RemainingUses);
+	const FString Msg = FString::Printf(TEXT("Gathered %s x%d (node left %d)"), *ItemId.ToString(), AmountPerGather, RemainingUses);
 	if (GEngine)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Green, Msg);
+		GEngine->AddOnScreenDebugMessage(91001, 8.f, FColor::Green, Msg);
 	}
-	UE_LOG(LogTemp, Log, TEXT("%s"), *Msg);
+	UE_LOG(LogTemp, Log, TEXT("Tideborn %s"), *Msg);
 
 	if (RemainingUses <= 0)
 	{
@@ -85,4 +94,3 @@ bool ATidebornGatherNode::Tideborn_TryInteract(AActor* Interactor)
 	}
 	return true;
 }
-
