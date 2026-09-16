@@ -34,6 +34,14 @@ UTidebornCraftingComponent::UTidebornCraftingComponent()
 		Recipes.Add(R);
 	}
 
+		{
+		FTidebornRecipe R;
+		R.RecipeId = FName(TEXT("KelpBait"));
+		R.Costs.Add({FName(TEXT("Stick")), 1});
+		R.Costs.Add({FName(TEXT("Stone")), 1});
+		R.Output = {FName(TEXT("KelpBait")), 1};
+		Recipes.Add(R);
+	}
 	SelectedRecipeIndex = 0;
 }
 
@@ -284,3 +292,4 @@ bool UTidebornCraftingComponent::TryCraftSelected()
 	}
 	return TryCraft(Recipes[SelectedRecipeIndex].RecipeId);
 }
+

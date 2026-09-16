@@ -1,18 +1,15 @@
-﻿# Phase 1 — Camp (greybox)
+﻿# Phase 1 — Camp
 
-## What this proves
-Gather → craft → place a snapped foundation → save/load.
+**Status:** EXITED (good enough) — 2026-09-16  
+Jon: works somewhat okay; not polished. Polish backlog OK later.
 
-## Controls
-- **E** — Gather / place (in build mode)
-- **Mouse wheel** (or **[ ]**) — Cycle craft recipe
-- **C** — Craft selected recipe
-- **I** — Keep inventory/recipe HUD up longer
-- **B** — Build mode (Foundation only) → **E** place
-- **F5 / F9** — Save / load
+## Delivered
+- Gather Wood/Stone nodes
+- Inventory + craft (scroll / [ ] select, C craft)
+- Foundation snap build (visible slabs)
+- Save/load F5/F9
 
-## Loop
-1. Aim at a gather pillar (center is fine) + E until 5+ Wood
-2. Scroll to **Foundation**, press **C**
-3. **B**, aim at ground, **E** — brown slab should appear
-4. F5 / F9
+## Known rough edges (backlog)
+- Build menu is Foundation-only
+- Debug lines / HUD still greybox
+- Gather aim / craft UX can improve
