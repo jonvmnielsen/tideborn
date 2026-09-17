@@ -1,10 +1,8 @@
 #include "TidebornGatherNode.h"
 #include "TidebornInventoryComponent.h"
-#include "TidebornNameTagComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Engine/StaticMesh.h"
-#include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
 
@@ -14,18 +12,19 @@ ATidebornGatherNode::ATidebornGatherNode()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	RootComponent = Mesh;
-
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
-	{
-		Mesh->SetStaticMesh(CubeMesh.Object);
-	}
 	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	Mesh->SetGenerateOverlapEvents(true);
 
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> WoodMesh(TEXT("/Game/Tideborn/Meshes/SM_WoodStump.SM_WoodStump"));
+	if (WoodMesh.Succeeded())
+	{
+		Mesh->SetStaticMesh(WoodMesh.Object);
+	}
+
 	GatherVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("GatherVolume"));
 	GatherVolume->SetupAttachment(RootComponent);
-	GatherVolume->SetBoxExtent(FVector(80.f, 80.f, 120.f));
+	GatherVolume->SetBoxExtent(FVector(90.f, 90.f, 100.f));
+	GatherVolume->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	GatherVolume->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GatherVolume->SetCollisionResponseToAllChannels(ECR_Block);
 	GatherVolume->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -38,44 +37,21 @@ void ATidebornGatherNode::BeginPlay()
 	Super::BeginPlay();
 
 	const bool bStone = (ItemId == FName(TEXT("Stone")));
-
-	// Silhouette: wood = stump/cylinder; stone = flatter wider slab (not color-only)
 	if (bStone)
 	{
-		SetActorScale3D(FVector(1.6f, 1.6f, 0.55f));
-		GatherVolume->SetBoxExtent(FVector(100.f, 100.f, 70.f));
+		if (UStaticMesh* Stone = LoadObject<UStaticMesh>(nullptr, TEXT("/Game/Tideborn/Meshes/SM_StoneCluster.SM_StoneCluster")))
+		{
+			Mesh->SetStaticMesh(Stone);
+		}
+		SetActorScale3D(FVector(1.f));
+		GatherVolume->SetBoxExtent(FVector(110.f, 110.f, 70.f));
+		GatherVolume->SetRelativeLocation(FVector(0.f, 0.f, 40.f));
 	}
 	else
 	{
-		UStaticMesh* Cylinder = LoadObject<UStaticMesh>(nullptr, TEXT("/Engine/BasicShapes/Cylinder.Cylinder"));
-		if (Cylinder)
-		{
-			Mesh->SetStaticMesh(Cylinder);
-		}
-		SetActorScale3D(FVector(0.85f, 0.85f, 1.6f));
-		GatherVolume->SetBoxExtent(FVector(70.f, 70.f, 110.f));
-	}
-
-	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
-	{
-		if (UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this))
-		{
-			const FLinearColor Color = bStone
-				? FLinearColor(0.55f, 0.55f, 0.6f)
-				: FLinearColor(1.f, 0.45f, 0.05f);
-			Dyn->SetVectorParameterValue(TEXT("Color"), Color);
-			Mesh->SetMaterial(0, Dyn);
-		}
-	}
-
-	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
-	{
-		Tag->HeightOffset = bStone ? 90.f : 140.f;
-		Tag->Title = bStone ? TEXT("Stone Node  [Resource]") : TEXT("Wood Node  [Resource]");
-		Tag->Subtitle = TEXT("Resource — Press E to gather");
-		Tag->TitleColor = bStone ? FColor(180, 180, 200) : FColor(255, 160, 40);
-		AddInstanceComponent(Tag);
-		Tag->RegisterComponent();
+		SetActorScale3D(FVector(1.f));
+		GatherVolume->SetBoxExtent(FVector(90.f, 90.f, 100.f));
+		GatherVolume->SetRelativeLocation(FVector(0.f, 0.f, 60.f));
 	}
 }
 

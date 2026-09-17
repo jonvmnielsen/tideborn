@@ -3,14 +3,11 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMesh.h"
-#include "Materials/MaterialInstanceDynamic.h"
 #include "UObject/ConstructorHelpers.h"
-#include "Engine/Engine.h"
-#include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 #include "EngineUtils.h"
-#include "TidebornNameTagComponent.h"
+#include "Engine/Engine.h"
 
 ATidebornShoreGate::ATidebornShoreGate()
 {
@@ -18,27 +15,25 @@ ATidebornShoreGate::ATidebornShoreGate()
 
 	BlockVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("BlockVolume"));
 	SetRootComponent(BlockVolume);
-	// Wider / taller blocking volume for vista landmark silhouette
-	BlockVolume->SetBoxExtent(FVector(140.f, 420.f, 320.f));
+	BlockVolume->SetBoxExtent(FVector(220.f, 80.f, 220.f));
 	BlockVolume->SetCollisionProfileName(TEXT("BlockAll"));
 
 	GateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GateMesh"));
 	GateMesh->SetupAttachment(RootComponent);
 	GateMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GateSM(TEXT("/Game/Tideborn/Meshes/SM_ShoreGate.SM_ShoreGate"));
+	if (GateSM.Succeeded())
 	{
-		GateMesh->SetStaticMesh(CubeMesh.Object);
-		// Taller + wider than prior greybox so it reads as a vista from spawn
-		GateMesh->SetRelativeScale3D(FVector(0.7f, 8.5f, 6.5f));
+		GateMesh->SetStaticMesh(GateSM.Object);
+		GateMesh->SetRelativeLocation(FVector(0.f, 0.f, -220.f));
 	}
 
 	VistaLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("VistaLight"));
 	VistaLight->SetupAttachment(RootComponent);
-	VistaLight->SetRelativeLocation(FVector(0.f, 0.f, 420.f));
-	VistaLight->SetLightColor(FLinearColor(0.2f, 0.95f, 1.f));
+	VistaLight->SetRelativeLocation(FVector(0.f, 0.f, 320.f));
+	VistaLight->SetLightColor(FLinearColor(0.2f, 0.85f, 1.f));
 	VistaLight->SetIntensity(8000.f);
-	VistaLight->SetAttenuationRadius(3200.f);
+	VistaLight->SetAttenuationRadius(4500.f);
 	VistaLight->SetCastShadows(false);
 }
 
@@ -46,25 +41,6 @@ void ATidebornShoreGate::BeginPlay()
 {
 	Super::BeginPlay();
 	SetGateOpen(false);
-	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
-	{
-		if (UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this))
-		{
-			Dyn->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.35f, 0.4f, 0.55f));
-			GateMesh->SetMaterial(0, Dyn);
-		}
-	}
-
-	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
-	{
-		Tag->HeightOffset = 360.f;
-		Tag->TitleSize = 80.f;
-		Tag->TitleColor = FColor(120, 220, 255);
-		Tag->Title = TEXT("SHORE GATE");
-		Tag->Subtitle = TEXT("Landmark — opens with a TAMED Kelp-back nearby");
-		AddInstanceComponent(Tag);
-		Tag->RegisterComponent();
-	}
 }
 
 bool ATidebornShoreGate::HasTamedCompanionNearPlayer() const
@@ -100,11 +76,10 @@ void ATidebornShoreGate::SetGateOpen(bool bShouldOpen)
 	if (bOpen)
 	{
 		BlockVolume->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		SetActorHiddenInGame(false);
 		GateMesh->SetVisibility(false);
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(95001, 10.f, FColor::Cyan, TEXT("Shore Gate OPEN — tamed companion nearby"));
+			GEngine->AddOnScreenDebugMessage(95001, 10.f, FColor::Cyan, TEXT("Shore Gate OPEN - tamed companion nearby"));
 		}
 	}
 	else
@@ -114,7 +89,7 @@ void ATidebornShoreGate::SetGateOpen(bool bShouldOpen)
 		GateMesh->SetVisibility(true);
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(95001, 6.f, FColor::Orange, TEXT("Shore Gate CLOSED — bring a tamed Kelp-back"));
+			GEngine->AddOnScreenDebugMessage(95001, 6.f, FColor::Orange, TEXT("Shore Gate CLOSED - bring a tamed Kelp-back"));
 		}
 	}
 }

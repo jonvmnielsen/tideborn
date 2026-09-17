@@ -1,4 +1,4 @@
-﻿#include "TidebornCreature.h"
+#include "TidebornCreature.h"
 #include "TidebornInventoryComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -9,7 +9,6 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
-#include "TidebornNameTagComponent.h"
 
 ATidebornCreature::ATidebornCreature()
 {
@@ -21,14 +20,6 @@ ATidebornCreature::ATidebornCreature()
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
 	BodyMesh->SetupAttachment(GetRootComponent());
 	BodyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
-	{
-		BodyMesh->SetStaticMesh(CubeMesh.Object);
-		BodyMesh->SetRelativeScale3D(FVector(0.7f, 1.1f, 0.55f));
-		BodyMesh->SetRelativeLocation(FVector(0.f, 0.f, -20.f));
-	}
-	// Stash for BeginPlay color
 	BodyMesh->ComponentTags.Add(FName(TEXT("TidebornBody")));
 
 	GetCharacterMovement()->MaxWalkSpeed = 380.f;
@@ -40,47 +31,6 @@ void ATidebornCreature::BeginPlay()
 {
 	Super::BeginPlay();
 	Health = MaxHealth;
-	ApplyBodyColor();
-
-	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
-	{
-		Tag->HeightOffset = 150.f;
-		if (CreatureRole == ETidebornCreatureRole::Threat)
-		{
-			Tag->TitleColor = FColor(255, 80, 60);
-			Tag->Title = DisplayName.ToString() + TEXT("  [Hostile]");
-			Tag->Subtitle = TEXT("Hostile — low wide silhouette; keep distance");
-		}
-		else
-		{
-			Tag->TitleColor = FColor(80, 200, 255);
-			Tag->Title = DisplayName.ToString() + TEXT("  [Tameable]");
-			Tag->Subtitle = TEXT("Tameable — E: feed KelpBait x3");
-		}
-		AddInstanceComponent(Tag);
-		Tag->RegisterComponent();
-	}
-}
-
-void ATidebornCreature::ApplyBodyColor()
-{
-	TArray<UStaticMeshComponent*> Meshes;
-	GetComponents<UStaticMeshComponent>(Meshes);
-	for (UStaticMeshComponent* M : Meshes)
-	{
-		if (!M || !M->ComponentHasTag(FName(TEXT("TidebornBody"))))
-		{
-			continue;
-		}
-		if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
-		{
-			if (UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this))
-			{
-				Dyn->SetVectorParameterValue(TEXT("Color"), BodyColor);
-				M->SetMaterial(0, Dyn);
-			}
-		}
-	}
 }
 
 APawn* ATidebornCreature::FindPlayerPawn() const
@@ -122,7 +72,6 @@ void ATidebornCreature::TickThreat(float DeltaSeconds)
 	if (Dist <= AttackRange && AttackCooldownLeft <= 0.f)
 	{
 		AttackCooldownLeft = AttackCooldown;
-		// Soft pressure: on-screen sting + slight launch — no full damage system yet
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(94001, 1.5f, FColor::Red,
@@ -187,13 +136,11 @@ bool ATidebornCreature::TryFeed(AActor* Interactor)
 	if (FeedsReceived >= FeedsNeededToTame)
 	{
 		bTamed = true;
-		BodyColor = FLinearColor(0.3f, 0.85f, 0.55f);
-		ApplyBodyColor();
 		GetCharacterMovement()->MaxWalkSpeed = 420.f;
 		if (GEngine)
 		{
 			GEngine->AddOnScreenDebugMessage(94004, 12.f, FColor::Cyan,
-				FString::Printf(TEXT("%s TAMED — it will follow. Approach the Shore Gate."), *DisplayName.ToString()));
+				FString::Printf(TEXT("%s TAMED - it will follow. Approach the Shore Gate."), *DisplayName.ToString()));
 		}
 	}
 	return true;
@@ -208,7 +155,7 @@ bool ATidebornCreature::Tideborn_TryInteract(AActor* Interactor)
 			if (GEngine)
 			{
 				GEngine->AddOnScreenDebugMessage(94003, 6.f, FColor::Cyan,
-					FString::Printf(TEXT("%s is tamed and following — use it at the Shore Gate"), *DisplayName.ToString()));
+					FString::Printf(TEXT("%s is tamed and following - use it at the Shore Gate"), *DisplayName.ToString()));
 			}
 			return true;
 		}
@@ -218,10 +165,7 @@ bool ATidebornCreature::Tideborn_TryInteract(AActor* Interactor)
 	if (GEngine)
 	{
 		GEngine->AddOnScreenDebugMessage(94003, 4.f, FColor::Red,
-			FString::Printf(TEXT("%s is hostile — stay clear or kite"), *DisplayName.ToString()));
+			FString::Printf(TEXT("%s is hostile - stay clear or kite"), *DisplayName.ToString()));
 	}
 	return true;
 }
-
-
-

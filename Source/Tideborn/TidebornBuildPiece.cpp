@@ -1,4 +1,4 @@
-﻿#include "TidebornBuildPiece.h"
+#include "TidebornBuildPiece.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -13,13 +13,21 @@ ATidebornBuildPiece::ATidebornBuildPiece()
 	Mesh->SetMobility(EComponentMobility::Movable);
 	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> FoundMesh(TEXT("/Game/Tideborn/Meshes/SM_Foundation.SM_Foundation"));
+	if (FoundMesh.Succeeded())
 	{
-		Mesh->SetStaticMesh(CubeMesh.Object);
+		Mesh->SetStaticMesh(FoundMesh.Object);
+		Mesh->SetRelativeScale3D(FVector(1.f));
 	}
-	// Wide flat foundation: 200x200x20 uu visually via scale on 100uu cube
-	Mesh->SetRelativeScale3D(FVector(2.0f, 2.0f, 0.25f));
+	else
+	{
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
+		if (CubeMesh.Succeeded())
+		{
+			Mesh->SetStaticMesh(CubeMesh.Object);
+			Mesh->SetRelativeScale3D(FVector(2.0f, 2.0f, 0.25f));
+		}
+	}
 }
 
 void ATidebornBuildPiece::ConfigureAsGhost()
@@ -48,12 +56,9 @@ void ATidebornBuildPiece::ConfigureAsPlaced()
 	}
 	Mesh->SetCollisionProfileName(TEXT("BlockAll"));
 	SetActorEnableCollision(true);
-	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
+	// Keep imported wood materials when available
+	if (UMaterialInterface* Plank = LoadObject<UMaterialInterface>(nullptr, TEXT("/Game/Tideborn/Meshes/M_Plank.M_Plank")))
 	{
-		if (UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this))
-		{
-			Dyn->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.55f, 0.4f, 0.22f));
-			Mesh->SetMaterial(0, Dyn);
-		}
+		Mesh->SetMaterial(0, Plank);
 	}
 }

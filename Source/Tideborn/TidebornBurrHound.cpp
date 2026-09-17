@@ -13,26 +13,18 @@ ATidebornBurrHound::ATidebornBurrHound()
 	AggroRadius = 1000.f;
 	AttackRange = 130.f;
 	AttackDamage = 10.f;
-	BodyColor = FLinearColor(0.55f, 0.2f, 0.15f);
 	GetCharacterMovement()->MaxWalkSpeed = 460.f;
 
-	// Low, wide body + short head cube (silhouette ≠ Kelp-back)
-	GetCapsuleComponent()->InitCapsuleSize(55.f, 48.f);
+	GetCapsuleComponent()->InitCapsuleSize(55.f, 55.f);
 	if (BodyMesh)
 	{
-		BodyMesh->SetRelativeScale3D(FVector(1.35f, 1.9f, 0.45f));
-		BodyMesh->SetRelativeLocation(FVector(0.f, 0.f, -10.f));
-	}
-
-	HeadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HeadMesh"));
-	HeadMesh->SetupAttachment(GetRootComponent());
-	HeadMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HeadMesh->ComponentTags.Add(FName(TEXT("TidebornBody")));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
-	if (CubeMesh.Succeeded())
-	{
-		HeadMesh->SetStaticMesh(CubeMesh.Object);
-		HeadMesh->SetRelativeScale3D(FVector(0.55f, 0.55f, 0.45f));
-		HeadMesh->SetRelativeLocation(FVector(55.f, 0.f, 10.f));
+		static ConstructorHelpers::FObjectFinder<UStaticMesh> HoundMesh(TEXT("/Game/Tideborn/Meshes/SM_BurrHound.SM_BurrHound"));
+		if (HoundMesh.Succeeded())
+		{
+			BodyMesh->SetStaticMesh(HoundMesh.Object);
+		}
+		BodyMesh->SetRelativeScale3D(FVector(1.f));
+		BodyMesh->SetRelativeLocation(FVector(0.f, 0.f, -55.f));
+		BodyMesh->SetRelativeRotation(FRotator(0.f, -90.f, 0.f));
 	}
 }

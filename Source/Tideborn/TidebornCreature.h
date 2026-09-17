@@ -74,12 +74,9 @@ public:
 
 protected:
 	float AttackCooldownLeft = 0.f;
-	FLinearColor BodyColor = FLinearColor::White;
 
-	void ApplyBodyColor();
 	APawn* FindPlayerPawn() const;
 	void TickThreat(float DeltaSeconds);
 	void TickFollow(float DeltaSeconds);
 	bool TryFeed(AActor* Interactor);
 };
-
