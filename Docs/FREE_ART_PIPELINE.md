@@ -29,3 +29,14 @@ Fab browser checking was inconclusive. The local Epic vault is empty, and no cla
 ## PIE playtest note
 
 Open `Content/ThirdPerson/Maps/ThirdPersonMap` and press **Play In Editor**. Start at the existing PlayerStart and look toward the shore/building area for the imported sample props, updated shore materials, HDRI/skylight, and fog. If `Content/Tideborn/Art` is still empty, run `Tools/art/import_cc0_to_ue.py` once in Unreal Editor-Cmd first, then reopen the map and PIE.
+
+## Import status (2026-09-17)
+
+Imported on Jons-PC into `Content/Tideborn/Art`:
+- Materials: `M_Tideborn_RockShore`, `RockBoulder`, `Sand`, `Bark`, `Wood`, `Ground`, ACG variants
+- Meshes: `boulder_01_1k`, `coast_land_rocks_02_1k`, `coast_land_rocks_03_1k`, `dead_tree_trunk_1k`
+- HDRI: `PH_industrial_sunset_puresky`
+
+Fab/Megascans: skipped for now (Epic sign-in declined). CC0-only path.
+
+Playtest: open ThirdPersonMap, PIE near spawn — look for TidebornShore_* rocks/trunk and warmer directional light.
