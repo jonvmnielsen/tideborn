@@ -1,7 +1,6 @@
 ﻿#include "TidebornBuildComponent.h"
 #include "TidebornBuildPiece.h"
 #include "TidebornInventoryComponent.h"
-#include "TidebornCraftingComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
 #include "Components/InputComponent.h"
@@ -32,7 +31,6 @@ void UTidebornBuildComponent::BindHotkeys()
 	{
 		PC = GetWorld()->GetFirstPlayerController();
 	}
-
 	UInputComponent* IC = Pawn ? Pawn->InputComponent : nullptr;
 	if (!IC && PC)
 	{
@@ -48,13 +46,29 @@ void UTidebornBuildComponent::BindHotkeys()
 		return;
 	}
 
-	IC->BindKey(EKeys::B, IE_Pressed, this, &UTidebornBuildComponent::OnToggleBuildKey);
-	UE_LOG(LogTemp, Log, TEXT("TidebornBuild: bound B"));
+	IC->BindKey(EKeys::LeftMouseButton, IE_Pressed, this, &UTidebornBuildComponent::OnPlaceClick);
+	IC->BindKey(EKeys::RightMouseButton, IE_Pressed, this, &UTidebornBuildComponent::OnCancelClick);
+	UE_LOG(LogTemp, Log, TEXT("TidebornBuild: bound LMB place / RMB cancel"));
 }
 
-void UTidebornBuildComponent::OnToggleBuildKey()
+void UTidebornBuildComponent::OnPlaceClick()
 {
-	ToggleBuildMode();
+	if (bPlaceMode)
+	{
+		TryCommitPlacement();
+	}
+}
+
+void UTidebornBuildComponent::OnCancelClick()
+{
+	if (bPlaceMode)
+	{
+		CancelPlaceMode();
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(93001, 3.f, FColor::Magenta, TEXT("Place cancelled"));
+		}
+	}
 }
 
 FVector UTidebornBuildComponent::SnapPlaceLocation(const FVector& Raw) const
@@ -62,54 +76,39 @@ FVector UTidebornBuildComponent::SnapPlaceLocation(const FVector& Raw) const
 	FVector PlaceLoc = Raw;
 	PlaceLoc.X = FMath::GridSnap(PlaceLoc.X, SnapSize);
 	PlaceLoc.Y = FMath::GridSnap(PlaceLoc.Y, SnapSize);
-	// Keep Z near the hit surface, then lift so the slab sits on top (cube*0.25 scale => ~12.5uu half-height on 100uu mesh... scale Z 0.25 => 25uu tall, half = 12.5)
 	PlaceLoc.Z = Raw.Z + 15.f;
 	return PlaceLoc;
 }
 
-void UTidebornBuildComponent::ToggleBuildMode()
+void UTidebornBuildComponent::BeginPlaceMode(FName PieceId)
 {
-	bBuildMode = !bBuildMode;
-	if (!bBuildMode && GhostActor)
-	{
-		GhostActor->Destroy();
-		GhostActor = nullptr;
-	}
+	RequiredItemId = PieceId.IsNone() ? FName(TEXT("Foundation")) : PieceId;
+	bPlaceMode = true;
 
 	UTidebornInventoryComponent* Inv = GetInventory();
 	const int32 Have = Inv ? Inv->CountItem(RequiredItemId) : 0;
-
-	if (bBuildMode)
+	if (GEngine)
 	{
-		if (UTidebornCraftingComponent* Craft = GetOwner()->FindComponentByClass<UTidebornCraftingComponent>())
-		{
-			Craft->SelectRecipeById(FName(TEXT("Foundation")));
-		}
-
-		if (GEngine)
-		{
-			if (Have > 0)
-			{
-				GEngine->AddOnScreenDebugMessage(93001, 12.f, FColor::Magenta,
-					FString::Printf(TEXT("Build ON: %s x%d — aim at ground, E to place, B cancel"), *RequiredItemId.ToString(), Have));
-			}
-			else
-			{
-				GEngine->AddOnScreenDebugMessage(93001, 12.f, FColor::Orange,
-					TEXT("Build ON — 0 Foundation. Scroll to Foundation, C craft (5 Wood), then E to place."));
-			}
-		}
+		GEngine->AddOnScreenDebugMessage(93001, 8.f, Have > 0 ? FColor::Magenta : FColor::Orange,
+			FString::Printf(TEXT("Placing %s (owned %d). WASD+look, LMB place, RMB cancel."),
+				*RequiredItemId.ToString(), Have));
 	}
-	else if (GEngine)
+}
+
+void UTidebornBuildComponent::CancelPlaceMode()
+{
+	bPlaceMode = false;
+	if (GhostActor)
 	{
-		GEngine->AddOnScreenDebugMessage(93001, 3.f, FColor::Magenta, TEXT("Build OFF"));
+		GhostActor->Destroy();
+		GhostActor = nullptr;
 	}
 }
 
 void UTidebornBuildComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (bBuildMode)
+	if (bPlaceMode)
 	{
 		UpdateGhost();
 	}
@@ -133,10 +132,8 @@ ATidebornBuildPiece* UTidebornBuildComponent::SpawnBuildPiece(const FTransform& 
 	ATidebornBuildPiece* Piece = World->SpawnActor<ATidebornBuildPiece>(ATidebornBuildPiece::StaticClass(), Xform, Params);
 	if (!Piece)
 	{
-		UE_LOG(LogTemp, Error, TEXT("TidebornBuild: SpawnBuildPiece failed"));
 		return nullptr;
 	}
-
 	if (bGhost)
 	{
 		Piece->ConfigureAsGhost();
@@ -197,7 +194,7 @@ void UTidebornBuildComponent::UpdateGhost()
 
 bool UTidebornBuildComponent::TryCommitPlacement()
 {
-	if (!bBuildMode)
+	if (!bPlaceMode)
 	{
 		return false;
 	}
@@ -207,12 +204,8 @@ bool UTidebornBuildComponent::TryCommitPlacement()
 	{
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(93002, 10.f, FColor::Orange,
-				TEXT("Need Foundation. Scroll recipes, C to craft (5 Wood)."));
-		}
-		if (UTidebornCraftingComponent* Craft = GetOwner()->FindComponentByClass<UTidebornCraftingComponent>())
-		{
-			Craft->SelectRecipeById(FName(TEXT("Foundation")));
+			GEngine->AddOnScreenDebugMessage(93002, 8.f, FColor::Orange,
+				TEXT("Need a Foundation item — open Inventory (I) and craft from 5 Wood."));
 		}
 		return true;
 	}
@@ -224,16 +217,13 @@ bool UTidebornBuildComponent::TryCommitPlacement()
 		const int32 Left = Inv->CountItem(RequiredItemId);
 		if (GEngine)
 		{
-			GEngine->AddOnScreenDebugMessage(93002, 8.f, FColor::Magenta,
-				FString::Printf(TEXT("Foundation placed at %s (%d left)"), *GhostTransform.GetLocation().ToCompactString(), Left));
+			GEngine->AddOnScreenDebugMessage(93002, 6.f, FColor::Magenta,
+				FString::Printf(TEXT("Placed %s (%d left). LMB place another, RMB stop."), *RequiredItemId.ToString(), Left));
 		}
-		UE_LOG(LogTemp, Log, TEXT("TidebornBuild: placed foundation at %s"), *GhostTransform.GetLocation().ToString());
 	}
-	else if (GEngine)
+	else
 	{
-		// refund
 		Inv->AddItem(RequiredItemId, 1);
-		GEngine->AddOnScreenDebugMessage(93002, 8.f, FColor::Red, TEXT("Foundation spawn failed — item refunded"));
 	}
 	return true;
 }

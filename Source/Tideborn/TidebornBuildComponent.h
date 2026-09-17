@@ -27,11 +27,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Build")
 	FName RequiredItemId = FName(TEXT("Foundation"));
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn|Build")
-	bool bBuildMode = false;
+	UFUNCTION(BlueprintCallable, Category="Tideborn|Build")
+	void BeginPlaceMode(FName PieceId);
 
 	UFUNCTION(BlueprintCallable, Category="Tideborn|Build")
-	void ToggleBuildMode();
+	void CancelPlaceMode();
+
+	UFUNCTION(BlueprintCallable, Category="Tideborn|Build")
+	bool IsPlaceMode() const { return bPlaceMode; }
 
 	UFUNCTION(BlueprintCallable, Category="Tideborn|Build")
 	bool TryCommitPlacement();
@@ -47,10 +50,12 @@ private:
 	TArray<TObjectPtr<ATidebornBuildPiece>> PlacedActors;
 
 	FTransform GhostTransform;
+	bool bPlaceMode = false;
 	bool bGhostValid = false;
 
 	void BindHotkeys();
-	void OnToggleBuildKey();
+	void OnPlaceClick();
+	void OnCancelClick();
 	void UpdateGhost();
 	ATidebornBuildPiece* SpawnBuildPiece(const FTransform& Xform, bool bGhost);
 	FVector SnapPlaceLocation(const FVector& Raw) const;

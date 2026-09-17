@@ -1,6 +1,5 @@
 ﻿#include "TidebornInteractComponent.h"
 #include "TidebornInteractable.h"
-#include "TidebornBuildComponent.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "GameFramework/PlayerController.h"
@@ -84,14 +83,7 @@ void UTidebornInteractComponent::TryInteract()
 		return;
 	}
 
-	if (UTidebornBuildComponent* Build = Owner->FindComponentByClass<UTidebornBuildComponent>())
-	{
-		if (Build->bBuildMode)
-		{
-			Build->TryCommitPlacement();
-			return;
-		}
-	}
+	
 
 	FVector CamLoc;
 	FVector Dir = Owner->GetActorForwardVector();
@@ -214,3 +206,5 @@ void UTidebornInteractComponent::TryInteract()
 		GEngine->AddOnScreenDebugMessage(91002, 6.f, FColor::Yellow, TEXT("No gather target — aim nearer a pillar"));
 	}
 }
+
+

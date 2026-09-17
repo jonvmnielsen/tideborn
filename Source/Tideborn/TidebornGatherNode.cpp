@@ -1,5 +1,6 @@
 ﻿#include "TidebornGatherNode.h"
 #include "TidebornInventoryComponent.h"
+#include "TidebornNameTagComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Engine/StaticMesh.h"
@@ -24,9 +25,7 @@ ATidebornGatherNode::ATidebornGatherNode()
 
 	GatherVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("GatherVolume"));
 	GatherVolume->SetupAttachment(RootComponent);
-	// Generous volume in local space (mesh will be scaled tall in BeginPlay)
 	GatherVolume->SetBoxExtent(FVector(80.f, 80.f, 120.f));
-	GatherVolume->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 	GatherVolume->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	GatherVolume->SetCollisionResponseToAllChannels(ECR_Block);
 	GatherVolume->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -42,8 +41,7 @@ void ATidebornGatherNode::BeginPlay()
 
 	if (UMaterialInterface* Base = LoadObject<UMaterialInterface>(nullptr, TEXT("/Engine/BasicShapes/BasicShapeMaterial")))
 	{
-		UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this);
-		if (Dyn)
+		if (UMaterialInstanceDynamic* Dyn = UMaterialInstanceDynamic::Create(Base, this))
 		{
 			const FLinearColor Color = (ItemId == FName(TEXT("Stone")))
 				? FLinearColor(0.55f, 0.55f, 0.6f)
@@ -51,6 +49,17 @@ void ATidebornGatherNode::BeginPlay()
 			Dyn->SetVectorParameterValue(TEXT("Color"), Color);
 			Mesh->SetMaterial(0, Dyn);
 		}
+	}
+
+	const bool bStone = (ItemId == FName(TEXT("Stone")));
+	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
+	{
+		Tag->HeightOffset = 160.f;
+		Tag->Title = bStone ? TEXT("Stone Node") : TEXT("Wood Node");
+		Tag->Subtitle = TEXT("Press E to gather");
+		Tag->TitleColor = bStone ? FColor(180, 180, 200) : FColor(255, 160, 40);
+		AddInstanceComponent(Tag);
+		Tag->RegisterComponent();
 	}
 }
 
@@ -86,7 +95,6 @@ bool ATidebornGatherNode::Tideborn_TryInteract(AActor* Interactor)
 	{
 		GEngine->AddOnScreenDebugMessage(91001, 8.f, FColor::Green, Msg);
 	}
-	UE_LOG(LogTemp, Log, TEXT("Tideborn %s"), *Msg);
 
 	if (RemainingUses <= 0)
 	{

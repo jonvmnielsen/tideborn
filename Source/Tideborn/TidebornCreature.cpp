@@ -8,6 +8,7 @@
 #include "Engine/StaticMesh.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
+#include "TidebornNameTagComponent.h"
 
 ATidebornCreature::ATidebornCreature()
 {
@@ -39,6 +40,25 @@ void ATidebornCreature::BeginPlay()
 	Super::BeginPlay();
 	Health = MaxHealth;
 	ApplyBodyColor();
+
+	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
+	{
+		Tag->HeightOffset = 130.f;
+		if (CreatureRole == ETidebornCreatureRole::Threat)
+		{
+			Tag->TitleColor = FColor(255, 80, 60);
+			Tag->Title = DisplayName.ToString();
+			Tag->Subtitle = TEXT("Hostile — keep distance");
+		}
+		else
+		{
+			Tag->TitleColor = FColor(80, 200, 255);
+			Tag->Title = DisplayName.ToString();
+			Tag->Subtitle = TEXT("E: feed KelpBait x3 to tame");
+		}
+		AddInstanceComponent(Tag);
+		Tag->RegisterComponent();
+	}
 }
 
 void ATidebornCreature::ApplyBodyColor()
@@ -201,4 +221,6 @@ bool ATidebornCreature::Tideborn_TryInteract(AActor* Interactor)
 	}
 	return true;
 }
+
+
 

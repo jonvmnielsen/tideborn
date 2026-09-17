@@ -9,6 +9,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "EngineUtils.h"
+#include "TidebornNameTagComponent.h"
 
 ATidebornShoreGate::ATidebornShoreGate()
 {
@@ -16,7 +17,7 @@ ATidebornShoreGate::ATidebornShoreGate()
 
 	BlockVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("BlockVolume"));
 	SetRootComponent(BlockVolume);
-	BlockVolume->SetBoxExtent(FVector(80.f, 200.f, 160.f));
+	BlockVolume->SetBoxExtent(FVector(120.f, 350.f, 220.f));
 	BlockVolume->SetCollisionProfileName(TEXT("BlockAll"));
 
 	GateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GateMesh"));
@@ -26,7 +27,7 @@ ATidebornShoreGate::ATidebornShoreGate()
 	if (CubeMesh.Succeeded())
 	{
 		GateMesh->SetStaticMesh(CubeMesh.Object);
-		GateMesh->SetRelativeScale3D(FVector(0.4f, 4.0f, 3.2f));
+		GateMesh->SetRelativeScale3D(FVector(0.6f, 7.0f, 4.5f));
 	}
 }
 
@@ -41,6 +42,17 @@ void ATidebornShoreGate::BeginPlay()
 			Dyn->SetVectorParameterValue(TEXT("Color"), FLinearColor(0.35f, 0.4f, 0.55f));
 			GateMesh->SetMaterial(0, Dyn);
 		}
+	}
+
+	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
+	{
+		Tag->HeightOffset = 280.f;
+		Tag->TitleSize = 72.f;
+		Tag->TitleColor = FColor(120, 180, 255);
+		Tag->Title = TEXT("SHORE GATE");
+		Tag->Subtitle = TEXT("Opens when a TAMED Kelp-back is near you");
+		AddInstanceComponent(Tag);
+		Tag->RegisterComponent();
 	}
 }
 
@@ -101,3 +113,5 @@ void ATidebornShoreGate::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	SetGateOpen(HasTamedCompanionNearPlayer());
 }
+
+

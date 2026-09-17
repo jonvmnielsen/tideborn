@@ -9,7 +9,7 @@
 
 UTidebornCraftingComponent::UTidebornCraftingComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	{
 		FTidebornRecipe R;
@@ -52,7 +52,7 @@ void UTidebornCraftingComponent::BeginPlay()
 	{
 		World->GetTimerManager().SetTimerForNextTick(FTimerDelegate::CreateUObject(this, &UTidebornCraftingComponent::BindHotkeys));
 	}
-	ShowMenu(12.f);
+	// menus handled by UTidebornUIComponent
 }
 
 void UTidebornCraftingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -168,7 +168,6 @@ void UTidebornCraftingComponent::BindHotkeys()
 	}
 
 	IC->BindKey(EKeys::C, IE_Pressed, this, &UTidebornCraftingComponent::OnCraftKey);
-	IC->BindKey(EKeys::I, IE_Pressed, this, &UTidebornCraftingComponent::OnInventoryKey);
 	IC->BindKey(EKeys::LeftBracket, IE_Pressed, this, &UTidebornCraftingComponent::OnPrevRecipeKey);
 	IC->BindKey(EKeys::RightBracket, IE_Pressed, this, &UTidebornCraftingComponent::OnNextRecipeKey);
 	IC->BindKey(EKeys::MouseScrollUp, IE_Pressed, this, &UTidebornCraftingComponent::OnScrollUp);
@@ -292,4 +291,5 @@ bool UTidebornCraftingComponent::TryCraftSelected()
 	}
 	return TryCraft(Recipes[SelectedRecipeIndex].RecipeId);
 }
+
 
