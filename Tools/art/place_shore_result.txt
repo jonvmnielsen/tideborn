@@ -1,0 +1,14 @@
+spawn <Struct 'Vector' (0x000001C19D5FDDC0) {x: 900.000000, y: 1110.000000, z: 92.012604}>
+placed TidebornShore_RocksA
+placed TidebornShore_RocksB
+placed TidebornShore_Boulder
+placed TidebornShore_Trunk
+mat -> Tideborn_Gather_Stone_A
+mat -> Tideborn_Gather_Wood_B
+mat -> Tideborn_P2_ShoreGate
+mat -> Tideborn_Gather_Wood_A
+mat -> TidebornShore_RocksA
+mat -> TidebornShore_RocksB
+mat -> TidebornShore_Boulder
+mat -> TidebornShore_Trunk
+lighting tweaked
