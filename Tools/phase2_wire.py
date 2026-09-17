@@ -1,4 +1,4 @@
-﻿import unreal
+import unreal
 import pathlib
 
 RESULT = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\phase2_wire_result.txt")
@@ -40,9 +40,22 @@ def main():
     kelp.set_actor_label("Tideborn_P2_KelpBack")
     log("kelp")
 
-    gate = sub.spawn_actor_from_class(unreal.TidebornShoreGate, unreal.Vector(ps.x + 1100.0, ps.y, ps.z + 160.0), unreal.Rotator())
+    gate = sub.spawn_actor_from_class(unreal.TidebornShoreGate, unreal.Vector(ps.x + 1100.0, ps.y, ps.z + 200.0), unreal.Rotator())
     gate.set_actor_label("Tideborn_P2_ShoreGate")
     log("gate")
+
+    # Path posts between PlayerStart and Shore Gate (warm lights → cyan vista)
+    beacon_class = unreal.TidebornLandmarkBeacon
+    offsets = (0.28, 0.52, 0.78)  # fractions along PS → gate
+    for i, t in enumerate(offsets):
+        loc = unreal.Vector(
+            ps.x + (1100.0 * t),
+            ps.y + ((-80.0) if i % 2 == 0 else 90.0),
+            ps.z + 40.0,
+        )
+        beacon = sub.spawn_actor_from_class(beacon_class, loc, unreal.Rotator())
+        beacon.set_actor_label("Tideborn_P2_PathPost_%d" % (i + 1))
+        log("beacon_%d @ %s" % (i + 1, loc))
 
     unreal.get_editor_subsystem(unreal.LevelEditorSubsystem).save_current_level()
     RESULT.write_text("\n".join(lines) + "\n", encoding="utf-8")

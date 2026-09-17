@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -34,6 +34,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="Tideborn|UI")
 	void CraftSelectedOrRecipe(FName RecipeId);
+
+	void NotifyCraftFeedback(const FString& Message, bool bSuccess);
 
 	UTidebornInventoryComponent* GetInventory() const;
 	UTidebornCraftingComponent* GetCrafting() const;

@@ -1,7 +1,8 @@
-﻿#include "TidebornShoreGate.h"
+#include "TidebornShoreGate.h"
 #include "TidebornCreature.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/PointLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInstanceDynamic.h"
@@ -17,7 +18,8 @@ ATidebornShoreGate::ATidebornShoreGate()
 
 	BlockVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("BlockVolume"));
 	SetRootComponent(BlockVolume);
-	BlockVolume->SetBoxExtent(FVector(120.f, 350.f, 220.f));
+	// Wider / taller blocking volume for vista landmark silhouette
+	BlockVolume->SetBoxExtent(FVector(140.f, 420.f, 320.f));
 	BlockVolume->SetCollisionProfileName(TEXT("BlockAll"));
 
 	GateMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GateMesh"));
@@ -27,8 +29,17 @@ ATidebornShoreGate::ATidebornShoreGate()
 	if (CubeMesh.Succeeded())
 	{
 		GateMesh->SetStaticMesh(CubeMesh.Object);
-		GateMesh->SetRelativeScale3D(FVector(0.6f, 7.0f, 4.5f));
+		// Taller + wider than prior greybox so it reads as a vista from spawn
+		GateMesh->SetRelativeScale3D(FVector(0.7f, 8.5f, 6.5f));
 	}
+
+	VistaLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("VistaLight"));
+	VistaLight->SetupAttachment(RootComponent);
+	VistaLight->SetRelativeLocation(FVector(0.f, 0.f, 420.f));
+	VistaLight->SetLightColor(FLinearColor(0.2f, 0.95f, 1.f));
+	VistaLight->SetIntensity(8000.f);
+	VistaLight->SetAttenuationRadius(3200.f);
+	VistaLight->SetCastShadows(false);
 }
 
 void ATidebornShoreGate::BeginPlay()
@@ -46,11 +57,11 @@ void ATidebornShoreGate::BeginPlay()
 
 	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
 	{
-		Tag->HeightOffset = 280.f;
-		Tag->TitleSize = 72.f;
-		Tag->TitleColor = FColor(120, 180, 255);
+		Tag->HeightOffset = 360.f;
+		Tag->TitleSize = 80.f;
+		Tag->TitleColor = FColor(120, 220, 255);
 		Tag->Title = TEXT("SHORE GATE");
-		Tag->Subtitle = TEXT("Opens when a TAMED Kelp-back is near you");
+		Tag->Subtitle = TEXT("Landmark — opens with a TAMED Kelp-back nearby");
 		AddInstanceComponent(Tag);
 		Tag->RegisterComponent();
 	}
@@ -113,5 +124,3 @@ void ATidebornShoreGate::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	SetGateOpen(HasTamedCompanionNearPlayer());
 }
-
-

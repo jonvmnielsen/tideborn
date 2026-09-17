@@ -198,18 +198,39 @@ void UTidebornUIComponent::StartPlacingFoundation()
 
 void UTidebornUIComponent::CraftSelectedOrRecipe(FName RecipeId)
 {
+	bool bOk = false;
+	FString Feedback;
 	if (UTidebornCraftingComponent* Craft = GetCrafting())
 	{
 		Craft->SelectRecipeById(RecipeId);
-		Craft->TryCraft(RecipeId);
+		bOk = Craft->TryCraft(RecipeId);
+		if (bOk)
+		{
+			Feedback = FString::Printf(TEXT("Crafted %s — menu stays open"), *RecipeId.ToString());
+		}
+		else
+		{
+			Feedback = FString::Printf(TEXT("Need more materials for %s"), *RecipeId.ToString());
+		}
 	}
+	// Brief juice inside the open menu — does not replace/close it
+	NotifyCraftFeedback(Feedback, bOk);
 	if (InventoryMenu && InventoryMenu->IsInViewport())
 	{
 		InventoryMenu->Refresh();
+		InventoryMenu->ShowCraftFeedback(Feedback, bOk);
 	}
 	if (BuildMenu && BuildMenu->IsInViewport())
 	{
 		BuildMenu->Refresh();
+	}
+}
+
+void UTidebornUIComponent::NotifyCraftFeedback(const FString& Message, bool bSuccess)
+{
+	if (GEngine && !Message.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(92100, 2.5f, bSuccess ? FColor::Green : FColor::Orange, Message);
 	}
 }
 

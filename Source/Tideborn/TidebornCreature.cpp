@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/StaticMesh.h"
+#include "UObject/ConstructorHelpers.h"
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "TidebornNameTagComponent.h"
@@ -17,18 +18,18 @@ ATidebornCreature::ATidebornCreature()
 
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 70.f);
 
-	UStaticMeshComponent* Body = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
-	Body->SetupAttachment(GetRootComponent());
-	Body->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BodyMesh"));
+	BodyMesh->SetupAttachment(GetRootComponent());
+	BodyMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("/Engine/BasicShapes/Cube.Cube"));
 	if (CubeMesh.Succeeded())
 	{
-		Body->SetStaticMesh(CubeMesh.Object);
-		Body->SetRelativeScale3D(FVector(0.7f, 1.1f, 0.55f));
-		Body->SetRelativeLocation(FVector(0.f, 0.f, -20.f));
+		BodyMesh->SetStaticMesh(CubeMesh.Object);
+		BodyMesh->SetRelativeScale3D(FVector(0.7f, 1.1f, 0.55f));
+		BodyMesh->SetRelativeLocation(FVector(0.f, 0.f, -20.f));
 	}
 	// Stash for BeginPlay color
-	Body->ComponentTags.Add(FName(TEXT("TidebornBody")));
+	BodyMesh->ComponentTags.Add(FName(TEXT("TidebornBody")));
 
 	GetCharacterMovement()->MaxWalkSpeed = 380.f;
 	GetCharacterMovement()->bOrientRotationToMovement = true;
@@ -43,18 +44,18 @@ void ATidebornCreature::BeginPlay()
 
 	if (UTidebornNameTagComponent* Tag = NewObject<UTidebornNameTagComponent>(this, TEXT("NameTag")))
 	{
-		Tag->HeightOffset = 130.f;
+		Tag->HeightOffset = 150.f;
 		if (CreatureRole == ETidebornCreatureRole::Threat)
 		{
 			Tag->TitleColor = FColor(255, 80, 60);
-			Tag->Title = DisplayName.ToString();
-			Tag->Subtitle = TEXT("Hostile — keep distance");
+			Tag->Title = DisplayName.ToString() + TEXT("  [Hostile]");
+			Tag->Subtitle = TEXT("Hostile — low wide silhouette; keep distance");
 		}
 		else
 		{
 			Tag->TitleColor = FColor(80, 200, 255);
-			Tag->Title = DisplayName.ToString();
-			Tag->Subtitle = TEXT("E: feed KelpBait x3 to tame");
+			Tag->Title = DisplayName.ToString() + TEXT("  [Tameable]");
+			Tag->Subtitle = TEXT("Tameable — E: feed KelpBait x3");
 		}
 		AddInstanceComponent(Tag);
 		Tag->RegisterComponent();

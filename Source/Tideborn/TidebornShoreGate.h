@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -6,6 +6,7 @@
 
 class UBoxComponent;
 class UStaticMeshComponent;
+class UPointLightComponent;
 
 UCLASS()
 class TIDEBORN_API ATidebornShoreGate : public AActor
@@ -23,6 +24,10 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> GateMesh;
+
+	/** Cyan vista light above the gate — readable landmark from spawn. */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	TObjectPtr<UPointLightComponent> VistaLight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Gate")
 	float CompanionCheckRadius = 700.f;

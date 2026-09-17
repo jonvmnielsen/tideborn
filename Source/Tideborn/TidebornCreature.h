@@ -1,9 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "TidebornInteractable.h"
 #include "TidebornCreature.generated.h"
+
+class UStaticMeshComponent;
 
 UENUM(BlueprintType)
 enum class ETidebornCreatureRole : uint8
@@ -61,6 +63,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Tame")
 	float FollowDistance = 280.f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn|Creature")
+	TObjectPtr<UStaticMeshComponent> BodyMesh;
 
 	virtual bool Tideborn_TryInteract(AActor* Interactor) override;
 
