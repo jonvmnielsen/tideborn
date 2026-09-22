@@ -179,7 +179,8 @@ def clear_prior_env():
     sub = actor_sub()
     for a in list(sub.get_all_level_actors()):
         lab = label_of(a)
-        if lab.startswith("TidebornEnv_"):
+        # TidebornEnv_* from this script; TidebornShore_* from earlier sparse place_shore_art pass
+        if lab.startswith("TidebornEnv_") or lab.startswith("TidebornShore_"):
             try:
                 sub.destroy_actor(a)
                 log("removed prior " + lab)
