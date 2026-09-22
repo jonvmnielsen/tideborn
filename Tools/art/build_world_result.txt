@@ -1,0 +1,101 @@
+=== Tideborn build_world start ===
+loaded map /Game/ThirdPerson/Maps/ThirdPersonMap
+removed prior TidebornShore_Boulder
+removed prior TidebornShore_RocksA
+removed prior TidebornShore_Trunk
+removed prior TidebornShore_RocksB
+--- inventory (53 actors) ---
+greybox candidate: SM_QuarterCylinder [StaticMeshActor]
+greybox candidate: SM_ChamferCube2 [StaticMeshActor]
+greybox candidate: SM_Cube13 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder13 [StaticMeshActor]
+greybox candidate: SM_Cube10 [StaticMeshActor]
+greybox candidate: SM_Ramp3 [StaticMeshActor]
+greybox candidate: SM_ChamferCube3 [StaticMeshActor]
+greybox candidate: SM_Cube6 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder2 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder4 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder12 [StaticMeshActor]
+greybox candidate: SM_Ramp [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder14 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder6 [StaticMeshActor]
+greybox candidate: SM_Cube [StaticMeshActor]
+greybox candidate: SM_Ramp2 [StaticMeshActor]
+greybox candidate: SM_Cube8 [StaticMeshActor]
+greybox candidate: SM_Cube4 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder5 [StaticMeshActor]
+greybox candidate: SM_Cube5 [StaticMeshActor]
+greybox candidate: SM_Cube11 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder11 [StaticMeshActor]
+greybox candidate: SM_Cube9 [StaticMeshActor]
+greybox candidate: SM_QuarterCylinder3 [StaticMeshActor]
+greybox candidate: SM_Cube2 [StaticMeshActor]
+greybox candidate: SM_Cube12 [StaticMeshActor]
+greybox candidate: SM_Cube3 [StaticMeshActor]
+greybox candidate: SM_Cube7 [StaticMeshActor]
+greybox candidate: SM_ChamferCube [StaticMeshActor]
+destroyed greybox: SM_QuarterCylinder
+destroyed greybox: SM_ChamferCube2
+destroyed greybox: SM_Cube13
+destroyed greybox: SM_QuarterCylinder13
+destroyed greybox: SM_Cube10
+destroyed greybox: SM_Ramp3
+destroyed greybox: SM_ChamferCube3
+destroyed greybox: SM_Cube6
+destroyed greybox: SM_QuarterCylinder2
+destroyed greybox: SM_QuarterCylinder4
+destroyed greybox: SM_QuarterCylinder12
+destroyed greybox: SM_Ramp
+destroyed greybox: SM_QuarterCylinder14
+destroyed greybox: SM_QuarterCylinder6
+destroyed greybox: SM_Cube
+destroyed greybox: SM_Ramp2
+destroyed greybox: SM_Cube8
+destroyed greybox: SM_Cube4
+destroyed greybox: SM_QuarterCylinder5
+destroyed greybox: SM_Cube5
+destroyed greybox: SM_Cube11
+destroyed greybox: SM_QuarterCylinder11
+destroyed greybox: SM_Cube9
+destroyed greybox: SM_QuarterCylinder3
+destroyed greybox: SM_Cube2
+destroyed greybox: SM_Cube12
+destroyed greybox: SM_Cube3
+destroyed greybox: SM_Cube7
+destroyed greybox: SM_ChamferCube
+origin=<Struct 'Vector' (0x000001B991296C20) {x: 900.000000, y: 1110.000000, z: 92.012604}>
+sand_mat=True ground_mat=True
+SKIP real Landscape create (unattended API hard) — using sand/ground planes
+ground planes=5
+created water material /Game/Tideborn/Art/Materials/M_Tideborn_WaterSimple
+WaterBody plugin not available — translucent plane used
+water planes=1
+mesh ok: boulder_01
+mesh ok: coast_land_rocks_02
+mesh ok: coast_land_rocks_03
+mesh ok: dead_tree_trunk
+env props=28
+HDRI Backdrop plugin/class or texture unavailable (hdri=/Game/Tideborn/Art/HDRI/PH_industrial_sunset_puresky.PH_industrial_sunset_puresky) — lights only
+lights_tweaked=4 dir=True sky=True fog=True atmo=True
+PlayerStart -> shore <Struct 'Vector' (0x000001B991297710) {x: 1100.000000, y: 1030.000000, z: 192.012604}> yaw=90.0
+gather stone -> <Struct 'Vector' (0x000001B9912977B0) {x: 1180.000000, y: 1270.000000, z: 132.012604}>
+gather wood -> <Struct 'Vector' (0x000001B9912976C0) {x: 1250.000000, y: 1150.000000, z: 132.012604}>
+gather wood -> <Struct 'Vector' (0x000001B9912977B0) {x: 1370.000000, y: 1150.000000, z: 132.012604}>
+moved Tideborn_P2_KelpBack -> <Struct 'Vector' (0x000001B991297800) {x: 980.000000, y: 790.000000, z: 152.012604}> (kelp shore)
+moved Tideborn_P2_BurrHound -> <Struct 'Vector' (0x000001B991297760) {x: 1550.000000, y: 1530.000000, z: 172.012604}> (hound inland)
+moved Tideborn_P2_ShoreGate -> <Struct 'Vector' (0x000001B991297800) {x: 2000.000000, y: 2060.000000, z: 212.012604}> (gate vista)
+beacon 1 -> <Struct 'Vector' (0x000001B991297800) {x: 1325.000000, y: 1217.500000, z: 142.012604}>
+beacon 2 -> <Struct 'Vector' (0x000001B991297760) {x: 1523.000000, y: 1584.100000, z: 142.012604}>
+beacon 3 -> <Struct 'Vector' (0x000001B9912978A0) {x: 1721.000000, y: 1670.700000, z: 142.012604}>
+gameplay_moved=10 wood=2 stone=1 beacons=3
+saved current level
+saved dirty packages
+--- counts ---
+inventory_hidden=0
+inventory_destroyed=29
+ground_planes=5
+water_planes=1
+env_props=28
+gameplay_moved=10
+lights_tweaked=4
+DONE
