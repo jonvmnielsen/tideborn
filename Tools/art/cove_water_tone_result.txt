@@ -1,0 +1,10 @@
+water mat M_Tideborn_WaterOpaque rgb=(0.08,0.18,0.28)
+water mat M_Tideborn_WaterSimple rgb=(0.08,0.18,0.28)
+CONFIRM SandBase Z=106 Y[600..2400] sc=(45.0,18.0) LOCKED
+Ocean -> muted sea
+CONFIRM Ocean Z=99 scY=18.0
+Shallows -> muted sea
+CONFIRM Shallows Z=100 Y[150..750] scY=6.0
+save_current_level -> True
+save_dirty -> True
+DONE

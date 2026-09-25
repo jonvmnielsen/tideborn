@@ -1,4 +1,4 @@
-#include "TidebornShoreGate.h"
+﻿#include "TidebornShoreGate.h"
 #include "TidebornCreature.h"
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -31,9 +31,9 @@ ATidebornShoreGate::ATidebornShoreGate()
 	VistaLight = CreateDefaultSubobject<UPointLightComponent>(TEXT("VistaLight"));
 	VistaLight->SetupAttachment(RootComponent);
 	VistaLight->SetRelativeLocation(FVector(0.f, 0.f, 320.f));
-	VistaLight->SetLightColor(FLinearColor(0.2f, 0.85f, 1.f));
-	VistaLight->SetIntensity(8000.f);
-	VistaLight->SetAttenuationRadius(4500.f);
+	VistaLight->SetLightColor(FLinearColor(1.f, 0.72f, 0.42f)); // warm wood lantern (was teal)
+	VistaLight->SetIntensity(1800.f);
+	VistaLight->SetAttenuationRadius(2200.f);
 	VistaLight->SetCastShadows(false);
 }
 

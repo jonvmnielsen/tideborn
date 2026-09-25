@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -25,11 +25,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	TObjectPtr<UStaticMeshComponent> GateMesh;
 
-	/** Cyan vista light above the gate — readable landmark from spawn. */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TObjectPtr<UPointLightComponent> VistaLight;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Tideborn|Gate")
+	/** Warm vista light above the gate — landmark from spawn. "Tideborn|Gate")
 	float CompanionCheckRadius = 700.f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Tideborn|Gate")
