@@ -1,0 +1,24 @@
+mat MI_Tideborn_SandWet (0.09, 0.06, 0.04)
+mat MI_Tideborn_SandWetMid (0.16, 0.1, 0.06)
+water M_Tideborn_WaterOpaque
+mat MI_Tideborn_Foam (0.95, 0.93, 0.85)
+LOCK SandBase
+PP temp=4000
+BeachSlope Z=107.5 scZ=1.35
+WetSand_00
+SKYACTOR lab=VolumetricCloud cn=VolumetricCloud
+SHOW VolumetricCloud
+SKYACTOR lab=TidebornEnv_SkyLight cn=SkyLight
+SkyLight 0.65
+SKYACTOR lab=SkyAtmosphere cn=SkyAtmosphere
+SHOW SkyAtmosphere
+DirLight 3.0
+SKYACTOR lab=ExponentialHeightFog cn=ExponentialHeightFog
+Fog 0.022
+FoamStrip Y=545 scY=0.55
+Shallows Y=400
+SKYACTOR lab=TidebornEnv_SkyDome cn=StaticMeshActor
+HIDE skydome TidebornEnv_SkyDome/StaticMeshActor
+WetSand_01
+save True
+DONE

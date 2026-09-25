@@ -1,0 +1,10 @@
+sky_grad M_Tideborn_SkyDomeGrad
+LOCK SandBase
+PP temp=3600 warm restore
+BeachSlope pitched+raised
+SkyLight warm 0.45
+DirLight warm 3.5
+Fog warm
+SkyDome GRADIENT mat applied
+save True
+DONE

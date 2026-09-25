@@ -1,0 +1,7 @@
+sky_wp M_Tideborn_SkyDomeGrad
+LOCK SandBase
+PP warm keep
+Foam thicker
+SkyDome WP-grad
+save True
+DONE
