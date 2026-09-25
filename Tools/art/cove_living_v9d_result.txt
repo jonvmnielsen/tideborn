@@ -1,0 +1,26 @@
+LOCK SandBase
+x TidebornEnv_FoamSeg_03
+x TidebornEnv_FoamSeg_01
+x TidebornEnv_ShoreLip2
+x TidebornEnv_FoamSeg_02
+Shallows Y=180 scY=8
+x TidebornEnv_FoamSeg_04
+x TidebornEnv_FoamSeg_00
+x TidebornEnv_ShoreLip
+ShoreLip roll=14 Y=[622..778] Z=[84.6..123.4]
+ShoreLip2 Y=[593..767] Z=[79.2..128.8]
+FoamSeg x5
+DirLight
+TidebornEnv_SandBase Y=[600..2400] Z=[106.0..106.0] locZ=106.0
+TidebornEnv_WetSand_00 Y=[535..725] Z=[105.2..105.2] locZ=105.2
+TidebornEnv_Ocean Y=[-1700..100] Z=[99.0..99.0] locZ=99.0
+TidebornEnv_Shallows Y=[-220..580] Z=[100.0..100.0] locZ=100.0
+TidebornEnv_ShoreLip Y=[622..778] Z=[84.6..123.4] locZ=104.0
+TidebornEnv_ShoreLip2 Y=[593..767] Z=[79.2..128.8] locZ=104.0
+TidebornEnv_FoamSeg_00 Y=[480..590] Z=[78.6..131.0] locZ=104.8
+TidebornEnv_FoamSeg_01 Y=[488..608] Z=[80.8..128.8] locZ=104.8
+TidebornEnv_FoamSeg_02 Y=[480..584] Z=[83.9..125.7] locZ=104.8
+TidebornEnv_FoamSeg_03 Y=[484..600] Z=[77.3..132.3] locZ=104.8
+TidebornEnv_FoamSeg_04 Y=[488..588] Z=[85.2..124.4] locZ=104.8
+save True
+DONE

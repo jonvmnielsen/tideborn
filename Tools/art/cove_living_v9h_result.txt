@@ -1,0 +1,21 @@
+LOCK SandBase
+x bad SkyBackdrop
+SkyWall Y=[-2508..-2492] Z=[-3000..7000]
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=[106.0..106.0]
+DUMP TidebornEnv_ShoreStep_02 Y=[690..780] Z=[111.5..111.5]
+DUMP TidebornEnv_ShoreStep_00 Y=[605..695] Z=[104.5..104.5]
+DUMP TidebornEnv_FoamSeg_01 Y=[510..630] Z=[87.1..121.9]
+DUMP TidebornEnv_WetSand_00 Y=[535..725] Z=[105.2..105.2]
+DUMP TidebornEnv_ShoreStep_s1 Y=[655..745] Z=[109.0..109.0]
+DUMP TidebornEnv_ShoreStep_s2 Y=[700..790] Z=[113.0..113.0]
+DUMP TidebornEnv_FoamSeg_00 Y=[502..618] Z=[80.9..128.1]
+DUMP TidebornEnv_FoamSeg_03 Y=[508..622] Z=[80.9..128.1]
+DUMP TidebornEnv_Ocean Y=[-1700..100] Z=[99.0..99.0]
+DUMP TidebornEnv_Shallows Y=[-200..800] Z=[100.0..100.0]
+DUMP TidebornEnv_FoamSeg_02 Y=[500..610] Z=[85.3..123.7]
+DUMP TidebornEnv_WetSand_01 Y=[615..785] Z=[105.6..105.6]
+DUMP TidebornEnv_ShoreStep_01 Y=[645..735] Z=[108.0..108.0]
+DUMP TidebornEnv_ShoreStep_s0 Y=[615..705] Z=[104.5..104.5]
+DUMP TidebornEnv_SkyBackdrop Y=[-2508..-2492] Z=[-3000.0..7000.0]
+save True
+DONE

@@ -1,0 +1,30 @@
+LOCK SandBase
+x TidebornEnv_ShoreLip2
+WetSand_00 Y=670
+x TidebornEnv_ShoreLip
+HIDE SkyDome
+x SandRamp
+Step 00 Y=[610..700] Z=104.0
+Step 01 Y=[625..735] Z=107.0
+Step 02 Y=[665..775] Z=110.0
+Step s0 Y=[610..710] Z=104.0
+Step s1 Y=[645..755] Z=108.0
+Step s2 Y=[690..790] Z=112.0
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=[106.0..106.0]
+DUMP TidebornEnv_WetSand_00 Y=[605..735] Z=[105.5..105.5]
+DUMP TidebornEnv_FoamSeg_04 Y=[536..636] Z=[82.6..127.0]
+DUMP TidebornEnv_FoamSeg_02 Y=[538..638] Z=[87.4..122.2]
+DUMP Tideborn_P2_ShoreGate Y=[2272..2528] Z=[-30.0..638.0]
+DUMP TidebornEnv_FoamSeg_00 Y=[534..644] Z=[73.4..136.2]
+DUMP TidebornEnv_WetSand_01 Y=[670..790] Z=[105.9..105.9]
+DUMP TidebornEnv_FoamSeg_03 Y=[530..644] Z=[71.7..137.9]
+DUMP TidebornEnv_Ground Y=[2000..3600] Z=[105.0..105.0]
+DUMP TidebornEnv_FoamSeg_01 Y=[529..649] Z=[78.6..131.0]
+DUMP TidebornEnv_ShoreStep_00 Y=[610..700] Z=[104.0..104.0]
+DUMP TidebornEnv_ShoreStep_01 Y=[625..735] Z=[107.0..107.0]
+DUMP TidebornEnv_ShoreStep_02 Y=[665..775] Z=[110.0..110.0]
+DUMP TidebornEnv_ShoreStep_s0 Y=[610..710] Z=[104.0..104.0]
+DUMP TidebornEnv_ShoreStep_s1 Y=[645..755] Z=[108.0..108.0]
+DUMP TidebornEnv_ShoreStep_s2 Y=[690..790] Z=[112.0..112.0]
+save True
+DONE

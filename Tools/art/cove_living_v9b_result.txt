@@ -1,0 +1,11 @@
+LOCK SandBase
+DirLight side yaw=-40
+BeachSlope landY=760 centerY=160 Z=118 scZ=1.15 -> waterEndY=-440
+TidebornEnv_SandBase loc=(1000,1500,106.0) scZ=1.00 boundsY=[600..2400] boundsZ=[106.0..106.0]
+TidebornEnv_WetSand_00 loc=(1000,630,105.2) scZ=1.00 boundsY=[535..725] boundsZ=[105.2..105.2]
+TidebornEnv_FoamSeg_00 loc=(720,548,103.6) scZ=1.00 boundsY=[498..598] boundsZ=[64.4..142.8]
+TidebornEnv_Ocean loc=(1000,-800,99.0) scZ=1.00 boundsY=[-1700..100] boundsZ=[99.0..99.0]
+TidebornEnv_BeachSlope loc=(1000,160,118.0) scZ=1.15 boundsY=[-440..760] boundsZ=[-163.0..118.0]
+TidebornEnv_Shallows loc=(1000,300,100.0) scZ=1.00 boundsY=[-200..800] boundsZ=[100.0..100.0]
+save True
+DONE

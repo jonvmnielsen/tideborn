@@ -1,0 +1,41 @@
+sky_back M_Tideborn_SkyBackdrop
+x TidebornEnv_ShoreStep_00
+x TidebornEnv_ShoreStep_01
+x TidebornEnv_ShoreStep_s2
+x TidebornEnv_FoamSeg_04
+x TidebornEnv_ShoreStep_s1
+x TidebornEnv_FoamSeg_02
+x TidebornEnv_FoamSeg_00
+x TidebornEnv_FoamSeg_03
+x TidebornEnv_ShoreStep_s0
+x TidebornEnv_ShoreStep_02
+x TidebornEnv_FoamSeg_01
+LOCK SandBase
+Shallows Ymax~500
+SkyBackdrop gradient @ Y=-2200
+Foam x4
+Step0 Y=[605..695] Z=104.5
+Step1 Y=[645..735] Z=108.0
+Step2 Y=[690..780] Z=111.5
+PP mild
+DirLight yaw=-90 even warm
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=[106.0..106.0]
+DUMP TidebornEnv_WetSand_00 Y=[610..750] Z=[105.5..105.5]
+DUMP Tideborn_P2_ShoreGate Y=[2272..2528] Z=[-30.0..638.0]
+DUMP TidebornEnv_Ocean Y=[-1900..-500] Z=[99.0..99.0]
+DUMP TidebornEnv_Shallows Y=[-400..500] Z=[100.0..100.0]
+DUMP TidebornEnv_WetSand_01 Y=[675..805] Z=[105.9..105.9]
+DUMP TidebornEnv_Ground Y=[2000..3600] Z=[105.0..105.0]
+DUMP TidebornEnv_SkyBackdrop Y=[-6200..1800] Z=[-9200.0..10800.0]
+DUMP TidebornEnv_FoamSeg_00 Y=[502..618] Z=[80.9..128.1]
+DUMP TidebornEnv_FoamSeg_01 Y=[510..630] Z=[87.1..121.9]
+DUMP TidebornEnv_FoamSeg_02 Y=[500..610] Z=[85.3..123.7]
+DUMP TidebornEnv_FoamSeg_03 Y=[508..622] Z=[80.9..128.1]
+DUMP TidebornEnv_ShoreStep_00 Y=[605..695] Z=[104.5..104.5]
+DUMP TidebornEnv_ShoreStep_01 Y=[645..735] Z=[108.0..108.0]
+DUMP TidebornEnv_ShoreStep_02 Y=[690..780] Z=[111.5..111.5]
+DUMP TidebornEnv_ShoreStep_s0 Y=[615..705] Z=[104.5..104.5]
+DUMP TidebornEnv_ShoreStep_s1 Y=[655..745] Z=[109.0..109.0]
+DUMP TidebornEnv_ShoreStep_s2 Y=[700..790] Z=[113.0..113.0]
+save True
+DONE

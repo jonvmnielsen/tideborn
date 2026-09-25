@@ -1,0 +1,46 @@
+mat MI_Tideborn_Foam
+x TidebornEnv_ShoreLip2
+x TidebornEnv_FoamSeg_04
+x TidebornEnv_WetJag_02
+x TidebornEnv_WetJag_01
+x TidebornEnv_FoamSeg_01
+x TidebornEnv_WetJag_00
+x TidebornEnv_FoamSeg_03
+x TidebornEnv_FoamSeg_00
+x TidebornEnv_ShoreLip
+HIDE TidebornEnv_SkyDome (was peach slab)
+x TidebornEnv_FoamSeg_02
+HIDE SandRamp
+LOCK SandBase edgeY=600
+Ocean
+Shallows Ymax~525
+ShoreLip Y=[180..1240] Z=[105.0..105.0]
+ShoreLip2 ok
+FoamSeg x5 bright
+PP mild warm keep sky blue
+SHOW VolumetricCloud
+SkyLight 0.35
+SHOW SkyAtmosphere
+DirLight low sun
+Fog soft haze 0.032
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=[106.0..106.0]
+DUMP TidebornEnv_WetSand_00 Y=[560..740] Z=[105.4..105.4]
+WARN_OVERLAP TidebornEnv_WetSand_00 Y=[560..740] Z=[105.4..105.4]
+DUMP Tideborn_P2_ShoreGate Y=[2272..2528] Z=[-30.0..638.0]
+DUMP TidebornEnv_Ocean Y=[-1750..-250] Z=[99.0..99.0]
+DUMP TidebornEnv_Shallows Y=[-225..525] Z=[100.0..100.0]
+DUMP TidebornEnv_WetSand_01 Y=[640..800] Z=[105.8..105.8]
+DUMP TidebornEnv_Ground Y=[2000..3600] Z=[105.0..105.0]
+DUMP TidebornEnv_SandRamp Y=[542..738] Z=[43.2..105.3]
+WARN_OVERLAP TidebornEnv_SandRamp Y=[542..738] Z=[43.2..105.3]
+DUMP TidebornEnv_ShoreLip Y=[180..1240] Z=[105.0..105.0]
+WARN_OVERLAP TidebornEnv_ShoreLip Y=[180..1240] Z=[105.0..105.0]
+DUMP TidebornEnv_ShoreLip2 Y=[510..890] Z=[105.0..105.0]
+WARN_OVERLAP TidebornEnv_ShoreLip2 Y=[510..890] Z=[105.0..105.0]
+DUMP TidebornEnv_FoamSeg_00 Y=[510..620] Z=[73.2..136.0]
+DUMP TidebornEnv_FoamSeg_01 Y=[515..635] Z=[78.4..130.8]
+DUMP TidebornEnv_FoamSeg_02 Y=[510..610] Z=[85.4..123.8]
+DUMP TidebornEnv_FoamSeg_03 Y=[512..628] Z=[71.5..137.7]
+DUMP TidebornEnv_FoamSeg_04 Y=[512..612] Z=[82.4..126.8]
+save True
+DONE

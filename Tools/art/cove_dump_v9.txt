@@ -1,0 +1,29 @@
+BEFORE
+TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00,1.00) Y=[600..2400] halfY=900 Z=106.0
+TidebornEnv_BeachSlope loc=(1000,600,107.5) sc=(1.00,1.00,1.35) Y=[-150..1350] halfY=750 Z=107.5
+TidebornEnv_WetSand_00 loc=(1000,610,105.2) sc=(50.00,1.70,1.00) Y=[525..695] halfY=85 Z=105.2
+TidebornEnv_FoamStrip loc=(1000,545,103.8) sc=(48.00,0.55,1.00) Y=[518..572] halfY=28 Z=103.8
+TidebornEnv_Ocean loc=(1000,-800,99.0) sc=(80.00,18.00,1.00) Y=[-1700..100] halfY=900 Z=99.0
+TidebornEnv_Shallows loc=(1000,400,100.0) sc=(62.00,11.00,1.00) Y=[-150..950] halfY=550 Z=100.0
+TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00,1.00) Y=[2000..3600] halfY=800 Z=105.0
+TidebornEnv_WetSand_01 loc=(1000,685,105.6) sc=(48.00,1.50,1.00) Y=[610..760] halfY=75 Z=105.6
+TidebornEnv_SandRamp loc=(1000,640,105.3) sc=(0.22,0.14,0.60) Y=[542..738] halfY=98 Z=105.3
+
+AFTER
+TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00,1.00) Y=[600..2400] Z=106.0 MI_Tideborn_SandWarm
+TidebornEnv_WetSand_00 loc=(1000,630,105.2) sc=(42.00,1.90,1.00) Y=[535..725] Z=105.2 MI_Tideborn_SandWet
+TidebornEnv_Ocean loc=(1000,-800,99.0) sc=(80.00,18.00,1.00) Y=[-1700..100] Z=99.0 M_Tideborn_WaterOpaque
+TidebornEnv_Shallows loc=(1000,300,100.0) sc=(70.00,10.00,1.00) Y=[-200..800] Z=100.0 M_Tideborn_WaterOpaque
+TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00,1.00) Y=[2000..3600] Z=105.0 M_Tideborn_Ground
+TidebornEnv_SandRamp loc=(1000,640,105.3) sc=(0.22,0.14,0.60) Y=[542..738] Z=105.3 MI_Tideborn_SandWetMid,MI_Tideborn_SandWetMid
+TidebornEnv_BeachSlope loc=(1000,1130,108.0) sc=(1.00,1.00,1.00) Y=[530..1730] Z=108.0 MI_Tideborn_SandWarm
+TidebornEnv_ShoreEdge loc=(1000,760,104.5) sc=(0.90,0.32,1.20) Y=[569..969] Z=104.5 MI_Tideborn_SandWet
+TidebornEnv_WetSand_01 loc=(1000,700,105.6) sc=(40.00,1.70,1.00) Y=[615..785] Z=105.6 MI_Tideborn_SandWetMid
+TidebornEnv_WetJag_00 loc=(780,645,105.2) sc=(12.00,1.40,1.00) Y=[575..715] Z=105.2 MI_Tideborn_SandWet
+TidebornEnv_WetJag_01 loc=(1220,655,105.2) sc=(11.00,1.50,1.00) Y=[580..730] Z=105.2 MI_Tideborn_SandWetMid
+TidebornEnv_WetJag_02 loc=(950,615,105.2) sc=(10.00,1.20,1.00) Y=[555..675] Z=105.2 MI_Tideborn_SandWet
+TidebornEnv_FoamSeg_00 loc=(720,548,103.6) sc=(9.00,1.00,1.00) Y=[498..598] Z=103.6 MI_Tideborn_Foam
+TidebornEnv_FoamSeg_01 loc=(880,560,103.8) sc=(10.00,1.15,1.00) Y=[502..618] Z=103.8 MI_Tideborn_FoamSoft
+TidebornEnv_FoamSeg_02 loc=(1050,542,103.9) sc=(11.00,0.95,1.00) Y=[494..590] Z=103.9 MI_Tideborn_Foam
+TidebornEnv_FoamSeg_03 loc=(1200,555,103.6) sc=(9.50,1.10,1.00) Y=[500..610] Z=103.6 MI_Tideborn_FoamSoft
+TidebornEnv_FoamSeg_04 loc=(1360,545,103.8) sc=(8.50,0.90,1.00) Y=[500..590] Z=103.8 MI_Tideborn_Foam
