@@ -1,0 +1,62 @@
+sand grain TEX+warm tint MI_Tideborn_SandWarm
+sand grain TEX+warm tint M_Tideborn_Sand
+x old TidebornEnv_WaterlineBoulder_04
+x old TidebornEnv_WLB_02
+x old TidebornEnv_WaterlineBoulder_01
+x old TidebornEnv_WLB_01
+x old TidebornEnv_WaterlineBoulder_02
+x old TidebornEnv_WaterlineBoulder_00
+x old TidebornEnv_WaterlineBoulder_03
+x old TidebornEnv_WaterlineBoulder_05
+x old TidebornEnv_WLB_04
+x old TidebornEnv_WLB_00
+x old TidebornEnv_WLB_03
+x old TidebornEnv_WLB_05
+PP mild warm temp4800 gain R1.12 B0.92 (water-safe)
+VolumetricCloud UNHID
+SkyAtmosphere UNHID/present
+DirectionalLight warm intensity~1.2 pitch=-45
+ExponentialHeightFog density~0.055 warm-grey inscatter
+SkyLight movable realtime intensity~4 warm tint
+SPAWNED SkyLight
+SandRamp cover Y[503..657] meshXY=(990,154) loc=(1000,580,105) sc=(0.18,0.11,0.7)
+WLB 00 @ (780,560)
+WLB 01 @ (820,620)
+WLB 02 @ (760,680)
+WLB 03 @ (1220,555)
+WLB 04 @ (1260,640)
+WLB 05 @ (1300,700)
+WLB 06 @ (740,700)
+WLB 07 @ (1280,590)
+=== DUMP CONFIRM ===
+SkyAtmosphere present=True
+SkyLight present=True
+ExponentialHeightFog present=True
+DirectionalLight present=True
+SKYACTOR SkyAtmosphere label=SkyAtmosphere loc=(0,0,1020) hidden=False
+SKYACTOR DirectionalLight label=DirectionalLight loc=(0,0,920) hidden=False
+SKYACTOR ExponentialHeightFog label=ExponentialHeightFog loc=(-5600,-50,-6850) hidden=False
+SKYACTOR SkyLight label=TidebornEnv_SkyLight loc=(1000,1000,500) hidden=False
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.00,18.00,1.00) Y[600..2400] mats=MI_Tideborn_SandWarm
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400) sc=(1.00,1.00,1.00) Y[2370..2430] mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.00,18.00,1.00) Y[-1800..0] mats=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,350) sc=(55.00,8.00,1.00) Y[-50..750] mats=M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800) sc=(1.00,1.00,1.00) Y[1753..1847] mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_Ground Z=105 loc=(1000,2800) sc=(45.00,16.00,1.00) Y[2000..3600] mats=M_Tideborn_Ground
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,580) sc=(0.18,0.11,0.70) Y[503..657] mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+CONFIRM TidebornEnv_WLB_00 Z=101 loc=(780,560) sc=(2.00,2.00,1.70) Y[377..743] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_01 Z=100 loc=(820,620) sc=(1.80,1.80,1.53) Y[455..785] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_02 Z=100 loc=(760,680) sc=(2.20,2.20,1.87) Y[479..881] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_03 Z=101 loc=(1220,555) sc=(2.10,2.10,1.78) Y[363..747] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_04 Z=100 loc=(1260,640) sc=(1.90,1.90,1.61) Y[466..814] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_05 Z=100 loc=(1300,700) sc=(2.00,2.00,1.70) Y[517..883] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_06 Z=100 loc=(740,700) sc=(1.60,1.60,1.36) Y[554..846] mats=M_Tideborn_RockShore
+CONFIRM TidebornEnv_WLB_07 Z=100 loc=(1280,590) sc=(1.70,1.70,1.44) Y[434..746] mats=M_Tideborn_RockShore
+LOCK SandBase OK=True Z=106 sc=(45.0,18.0)
+LOCK water Ocean OK=True Z=99 scY=18.0
+LOCK water Shallows OK=True Z=100 scY=8.0
+SandRamp MUST NOT cover ocean: Y[503..657] covers_all_water=False
+save_current_level -> True
+save_dirty -> True
+PASS_ASSERTS=True
+DONE

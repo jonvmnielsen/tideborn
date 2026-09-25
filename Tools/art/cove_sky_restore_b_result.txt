@@ -1,0 +1,23 @@
+HDRI loaded /Game/Tideborn/Art/HDRI/PH_industrial_sunset_puresky type=TextureCube
+PP manual-ish exposure bias 1.2 warm temp5200
+SkyLight cubemap <- HDRI sunset
+SkyLight HDRI intensity~5 warm
+SkyAtmosphere ok
+DirectionalLight 2.5 warm atmosphere_sun pitch=-42
+Fog mild warm-grey dens~0.045
+sky dome mat soft dusk blue
+SPAWNED SkyDome scale 400 soft dusk
+=== CONFIRM ===
+SkyAtmosphere=True SkyLight=True Fog=True Dir=True HDRI=True
+ACT SkyLight label=TidebornEnv_SkyLight loc=(1000,1000,500)
+ACT SkyAtmosphere label=SkyAtmosphere loc=(0,0,1020)
+ACT DirectionalLight label=DirectionalLight loc=(0,0,920)
+ACT ExponentialHeightFog label=ExponentialHeightFog loc=(-5600,-50,-6850)
+ACT StaticMeshActor label=TidebornEnv_SkyDome loc=(1000,800,0)
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.00,18.00)
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.00,18.00)
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,350) sc=(55.00,8.00)
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,580) sc=(0.18,0.11)
+save_level -> True
+save_dirty ok
+DONE
