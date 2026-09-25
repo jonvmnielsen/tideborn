@@ -1,0 +1,36 @@
+mat M_Tideborn_RockShore rgb=(0.100,0.090,0.080)
+mat MI_Tideborn_RockDark rgb=(0.120,0.100,0.090)
+mat MI_Tideborn_SandWarm rgb=(0.720,0.580,0.380)
+mat M_Tideborn_Sand rgb=(0.720,0.580,0.380)
+mat MI_Tideborn_SandWet rgb=(0.280,0.240,0.180)
+mat M_Tideborn_WaterOpaque rgb=(0.100,0.280,0.400)
+mat M_Tideborn_Ground rgb=(0.300,0.360,0.200)
+mat M_Tideborn_Bark rgb=(0.280,0.160,0.080)
+mat M_Tideborn_GateSolid rgb=(0.320,0.220,0.120)
+mat MI_Tideborn_CreatureMuted rgb=(0.420,0.340,0.220)
+mat MI_Tideborn_WoodMuted rgb=(0.360,0.240,0.120)
+x TidebornEnv_WetSand_01
+x TidebornEnv_WetSand_02
+x TidebornEnv_ShoreEdge
+x TidebornEnv_WetSand_00
+LOCK SandBase Z=106 sc=(45,18)
+Ocean Y=-400
+Shallows Y=420 scY=10 -> water up to ~920
+WetSand_00 Y=560 Z=105.8 (in front of SandBase)
+WetSand_01 Y=580 Z=105.9 (in front of SandBase)
+WetSand_02 Y=595 Z=106.1 (in front of SandBase)
+ShoreEdge thin extent=(2500,113,19) Y[447..673]
+PP exposureBias=0.2 manual warm
+SkyLight intensity=1.0
+DirLight 1.8 ocean-side
+Fog dens=0.05
+SkyDome dim warm dusk
+CONFIRM TidebornEnv_SandBase | loc=(1000,1500,106) sc=(45.00,18.00) Y[600..2400] | Plane[0]=MI_Tideborn_SandWarm
+CONFIRM TidebornEnv_Ocean | loc=(1000,-400,99) sc=(70.00,18.00) Y[-1300..500] | Plane[0]=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows | loc=(1000,420,100) sc=(60.00,10.00) Y[-80..920] | Plane[0]=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_WetSand_00 | loc=(1000,560,106) sc=(50.00,2.50) Y[435..685] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_WetSand_01 | loc=(1000,580,106) sc=(48.00,2.00) Y[480..680] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_WetSand_02 | loc=(1000,595,106) sc=(46.00,1.50) Y[520..670] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_ShoreEdge | loc=(1000,555,105) sc=(1.00,0.18) Y[447..673] | SM_TidebornShoreEdge[0]=MI_Tideborn_SandWet
+save -> True
+DONE

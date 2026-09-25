@@ -1,0 +1,6 @@
+mat M_Tideborn_RockShore (0.09, 0.08, 0.07)
+mat MI_Tideborn_SandWarm (0.62, 0.48, 0.3)
+mat MI_Tideborn_SandWet (0.16, 0.13, 0.1)
+mat M_Tideborn_WaterOpaque (0.08, 0.26, 0.4)
+save True
+DONE

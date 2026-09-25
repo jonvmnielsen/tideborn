@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
-"""Take one high-res shot from _shot_cfg_active.txt. Atmosphere ON. Rotator kwargs."""
+"""Take one high-res shot from _shot_cfg_v5.txt. Atmosphere ON. Rotator kwargs."""
 import time, pathlib, shutil, unreal
-cfg = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\_shot_cfg_active.txt")
+cfg = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\_shot_cfg_v5.txt")
 raw = cfg.read_text(encoding="utf-8-sig").strip().split("|")
 name, loc_s, rot_s = raw[0].strip(), raw[1].strip(), raw[2].strip()
 loc = [float(x) for x in loc_s.split(",")]
@@ -102,3 +102,4 @@ done.write_text("name=%s ok=%s target=%s auto=%s\n" % (
     auto.stat().st_size if auto.exists() else 0,
 ), encoding="utf-8")
 unreal.log("[Shot] end ok=%s size=%s" % (ok, target.stat().st_size if target.exists() else 0))
+

@@ -1,0 +1,49 @@
+mat M_Tideborn_RockShore rgb=(0.18,0.16,0.14) rough=0.92
+mat MI_Tideborn_RockDark rgb=(0.20,0.17,0.14) rough=0.93
+mat MI_Tideborn_SandWet rgb=(0.35,0.30,0.22) rough=0.72
+mat MI_Tideborn_SandWarm rgb=(0.82,0.66,0.42) rough=0.95
+mat M_Tideborn_Sand rgb=(0.82,0.66,0.42) rough=0.95
+mat M_Tideborn_WaterOpaque rgb=(0.14,0.30,0.40) rough=0.18
+mat M_Tideborn_Ground rgb=(0.34,0.40,0.22) rough=0.90
+mat M_Tideborn_Bark rgb=(0.32,0.18,0.09) rough=0.90
+mat MI_Tideborn_WoodMuted rgb=(0.40,0.26,0.14) rough=0.88
+mat MI_Tideborn_CreatureMuted rgb=(0.48,0.38,0.24) rough=0.85
+mat M_Tideborn_GateSolid rgb=(0.36,0.24,0.14) rough=0.85
+x TidebornEnv_WLB_04
+x TidebornEnv_WLB_01
+x TidebornEnv_WLB_02
+x TidebornEnv_WLB_06
+x TidebornEnv_WLB_00
+x TidebornEnv_WLB_05
+x TidebornEnv_WLB_03
+x TidebornEnv_WLB_07
+LOCK SandBase Z=106 sc=(45,18) SandWarm
+Ocean Y=-600 scY=18 Z=99
+Shallows Y=500 scY=9 Z=100
+SandRamp shrunk + SandWet
+spawned WLB dark rocks
+WetSand_00 Y=640 sc=(45.0,2.2)
+WetSand_01 Y=600 sc=(48.0,1.8)
+WetSand_02 Y=670 sc=(42.0,1.6)
+import shore -> ['/Game/Tideborn/Art/Meshes/SM_TidebornShoreEdge.SM_TidebornShoreEdge']
+ShoreEdge ok bounds extent=(2500,628,19)
+PP warm temp4800 gain mild
+SkyLight HDRI sunset
+SkyLight intensity~2.2 warm angle~200
+SkyAtmosphere keep
+DirLight warm from ocean yaw=-90
+Fog dens~0.05 warm-grey
+SkyDome warm dusk
+CONFIRM TidebornEnv_SandBase | StaticMeshActor | loc=(1000,1500,106) sc=(45.00,18.00,1.00) | Y[600..2400] X[-1250..3250] | Plane[0]=MI_Tideborn_SandWarm
+CONFIRM TidebornEnv_Ocean | StaticMeshActor | loc=(1000,-600,99) sc=(70.00,18.00,1.00) | Y[-1500..300] X[-2500..4500] | Plane[0]=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows | StaticMeshActor | loc=(1000,500,100) sc=(60.00,9.00,1.00) | Y[50..950] X[-2000..4000] | Plane[0]=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_SandRamp | StaticMeshActor | loc=(1000,560,105) sc=(0.85,0.55,0.70) | Y[175..945] X[-1338..3338] | SM_TidebornSandRamp[0]=MI_Tideborn_SandWet;SM_TidebornSandRamp[1]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_WetSand_00 | StaticMeshActor | loc=(1000,640,106) sc=(45.00,2.20,1.00) | Y[530..750] X[-1250..3250] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_WetSand_01 | StaticMeshActor | loc=(1000,600,105) sc=(48.00,1.80,1.00) | Y[510..690] X[-1400..3400] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_WetSand_02 | StaticMeshActor | loc=(1000,670,106) sc=(42.00,1.60,1.00) | Y[590..750] X[-1100..3100] | Plane[0]=MI_Tideborn_SandWet
+CONFIRM TidebornEnv_ShoreEdge | StaticMeshActor | loc=(1000,560,104) sc=(1.00,1.00,1.00) | Y[-40..1215] X[-1500..3500] | SM_TidebornShoreEdge[0]=MI_Tideborn_SandWet
+dump lines=69
+sky atmo=True sl=True fog=True dir=True hdri=True
+save_level -> True
+save_dirty ok
+DONE

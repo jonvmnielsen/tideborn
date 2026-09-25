@@ -1,0 +1,8 @@
+LOCK check SandBase Z=106 sc=(45.0,18.0)
+keep TidebornEnv_WetSand_01 loc=(1000,600,105) sc=(48.00,1.80)
+keep TidebornEnv_WetSand_02 loc=(1000,670,106) sc=(42.00,1.60)
+keep TidebornEnv_ShoreEdge loc=(1000,560,104) sc=(1.00,1.00)
+keep TidebornEnv_WetSand_00 loc=(1000,640,106) sc=(45.00,2.20)
+SandRamp sc=(0.22,0.14) extent=(605,98,31) Y[482..678]
+save -> True
+DONE
