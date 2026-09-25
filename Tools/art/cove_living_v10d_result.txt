@@ -1,0 +1,8 @@
+LOCK SandBase
+Ocean Y[-1900..-450] Z=99.5
+Shallows Y[-450..500] Z=99.5
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=106.0
+DUMP TidebornEnv_Ocean Y=[-1900..-450] Z=99.5
+DUMP TidebornEnv_Shallows Y=[-450..500] Z=99.5
+save True
+DONE

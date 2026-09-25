@@ -1,0 +1,13 @@
+LOCK SandBase
+Ocean Y[-1900..-400]
+Shallows Y[-500..500]
+DUMP TidebornEnv_SandBase Y=[600..2400] Z=106.0
+DUMP TidebornEnv_WetSand_00 Y=[600..800] Z=105.5
+DUMP TidebornEnv_FoamSeg_03 Y=[606..662] Z=105.2
+DUMP TidebornEnv_FoamSeg_01 Y=[608..664] Z=105.2
+DUMP TidebornEnv_Ocean Y=[-1900..-400] Z=99.0
+DUMP TidebornEnv_Shallows Y=[-500..500] Z=100.0
+DUMP TidebornEnv_FoamSeg_00 Y=[603..653] Z=105.2
+DUMP TidebornEnv_FoamSeg_02 Y=[599..649] Z=105.2
+save True
+DONE

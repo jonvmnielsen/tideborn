@@ -1,0 +1,35 @@
+x TidebornEnv_FoamSeg_00
+x TidebornEnv_FoamSeg_02
+x TidebornEnv_WetSand_01
+HIDE TidebornEnv_SkyDome
+x TidebornEnv_FoamSeg_03
+x TidebornEnv_FoamSeg_01
+sand_grain MI_Tideborn_SandWarm tint=(0.95, 0.58, 0.3) mix=0.40
+sand_grain M_Tideborn_Sand tint=(0.95, 0.58, 0.3) mix=0.40
+mat MI_Tideborn_SandWet rgb=(0.16, 0.09, 0.045)
+mat M_Tideborn_WaterOpaque rgb=(0.03, 0.12, 0.4)
+mat M_Tideborn_RockShore rgb=(0.42, 0.28, 0.16)
+mat MI_Tideborn_RockDark rgb=(0.42, 0.28, 0.16)
+mat MI_Tideborn_Foam rgb=(0.78, 0.62, 0.42)
+mat MI_Tideborn_FoamSoft rgb=(0.7, 0.52, 0.34)
+LOCK SandBase
+WetSand_00 Y=700 scY=2 -> Y[600..800]
+Ocean clamp
+Shallows clamp
+FoamSeg x4 warm-sand tone
+PP temp=3400 gain lift
+SkyLight 0.18 warm
+DirLight 4.5 warm
+DUMP TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00,1.00) Y=[600..2400] Z=106.0 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+DUMP TidebornEnv_WetSand_00 loc=(1000,700,105.5) sc=(48.00,2.00,1.00) Y=[600..800] Z=105.5 MI_Tideborn_SandWet,MI_Tideborn_SandWet
+DUMP TidebornEnv_SkyLight loc=(1000,1000,500.0) sc=(1.00,1.00,1.00) Y=[-1..1256] Z=500.0 -
+DUMP TidebornEnv_Ocean loc=(1000,-1200,99.0) sc=(95.00,14.00,1.00) Y=[-1900..-500] Z=99.0 M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+DUMP TidebornEnv_Shallows loc=(1000,50,100.0) sc=(80.00,9.00,1.00) Y=[-400..500] Z=100.0 M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+DUMP TidebornEnv_SkyDome loc=(1000,800,0.0) sc=(500.00,500.00,500.00) Y=[-24200..25800] Z=0.0 M_Tideborn_SkyDomeGrad,M_Tideborn_SkyDomeGrad
+DUMP TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00,1.00) Y=[2000..3600] Z=105.0 M_Tideborn_Ground
+DUMP TidebornEnv_FoamSeg_00 loc=(800,628,105.2) sc=(7.50,0.50,1.00) Y=[603..653] Z=105.2 MI_Tideborn_Foam,MI_Tideborn_Foam
+DUMP TidebornEnv_FoamSeg_01 loc=(980,636,105.2) sc=(8.00,0.55,1.00) Y=[608..664] Z=105.2 MI_Tideborn_FoamSoft,MI_Tideborn_FoamSoft
+DUMP TidebornEnv_FoamSeg_02 loc=(1160,624,105.2) sc=(7.50,0.50,1.00) Y=[599..649] Z=105.2 MI_Tideborn_Foam,MI_Tideborn_Foam
+DUMP TidebornEnv_FoamSeg_03 loc=(1320,634,105.2) sc=(7.00,0.55,1.00) Y=[606..662] Z=105.2 MI_Tideborn_FoamSoft,MI_Tideborn_FoamSoft
+save True
+DONE

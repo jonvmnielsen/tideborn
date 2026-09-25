@@ -1,0 +1,73 @@
+BEFORE TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00,1.00) Y=[600..2400] Z=106.0 MI_Tideborn_SandWarm
+BEFORE TidebornEnv_ShoreStep_02 loc=(1000,735,111.5) sc=(30.00,0.90,1.00) Y=[690..780] Z=111.5 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+BEFORE TidebornEnv_ShoreStep_00 loc=(1000,650,104.5) sc=(30.00,0.90,1.00) Y=[605..695] Z=104.5 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+BEFORE TidebornEnv_FoamSeg_01 loc=(940,570,104.5) sc=(10.00,1.20,1.00) Y=[510..630] Z=104.5 MI_Tideborn_Foam,MI_Tideborn_Foam
+BEFORE TidebornEnv_WetSand_00 loc=(1000,630,105.2) sc=(42.00,1.90,1.00) Y=[535..725] Z=105.2 MI_Tideborn_SandWet
+BEFORE TidebornEnv_ShoreStep_s1 loc=(700,700,109.0) sc=(6.00,0.90,1.00) Y=[655..745] Z=109.0 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+BEFORE TidebornEnv_ShoreStep_s2 loc=(700,745,113.0) sc=(6.00,0.90,1.00) Y=[700..790] Z=113.0 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+BEFORE TidebornEnv_FoamSeg_00 loc=(760,560,104.5) sc=(9.00,1.15,1.00) Y=[502..618] Z=104.5 MI_Tideborn_Foam,MI_Tideborn_Foam
+BEFORE TidebornEnv_FoamSeg_03 loc=(1300,565,104.5) sc=(9.00,1.15,1.00) Y=[508..622] Z=104.5 MI_Tideborn_Foam,MI_Tideborn_Foam
+BEFORE TidebornEnv_Ocean loc=(1000,-800,99.0) sc=(80.00,18.00,1.00) Y=[-1700..100] Z=99.0 M_Tideborn_WaterOpaque
+BEFORE TidebornEnv_Shallows loc=(1000,300,100.0) sc=(70.00,10.00,1.00) Y=[-200..800] Z=100.0 M_Tideborn_WaterOpaque
+BEFORE TidebornEnv_FoamSeg_02 loc=(1120,555,104.5) sc=(11.00,1.10,1.00) Y=[500..610] Z=104.5 MI_Tideborn_Foam,MI_Tideborn_Foam
+BEFORE TidebornEnv_WetSand_01 loc=(1000,700,105.6) sc=(40.00,1.70,1.00) Y=[615..785] Z=105.6 MI_Tideborn_SandWetMid
+BEFORE TidebornEnv_SkyDome loc=(1000,800,0.0) sc=(500.00,500.00,500.00) Y=[-24200..25800] Z=0.0 M_Tideborn_SkyDomeGrad,M_Tideborn_SkyDomeGrad
+BEFORE TidebornEnv_ShoreStep_01 loc=(1000,690,108.0) sc=(30.00,0.90,1.00) Y=[645..735] Z=108.0 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+BEFORE TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00,1.00) Y=[2000..3600] Z=105.0 M_Tideborn_Ground
+BEFORE TidebornEnv_SkyBackdrop loc=(1000,-2500,2000.0) sc=(250.00,0.15,100.00) Y=[-2508..-2492] Z=2000.0 M_Tideborn_SkyBackdrop,M_Tideborn_SkyBackdrop
+BEFORE TidebornEnv_ShoreStep_s0 loc=(700,660,104.5) sc=(6.00,0.90,1.00) Y=[615..705] Z=104.5 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+x TidebornEnv_ShoreStep_02
+x TidebornEnv_ShoreStep_00
+x TidebornEnv_FoamSeg_01
+x TidebornEnv_ShoreStep_s1
+x TidebornEnv_ShoreStep_s2
+x TidebornEnv_FoamSeg_00
+x TidebornEnv_FoamSeg_03
+x TidebornEnv_FoamSeg_02
+HIDE SkyDome TidebornEnv_SkyDome
+x TidebornEnv_ShoreStep_01
+x TidebornEnv_SkyBackdrop
+x TidebornEnv_ShoreStep_s0
+sand_grain MI_Tideborn_SandWarm tile=9.0 tint=(0.85, 0.38, 0.16)
+sand_grain M_Tideborn_Sand tile=9.0 tint=(0.85, 0.38, 0.16)
+mat MI_Tideborn_SandWet rgb=(0.14, 0.08, 0.04)
+mat MI_Tideborn_SandWetMid rgb=(0.22, 0.12, 0.06)
+water M_Tideborn_WaterOpaque rough=0.55
+mat M_Tideborn_RockShore rgb=(0.42, 0.28, 0.16)
+mat MI_Tideborn_RockDark rgb=(0.42, 0.28, 0.16)
+mat MI_Tideborn_Foam rgb=(0.92, 0.88, 0.78)
+mat MI_Tideborn_FoamSoft rgb=(0.88, 0.84, 0.74)
+LOCK SandBase (1000,1500,106) sc(45,18)
+Ocean Y~[-1900..-500] Z=99
+Shallows Y~[-400..500] Z=100
+WetSand_00 Y=650 Z=105.5 sc(50,2.5)
+WetSand_01 mid Y=740
+FoamSeg_00 nudged inland
+FoamSeg_00 Y=[598..652]
+FoamSeg_01 Y=[605..665]
+FoamSeg_02 nudged inland
+FoamSeg_02 Y=[594..650]
+FoamSeg_03 Y=[608..668]
+SPAWN FoamSeg x4 cream scY~0.6
+PP white_temp=3400 gain=(1.45,0.92,0.48)
+SHOW VolumetricCloud
+SkyLight intensity=0.15 cubemap=None
+SHOW SkyAtmosphere
+DirLight 4.0 warm pitch=-40 yaw=-90
+Fog dens=0.015 warm
+AFTER TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00,1.00) Y=[600..2400] Z=106.0 MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+AFTER TidebornEnv_WetSand_00 loc=(1000,650,105.5) sc=(50.00,2.50,1.00) Y=[525..775] Z=105.5 MI_Tideborn_SandWet,MI_Tideborn_SandWet
+WARN_SAND_NEAR_WATER TidebornEnv_WetSand_00 loc=(1000,650,105.5) sc=(50.00,2.50,1.00) Y=[525..775] Z=105.5 MI_Tideborn_SandWet,MI_Tideborn_SandWet
+AFTER TidebornEnv_Ocean loc=(1000,-1200,99.0) sc=(95.00,14.00,1.00) Y=[-1900..-500] Z=99.0 M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+AFTER TidebornEnv_Shallows loc=(1000,50,100.0) sc=(80.00,9.00,1.00) Y=[-400..500] Z=100.0 M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+AFTER TidebornEnv_WetSand_01 loc=(1000,740,105.9) sc=(40.00,1.60,1.00) Y=[660..820] Z=105.9 MI_Tideborn_SandWetMid,MI_Tideborn_SandWetMid
+AFTER TidebornEnv_SkyDome loc=(1000,800,0.0) sc=(500.00,500.00,500.00) Y=[-24200..25800] Z=0.0 M_Tideborn_SkyDomeGrad,M_Tideborn_SkyDomeGrad
+AFTER TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00,1.00) Y=[2000..3600] Z=105.0 M_Tideborn_Ground
+AFTER TidebornEnv_FoamSeg_00 loc=(780,630,104.3) sc=(8.00,0.55,1.00) Y=[602..658] Z=104.3 MI_Tideborn_Foam,MI_Tideborn_Foam
+AFTER TidebornEnv_FoamSeg_01 loc=(960,635,104.3) sc=(9.00,0.60,1.00) Y=[605..665] Z=104.3 MI_Tideborn_FoamSoft,MI_Tideborn_FoamSoft
+AFTER TidebornEnv_FoamSeg_02 loc=(1140,630,104.3) sc=(8.50,0.55,1.00) Y=[602..658] Z=104.3 MI_Tideborn_Foam,MI_Tideborn_Foam
+AFTER TidebornEnv_FoamSeg_03 loc=(1300,638,104.3) sc=(7.50,0.60,1.00) Y=[608..668] Z=104.3 MI_Tideborn_FoamSoft,MI_Tideborn_FoamSoft
+FAIL sand/near-water TidebornEnv_WetSand_00 loc=(1000,650,105.5) sc=(50.00,2.50,1.00) Y=[525..775] Z=105.5 MI_Tideborn_SandWet,MI_Tideborn_SandWet
+OK no ShoreStep/ShoreLip/BeachSlope/SkyBackdrop
+save True
+DONE
