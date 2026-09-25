@@ -1,0 +1,16 @@
+sand glow MI_Tideborn_SandWarm
+sand glow M_Tideborn_Sand
+DESTROYED SkyLight
+PP gain warm R1.55 B0.55 temp3500
+hide VolumetricCloud
+hide SkyAtmosphere
+DirLight strong warm
+hide ExponentialHeightFog
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.0,18.0) mats=MI_Tideborn_SandWarm
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400) sc=(1.0,1.0) mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.0,18.0) mats=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,420) sc=(55.0,6.5) mats=M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800) sc=(1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,560) sc=(2.4,1.6) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+SHOT begin TidebornCoveVerify
+SHOT end ok=False size=0

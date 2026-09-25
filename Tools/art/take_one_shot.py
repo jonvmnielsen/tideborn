@@ -1,6 +1,6 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import time, pathlib, unreal
-cfg = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\_shot_cfg.txt")
+cfg = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\_shot_cfg_active.txt")
 raw = cfg.read_text(encoding="utf-8-sig").strip().split("|")
 name, loc_s, rot_s = raw[0].strip(), raw[1].strip(), raw[2].strip()
 loc = [float(x) for x in loc_s.split(",")]
@@ -11,7 +11,6 @@ target = SHOT / (name + ".png")
 if target.exists():
     try: target.unlink()
     except Exception: pass
-# also clear AutoScreenshot
 auto = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Saved\AutoScreenshot.png")
 try:
     unreal.EditorLoadingAndSavingUtils.load_map("/Game/ThirdPerson/Maps/ThirdPersonMap")
@@ -36,9 +35,8 @@ try:
     unreal.SystemLibrary.execute_console_command(None, "HighResShot 1920x1080")
 except Exception as e:
     unreal.log("hrs fail "+str(e))
-# Wait up to 25s for either file
 ok = False
-for i in range(50):
+for i in range(90):
     time.sleep(0.5)
     if target.exists() and target.stat().st_size > 20000:
         ok = True
@@ -51,9 +49,19 @@ for i in range(50):
             break
         except Exception as e:
             unreal.log("copy auto "+str(e))
-    # nudge
     try:
         unreal.SystemLibrary.execute_console_command(None, "r.ScreenPercentage 100")
+    except Exception:
+        pass
+# final grace: screenshot may flush after loop
+time.sleep(2.0)
+if not ok and target.exists() and target.stat().st_size > 20000:
+    ok = True
+if not ok and auto.exists() and auto.stat().st_size > 20000:
+    try:
+        import shutil
+        shutil.copy2(str(auto), str(target))
+        ok = True
     except Exception:
         pass
 done = pathlib.Path(r"C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\_shot_done.txt")
@@ -63,3 +71,4 @@ done.write_text("name=%s ok=%s target=%s auto=%s\n" % (
     auto.stat().st_size if auto.exists() else 0,
 ), encoding="utf-8")
 unreal.log("[Shot] end ok=%s" % ok)
+
