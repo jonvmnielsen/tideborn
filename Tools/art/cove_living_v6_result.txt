@@ -1,0 +1,31 @@
+mat M_Tideborn_RockShore rgb=(0.120,0.100,0.080)
+mat MI_Tideborn_RockDark rgb=(0.120,0.100,0.080)
+mat MI_Tideborn_SandWarm rgb=(0.550,0.450,0.320)
+mat M_Tideborn_Sand rgb=(0.550,0.450,0.320)
+mat MI_Tideborn_SandWet rgb=(0.120,0.100,0.080)
+mat M_Tideborn_WaterOpaque rgb=(0.060,0.220,0.380)
+mat M_Tideborn_Ground rgb=(0.280,0.340,0.180)
+mat M_Tideborn_Bark rgb=(0.260,0.150,0.080)
+MOVE TidebornEnv_WLB_06 (1000,620) -> (650,570)
+MOVE TidebornEnv_WLB_03 (1150,660) -> (1350,635)
+MOVE TidebornEnv_WLB_00 (880,605) -> (650,605)
+MOVE TidebornEnv_WLB_01 (855,650) -> (1350,675)
+MOVE TidebornEnv_WLB_05 (1080,640) -> (650,690)
+MOVE TidebornEnv_WLB_02 (1125,608) -> (1350,558)
+x ShoreEdge (center corridor)
+MOVE TidebornEnv_WLB_04 (920,690) -> (650,665)
+moved_blockers=7
+x TidebornEnv_WetSand_02
+x TidebornEnv_WetSand_00
+x TidebornEnv_WetSand_01
+LOCK SandBase Z=106 sc=(45,18) Y[600..2400]
+Ocean loc=(1000,-800,99) sc=(80,18) Y[-1700..100]
+Shallows loc=(1000,350,100) sc=(60,12) Y[-250..950]
+SandRamp -> Y=640 wet
+WetSand_00 loc=(1000,650,105.5) sc=(50,2) Y[550..750] DARK wet
+PP warm bias=-0.15
+SkyLight intensity=0.70 (kept)
+DirLight warm 1.6
+dump_after 45
+save True
+DONE

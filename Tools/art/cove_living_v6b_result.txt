@@ -1,0 +1,15 @@
+mat M_Tideborn_RockShore (0.14, 0.11, 0.08)
+mat MI_Tideborn_RockDark (0.14, 0.11, 0.08)
+mat MI_Tideborn_SandWarm (0.48, 0.38, 0.26)
+mat M_Tideborn_Sand (0.48, 0.38, 0.26)
+mat MI_Tideborn_SandWet (0.08, 0.06, 0.05)
+mat M_Tideborn_WaterOpaque (0.05, 0.28, 0.48)
+LOCK SandBase
+PP bias=-0.35 warm
+WetSand dark scY=2.5
+MOVE TidebornEnv_Boulder_near_08 (780,400)->(580,340)
+SkyLight 0.45 warm
+DirLight warm 2.0
+MOVE TidebornEnv_Boulder_near_09 (1300,420)->(1420,390)
+save True
+DONE
