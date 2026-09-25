@@ -1,0 +1,8 @@
+TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00) MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+PP white_temp=3400.0 gain=<Struct 'Vector4' (0x0000084145251110) {x: 1.450000, y: 0.920000, z: 0.480000, w: 1.000000}> bias=-0.10000000149011612 lut=None
+TidebornEnv_WetSand_00 loc=(1000,650,105.5) sc=(50.00,2.50) MI_Tideborn_SandWet,MI_Tideborn_SandWet
+SkyLight int=0.15000000596046448 color=<Struct 'Color' (0x00000841448C1B98) {b: 255, g: 255, r: 255, a: 255}> type=<SkyLightSourceType.SLS_CAPTURED_SCENE: 0> cubemap=None
+DirLight int=4.0 color=<Struct 'Color' (0x00000841448CD998) {b: 255, g: 178, r: 120, a: 255}> use_temp=False temp=4500.0 rot=(-40.0,-90.0,0.0)
+Fog density=0.014999999664723873
+TidebornEnv_Ocean loc=(1000,-600,99.0) sc=(90.00,18.00) M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+TidebornEnv_Shallows loc=(1000,700,100.0) sc=(70.00,14.00) M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque

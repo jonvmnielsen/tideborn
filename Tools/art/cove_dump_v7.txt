@@ -1,0 +1,80 @@
+=== PostProcessVolume ===
+actor lab=PostProcessVolume class=PostProcessVolume unbound=True
+  white_temp = 4000.0
+  white_tint = 0.0
+  color_saturation = <Struct 'Vector4' (0x00000675B84528B0) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_contrast = <Struct 'Vector4' (0x00000675B84528D0) {x: 0.920000, y: 0.920000, z: 0.920000, w: 1.000000}>
+  color_gamma = <Struct 'Vector4' (0x00000675B84528F0) {x: 1.020000, y: 1.000000, z: 0.980000, w: 1.000000}>
+  color_gain = <Struct 'Vector4' (0x00000675B8452910) {x: 1.150000, y: 1.000000, z: 0.750000, w: 1.000000}>
+  color_offset = <Struct 'Vector4' (0x00000675B8452930) {x: 0.000000, y: 0.000000, z: 0.000000, w: 0.000000}>
+  color_saturation_shadows = <Struct 'Vector4' (0x00000675B8452950) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_gain_shadows = <Struct 'Vector4' (0x00000675B84529B0) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_saturation_midtones = <Struct 'Vector4' (0x00000675B84529F0) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_gain_midtones = <Struct 'Vector4' (0x00000675B8452A50) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_saturation_highlights = <Struct 'Vector4' (0x00000675B8452A90) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  color_gain_highlights = <Struct 'Vector4' (0x00000675B8452AF0) {x: 1.000000, y: 1.000000, z: 1.000000, w: 1.000000}>
+  auto_exposure_bias = -0.3499999940395355
+  auto_exposure_method = <AutoExposureMethod.AEM_MANUAL: 2>
+  override_white_temp = True
+  override_color_gain = True
+  override_color_saturation = False
+  override_auto_exposure_bias = True
+  override_auto_exposure_method = True
+  color_grading_lut = None
+  override_color_grading_lut = False
+  color_grading_intensity = 1.0
+  override_color_grading_intensity = False
+  look_up_table = <err>
+  scene_color_tint = <Struct 'LinearColor' (0x00000675B8452B5C) {r: 1.000000, g: 1.000000, b: 1.000000, a: 1.000000}>
+  override_scene_color_tint = False
+
+=== SkyLight ===
+actor lab=TidebornEnv_SkyLight class=SkyLight
+  intensity = 0.44999998807907104
+  light_color = <Struct 'Color' (0x00000675B006CA98) {b: 255, g: 255, r: 255, a: 255}>
+  source_type = <SkyLightSourceType.SLS_SPECIFIED_CUBEMAP: 1>
+  cubemap = /Game/Tideborn/Art/HDRI/PH_industrial_sunset_puresky.PH_industrial_sunset_puresky
+  source_cubemap_angle = 200.0
+  real_time_capture = False
+  indirect_lighting_intensity = 1.0
+  occlusion_max_distance = 1000.0
+  lower_hemisphere_is_black = False
+  lower_hemisphere_color = <Struct 'LinearColor' (0x00000675B006CAF8) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>
+
+=== DirectionalLight ===
+actor lab=DirectionalLight class=DirectionalLight rot=(-28.0,-90.0,-0.0)
+  intensity = 2.0
+  light_color = <Struct 'Color' (0x000006759945ED98) {b: 255, g: 178, r: 120, a: 255}>
+  indirect_lighting_intensity = 0.5
+  atmosphere_sun_light = True
+  cast_shadows = True
+  temperature = 6500.0
+  use_temperature = True
+
+=== ExponentialHeightFog ===
+actor lab=ExponentialHeightFog class=ExponentialHeightFog
+  fog_density = 0.029999999329447746
+  fog_height_falloff = 0.20000000298023224
+  fog_inscattering_color = <err>
+  directional_inscattering_color = <err>
+  directional_inscattering_exponent = 4.0
+  volumetric_fog = <err>
+  volumetric_fog_albedo = <Struct 'Color' (0x00000675C406F828) {b: 255, g: 255, r: 255, a: 255}>
+  start_distance = 400.0
+
+=== SkyAtmosphere / VolumetricCloud present ===
+KEEP VolumetricCloud lab=VolumetricCloud hidden=False
+KEEP SkyAtmosphere lab=SkyAtmosphere hidden=False
+KEEP StaticMeshActor lab=TidebornEnv_SkyDome hidden=False
+
+=== Mouth corridor Boulder/WLB X[800,1200] Y[200,900] ===
+mouth_count=0
+
+=== Key shore actors ===
+TidebornEnv_SandBase loc=(1000,1500,106.0) sc=(45.00,18.00) Y[600..2400] MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+TidebornEnv_WetSand_00 loc=(1000,650,105.5) sc=(50.00,2.50) Y[525..775] MI_Tideborn_SandWet,MI_Tideborn_SandWet
+TidebornEnv_Ocean loc=(1000,-800,99.0) sc=(80.00,18.00) Y[-1700..100] M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+TidebornEnv_Shallows loc=(1000,350,100.0) sc=(60.00,12.00) Y[-250..950] M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+TidebornEnv_Ground loc=(1000,2800,105.0) sc=(45.00,16.00) Y[2000..3600] M_Tideborn_Ground
+TidebornEnv_SandRamp loc=(1000,640,105.3) sc=(0.22,0.14) Y[633..647] MI_Tideborn_SandWet,MI_Tideborn_SandWet
+DONE

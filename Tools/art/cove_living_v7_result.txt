@@ -1,0 +1,37 @@
+mat M_Tideborn_RockShore rgb=(0.180,0.140,0.100)
+mat MI_Tideborn_RockDark rgb=(0.180,0.140,0.100)
+mat MI_Tideborn_SandWarm rgb=(0.550,0.420,0.280)
+mat M_Tideborn_Sand rgb=(0.550,0.420,0.280)
+mat MI_Tideborn_SandWet rgb=(0.100,0.070,0.050)
+mat M_Tideborn_WaterOpaque rgb=(0.050,0.150,0.350)
+mat M_Tideborn_Ground rgb=(0.300,0.320,0.160)
+mat M_Tideborn_Bark rgb=(0.280,0.160,0.080)
+MOVE mouth TidebornEnv_Boulder_near_01 (680,880)->(480,824)
+LOWER TidebornEnv_Boulder_near_02 sc was (2.80,2.80,2.80)
+MOVE mouth TidebornEnv_Boulder_near_02 (640,720)->(1520,692)
+MOVE mouth TidebornEnv_WLB_06 (650,570)->(480,570)
+MOVE mouth TidebornEnv_WLB_03 (1350,635)->(1520,663)
+MOVE mouth TidebornEnv_WLB_00 (650,605)->(480,661)
+MOVE mouth TidebornEnv_WLB_01 (1350,675)->(1520,619)
+MOVE mouth TidebornEnv_WLB_05 (650,690)->(480,662)
+MOVE mouth TidebornEnv_Boulder_near_05 (1400,900)->(1520,900)
+MOVE mouth TidebornEnv_WLB_02 (1350,558)->(480,586)
+LOWER TidebornEnv_Boulder_near_03 sc was (3.11,3.11,3.11)
+MOVE mouth TidebornEnv_Boulder_near_03 (600,550)->(1520,606)
+MOVE mouth TidebornEnv_WLB_04 (650,665)->(480,609)
+moved_mouth=11
+extra_moved=0
+LOCK SandBase Z=106 sc=(45,18) Y[600..2400]
+KEEP WetSand_00 dark sc=(50,2.5) Y[525..775]
+Ocean Z=99 scY=18
+Shallows Z=100 scY=12
+SandRamp Y=640 wet
+PP white_temp=5600 gain=(1.18,1.00,0.72) LUT cleared
+KEEP VolumetricCloud
+SkyLight intensity=1.0 warm color, cubemap CLEARED (realtime capture)
+KEEP SkyAtmosphere
+DirLight warm (1,0.85,0.65) int=2.2 pitch=-40
+Fog density=0.025 warm-grey
+dump_after 46 mouth_remaining=0
+save True
+DONE
