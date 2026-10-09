@@ -1,6 +1,6 @@
 # Tideborn — browser/mobil
 
-Spilbar version af Tideborn i browseren, bygget med three.js. Kører på telefon og computer uden installation.
+Tideborn i browseren, bygget med three.js efter designet i `../Docs/`. Kører på telefon og computer uden installation.
 
 **Spil:** https://jonvmnielsen.github.io/tideborn/
 Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
@@ -9,21 +9,24 @@ Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 
 | | Telefon | Computer |
 |---|---|---|
-| Gå | Træk med tommelfingeren i venstre side | WASD / piletaster |
-| Løb | Træk joysticket helt ud | (altid løb med taster) |
-| Saml | Tryk på den orange knap (hold for at blive ved) | E eller mellemrum |
+| Gå / løb | Venstre tommelfinger (træk helt ud for at løbe) | WASD / piletaster (Shift = gå) |
+| Drej kameraet | Træk med højre tommelfinger | Træk med musen |
 | Zoom | – | Musehjul |
+| Handling (saml, fæld, åbn, sov) | Den runde knap (hold for at blive ved) | E eller mellemrum |
+| Rygsæk og crafting | Rygsæk-knappen | I eller Tab |
+| Byg | Byg-knappen, vælg en del, tryk Placér | B, vælg del, E for at placere, R for at dreje, X for at fjerne |
+| Spis | Spis-knappen ved måleren | F |
 
-Træer giver træ (3 hug), sten giver sten (4 hug). De gror tilbage efter 1,5–2 minutter. Spillet gemmer automatisk i browseren på den enhed, du spiller på.
+## Spilløkken (Phase 1 — Camp)
 
-## Indhold i v0.1
+1. Knæk grene af døde træer, saml løse sten og plukker siv ved vandet.
+2. Lav en **stenøkse** i Rygsækken. Nu kan du fælde alle træer, også i skovene.
+3. Lav en **hakke** og hak sten af de store klipper.
+4. **Byg**: fundament → vægge, døråbning, vinduer → tag. Etage og trappe giver 2. sal. Bål og fakler lyser om natten, kisten gemmer ting, sengen bliver dit hjem.
+5. Sult tæres langsomt. Forsyningskasser skyller i land på stranden hver morgen.
+6. Udforsk: kæmpetræet midt på øen og udsigtstårnet på højderyggen mod nord.
 
-- Ø af KayKit-hexfelter med automatisk tilpasset kystlinje og en bugt mod syd
-- Hav med lavvandet farve og skum langs stranden (egen shader)
-- Spiller (KayKit Barbarian) med gå, løb, hug og jubel
-- Træer og sten at samle, med fældning, splinter og genvækst
-- Joystick + kontekstknap på mobil, tastatur på computer
-- Automatisk gemning lokalt
+Spillet gemmer automatisk i browseren på den enhed, du spiller på.
 
 ## Udvikling
 
@@ -32,27 +35,24 @@ cd web
 npm install
 npm run dev        # lokal udvikling
 npm run build      # bygger til web/dist
+npm run sync-assets   # henter modellerne i assets.json fra ../../game-assets
 ```
 
-Grafik kommer fra [game-assets](https://github.com/jonvmnielsen/game-assets). Listen over brugte modeller står i `assets.json`. Hent dem ind med (kræver game-assets klonet ved siden af tideborn):
-
-```bash
-npm run sync-assets
-```
-
-Hvert push til `main`, der ændrer `web/`, bygger og udgiver spillet automatisk via GitHub Actions (`.github/workflows/pages.yml`).
+Hvert push til `main`, der ændrer `web/`, bygger og udgiver spillet automatisk via GitHub Actions.
 
 ## Kode
 
-| Fil | Ansvar |
+| Mappe/fil | Ansvar |
 |-----|--------|
-| `src/main.js` | Opstart, kamera, lys, spil-loop, gemning |
-| `src/world.js` | Øens form, kystfelter, højdeopslag, dekoration, kollisioner |
-| `src/hex.js` | Hex-matematik og bagte højdekort pr. felt |
-| `src/water.js` | Hav- og himmelshader |
-| `src/player.js` | Spilleren: bevægelse, animationer, kollision |
-| `src/resources.js` | Træer og sten: hug, fældning, genvækst |
-| `src/input.js` | Joystick, knap og tastatur |
-| `src/hud.js` | Inventar, knap-tekst, flydende "+1" |
-| `src/fx.js` | Splinter-effekt |
-| `src/save.js` | Gemning i localStorage |
+| `src/main.js` | Opstart, spil-loop, handlinger, mål, gemning |
+| `src/world/terrain.js` | Øens højdekort, bælter, farver, afstandsfelt til havet |
+| `src/world/world.js` | Samler øen: landemærker, flora, kollision, himmel og hav |
+| `src/world/scatter.js` | Instansering pr. 64 m chunk; hvert træ kan skjules/vises |
+| `src/world/collide.js` | Cirkler og bokse til kollision, gangbare flader (gulve, trapper) |
+| `src/systems/gather.js` | Fæld, hak, saml; fald-animation; genvækst; tidevand |
+| `src/systems/building.js` | Byggesystem: ghost, snap, regler, placering, fjern, gem |
+| `src/systems/daynight.js` | Døgnrytme og lys |
+| `src/systems/survival.js` | Sult og liv |
+| `src/systems/inventory.js` | Ting i rygsæk og kister |
+| `src/data/*.js` | Ting, opskrifter, byggedele og indsamling som data |
+| `src/player.js`, `src/camera.js`, `src/input.js`, `src/ui.js` | Spiller, tredjepersonskamera, styring, skærmlag |

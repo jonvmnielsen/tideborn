@@ -8,7 +8,7 @@ Island Ecology (speculative evolution) · base building · exploration · creatu
 
 ## Status
 
-**Browser/mobil v0.1** (`web/`, three.js): strand-bugt på en hex-ø, saml træ og sten, mobil-styring, automatisk gemning. Se [`web/README.md`](web/README.md).
+**Browser/mobil v0.2 — Phase 1 Camp spilbar** (`web/`, three.js): stor ø med kyst, skov og højderyg, alle træer kan fældes, crafting, modulært byggeri, dag/nat, sult, gemning. Se [`STATUS.md`](STATUS.md) og [`web/README.md`](web/README.md).
 
 Unreal-versionen er sat på pause (Phase 2 Wild, greybox). Se [`DECISIONS.md`](DECISIONS.md).
 Design docs in [`Docs/`](Docs/) are locked planning artifacts and apply to both versions. Quality over speed.

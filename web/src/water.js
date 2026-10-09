@@ -24,6 +24,7 @@ const fragment = /* glsl */ `
   uniform vec3 uShallow;
   uniform vec3 uFoam;
   uniform vec3 uSunDir;
+  uniform float uLight;
   varying vec3 vWorld;
 
   float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453); }
@@ -55,12 +56,13 @@ const fragment = /* glsl */ `
     float wave = smoothstep(0.92, 0.99, sin(phase)) * (1.0 - smoothstep(1.2, 5.5, d)) * smoothstep(0.4, 0.9, d);
     float foam = clamp(band + wave * 0.65, 0.0, 1.0);
     col = mix(col, uFoam, foam * 0.9);
+    col *= uLight;
 
     // Sun glint on the open water.
     vec3 V = normalize(cameraPosition - vWorld);
     vec3 N = normalize(vec3((n - 0.5) * 0.25, 1.0, (n2 - 0.5) * 0.25));
     vec3 H = normalize(V + uSunDir);
-    float spec = pow(max(dot(N, H), 0.0), 140.0) * 0.55 * (1.0 - foam);
+    float spec = pow(max(dot(N, H), 0.0), 140.0) * 0.55 * (1.0 - foam) * smoothstep(-0.05, 0.2, uSunDir.y);
     col += vec3(spec);
 
     gl_FragColor = vec4(col, 1.0);
@@ -86,19 +88,24 @@ export function createOcean({ y, distTexture, bounds, maxDist, sunDir }) {
         uShallow: { value: new THREE.Color('#4cc3cf') },
         uFoam: { value: new THREE.Color('#f4fbff') },
         uSunDir: { value: sunDir.clone().normalize() },
+        uLight: { value: 1 },
       },
     ]),
   });
   material.uniforms.uDist.value = distTexture;
   material.uniforms.uBounds.value.set(bounds.minX, bounds.minZ, bounds.size, bounds.size);
 
-  const geo = new THREE.PlaneGeometry(900, 900, 1, 1);
+  const geo = new THREE.PlaneGeometry(2600, 2600, 1, 1);
   geo.rotateX(-Math.PI / 2);
   const mesh = new THREE.Mesh(geo, material);
   mesh.position.y = y;
   mesh.receiveShadow = false;
   mesh.name = 'ocean';
-  mesh.update = (t) => { material.uniforms.uTime.value = t; };
+  mesh.update = (t, light = 1, sun) => {
+    material.uniforms.uTime.value = t;
+    material.uniforms.uLight.value = light;
+    if (sun) material.uniforms.uSunDir.value.copy(sun);
+  };
   return mesh;
 }
 
@@ -130,7 +137,7 @@ export function createSky(top = '#62b3ea', horizon = '#eaf3f0') {
       }
     `,
   });
-  const sky = new THREE.Mesh(new THREE.SphereGeometry(500, 24, 12), material);
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(900, 24, 12), material);
   sky.renderOrder = -1;
   sky.frustumCulled = false;
   sky.name = 'sky';
