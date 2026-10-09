@@ -1,13 +1,17 @@
 ﻿# Tideborn
 
-Working title for a third-person survival game in **Unreal Engine 5**.
+Working title for an island survival game.
+
+**▶ Spil i browseren / på telefonen:** https://jonvmnielsen.github.io/tideborn/
 
 Island Ecology (speculative evolution) · base building · exploration · creature mastery (taming + breeding/mutations) · humanoid Followers (Bound / Ally / Hire).
 
 ## Status
 
-**Phase 0 — Foundations** (Interact wired).  
-Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over speed.
+**Browser/mobil v0.1** (`web/`, three.js): strand-bugt på en hex-ø, saml træ og sten, mobil-styring, automatisk gemning. Se [`web/README.md`](web/README.md).
+
+Unreal-versionen er sat på pause (Phase 2 Wild, greybox). Se [`DECISIONS.md`](DECISIONS.md).
+Design docs in [`Docs/`](Docs/) are locked planning artifacts and apply to both versions. Quality over speed.
 
 ## Pillars
 
@@ -28,6 +32,9 @@ Design docs in [`Docs/`](Docs/) are locked planning artifacts. Quality over spee
 
 ## Engine
 
+**Aktiv:** three.js i `web/`, deployet til GitHub Pages ved hvert push. Grafik fra [game-assets](https://github.com/jonvmnielsen/game-assets).
+
+**På pause:**
 - Unreal Engine **5.4.4** (Third Person Blueprint template + Tideborn C++ module)
 - Blueprints-first systems; small C++ for input/interact foundation
 - Third-person camera

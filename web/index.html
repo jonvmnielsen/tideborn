@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#7fc3e8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Tideborn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Tideborn spilverden"></canvas>
+
+  <div id="loading" class="loading">
+    <div class="loading-card">
+      <div class="logo">Tideborn</div>
+      <div class="bar"><div class="bar-fill" id="loadFill"></div></div>
+      <div class="loading-text" id="loadText">Henter øen …</div>
+    </div>
+  </div>
+
+  <div id="hud" class="hud" hidden>
+    <div class="inv" id="inv">
+      <div class="chip" data-item="wood"><img src="./ui/wood.webp" alt=""><span class="count" id="cWood">0</span><span class="name">Træ</span></div>
+      <div class="chip" data-item="stone"><img src="./ui/stone.webp" alt=""><span class="count" id="cStone">0</span><span class="name">Sten</span></div>
+    </div>
+    <div class="saved" id="saved" aria-live="polite"></div>
+
+    <div class="touch-zone" id="touchZone"></div>
+    <div class="stick" id="stick" hidden><div class="knob" id="knob"></div></div>
+
+    <button class="action" id="action" type="button" disabled aria-label="Handling">
+      <img id="actionIcon" src="./ui/tree.webp" alt="">
+      <span id="actionLabel">Gå hen til et træ</span>
+    </button>
+
+    <div class="hint" id="hint"></div>
+    <div id="floaters"></div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

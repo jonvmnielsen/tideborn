@@ -1,0 +1,25 @@
+{
+  "out": "public/assets",
+  "assets": [
+    {
+      "id": "kaykit-adventurers/characters/barbarian",
+      "as": "player",
+      "animations": ["Idle", "Walking_A", "Running_A", "1H_Melee_Attack_Chop", "PickUp", "Cheer"]
+    },
+    "kaykit-hexagon/tiles/base/hex_grass",
+    "kaykit-hexagon/tiles/coast/hex_coast_*",
+    "kaykit-hexagon/decoration/nature/tree_single_*",
+    "kaykit-hexagon/decoration/nature/trees_*",
+    "kaykit-hexagon/decoration/nature/rock_single_*",
+    "kaykit-hexagon/decoration/nature/mountain_*_grass_trees",
+    "kaykit-hexagon/decoration/nature/hills_*_trees",
+    "kaykit-hexagon/decoration/nature/waterplant_*",
+    "kaykit-hexagon/decoration/nature/waterlily_*",
+    "kaykit-hexagon/decoration/nature/cloud_*",
+    "kaykit-hexagon/decoration/props/resource_lumber",
+    "kaykit-hexagon/decoration/props/resource_stone",
+    "kaykit-hexagon/decoration/props/barrel",
+    "kaykit-hexagon/decoration/props/crate_open",
+    "kaykit-hexagon/decoration/props/sack"
+  ]
+}
