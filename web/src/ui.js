@@ -24,7 +24,7 @@ export class UI {
     this.handlers = {};
     $('sheetClose').addEventListener('click', () => this.closeSheet());
     this.scrim.addEventListener('click', () => this.closeSheet());
-    for (const id of ['invBtn', 'buildBtn', 'eatBtn', 'rotateBtn', 'removeBtn']) {
+    for (const id of ['invBtn', 'buildBtn', 'eatBtn', 'rotateBtn', 'removeBtn', 'upBtn', 'downBtn']) {
       $(id).addEventListener('click', (e) => { e.stopPropagation(); this.handlers[id]?.(); });
       $(id).addEventListener('pointerdown', (e) => e.stopPropagation());
     }
@@ -107,9 +107,15 @@ export class UI {
   }
 
   setBuildMode(on) {
+    this.hud.classList.toggle('building', on);
     $('buildBtn').classList.toggle('on', on);
     $('buildTools').hidden = !on;
     this.palette.hidden = !on;
+  }
+
+  setLevelLabel(text) {
+    const el = $('levelLabel');
+    if (el.textContent !== text) el.textContent = text;
   }
 
   setRemoveMode(on) {

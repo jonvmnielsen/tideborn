@@ -148,20 +148,50 @@ async function start() {
   dayNight.on('dusk', () => ui.toast('Det bliver mørkt. Et bål giver lys og tryghed.'));
 
   // --- Build mode ------------------------------------------------------------------
-  const build = { on: false, piece: 'foundation', remove: false };
+  // In build mode the left stick moves a cursor (and the piece snapped to it) instead
+  // of the player. The camera orbits the cursor; the player walks after it if it gets far.
+  const build = { on: false, piece: 'foundation', remove: false, cursor: { x: 0, y: 0, z: 0 }, rot: 0, level: 0, lift: 0 };
+  const cursorMark = new THREE.Mesh(
+    new THREE.RingGeometry(0.28, 0.42, 24).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, depthTest: false }),
+  );
+  cursorMark.renderOrder = 10;
+  cursorMark.visible = false;
+  scene.add(cursorMark);
   const setBuild = (on) => {
     build.on = on;
+    building.highlight(null);
     build.remove = false;
     ui.setBuildMode(on);
     ui.setRemoveMode(false);
     building.setGhost(on ? build.piece : null);
-    if (on) ui.renderPalette(build.piece, inv);
+    cursorMark.visible = on;
+    if (on) {
+      build.cursor.x = player.pos.x + Math.sin(player.facing) * 4.5;
+      build.cursor.z = player.pos.z + Math.cos(player.facing) * 4.5;
+      build.level = building.levelAt(player.pos.x, player.pos.z, player.pos.y + 0.3);
+      build.lift = 0;
+      cam.pitch = Math.max(cam.pitch, 0.72);
+      cam.dist = Math.max(cam.dist, 13);
+      ui.renderPalette(build.piece, inv);
+    }
     if (on && ui.sheetOpen) ui.closeSheet();
   };
+  const levelText = () => (build.piece === 'foundation' && !build.remove
+    ? `Højde ${build.lift >= 0 ? '+' : '−'}${Math.abs(build.lift * 0.5).toFixed(1).replace('.', ',')} m`
+    : `Etage ${build.level + 1}`);
+  const raise = (dir) => {
+    if (!build.on) return;
+    if (build.piece === 'foundation' && !build.remove) build.lift = Math.max(-2, Math.min(8, build.lift + dir));
+    else build.level = Math.max(0, Math.min(4, build.level + dir));
+  };
+  const rotate = () => { build.rot = (build.rot + Math.PI / 4) % (Math.PI * 2); };
   ui.on('buildBtn', () => setBuild(!build.on));
-  ui.on('pickPiece', (id) => { build.piece = id; build.remove = false; ui.setRemoveMode(false); building.setGhost(id); ui.renderPalette(id, inv); });
-  ui.on('rotateBtn', () => building.rotateGhost());
-  ui.on('removeBtn', () => { build.remove = !build.remove; ui.setRemoveMode(build.remove); building.setGhost(build.remove ? null : build.piece); });
+  ui.on('pickPiece', (id) => { building.highlight(null); build.piece = id; build.remove = false; ui.setRemoveMode(false); building.setGhost(id); ui.renderPalette(id, inv); });
+  ui.on('rotateBtn', rotate);
+  ui.on('upBtn', () => raise(1));
+  ui.on('downBtn', () => raise(-1));
+  ui.on('removeBtn', () => { build.remove = !build.remove; building.highlight(null); ui.setRemoveMode(build.remove); building.setGhost(build.remove ? null : build.piece); });
 
   // --- Inventory / crafting --------------------------------------------------------
   const openInv = () => { if (build.on) setBuild(false); ui.openSheet(inv); };
@@ -191,7 +221,11 @@ async function start() {
   input.on('b', () => setBuild(!build.on));
   input.on('i', () => (ui.sheetOpen ? ui.closeSheet() : openInv()));
   input.on('tab', () => (ui.sheetOpen ? ui.closeSheet() : openInv()));
-  input.on('r', () => building.rotateGhost());
+  input.on('r', rotate);
+  input.on('c', () => raise(1));
+  input.on('z', () => raise(-1));
+  input.on('pageup', () => raise(1));
+  input.on('pagedown', () => raise(-1));
   input.on('x', () => build.on && ui.handlers.removeBtn());
   input.on('f', eat);
   input.on('escape', () => { if (ui.sheetOpen) ui.closeSheet(); else if (build.on) setBuild(false); });
@@ -291,14 +325,37 @@ async function start() {
     input.update();
     const look = input.takeLook();
     const { fx, fz, rx, rz } = cam.basis();
-    const mx = rx * input.move.x - fx * input.move.y;
-    const mz = rz * input.move.x - fz * input.move.y;
+    let mx = rx * input.move.x - fx * input.move.y;
+    let mz = rz * input.move.x - fz * input.move.y;
+    let moveMag = input.move.mag;
+    let focus = null;
+
+    if (build.on) {
+      // Stick drives the cursor; the player stays put unless the cursor runs away.
+      const c = build.cursor;
+      const speed = 9 * (0.35 + 0.65 * moveMag);
+      c.x += mx * speed * dt;
+      c.z += mz * speed * dt;
+      const dx = c.x - player.pos.x, dz = c.z - player.pos.z, d = Math.hypot(dx, dz);
+      const MAXD = 24;
+      if (d > MAXD) { c.x = player.pos.x + (dx / d) * MAXD; c.z = player.pos.z + (dz / d) * MAXD; }
+      const base = building.baseTop(Math.round(c.x / 4), Math.round(c.z / 4));
+      c.y = (base ?? world.terrain.heightAt(c.x, c.z)) + build.level * 4;
+      if (d > 11 && player.state === 'free') { mx = dx / d; mz = dz / d; moveMag = d > 16 ? 1 : 0.5; }
+      else { mx = 0; mz = 0; moveMag = 0; }
+      focus = c;
+      cursorMark.position.set(c.x, Math.max(c.y, world.groundAt(c.x, c.z, c.y + 0.3)) + 0.06, c.z);
+      cursorMark.material.opacity = 0.55 + 0.3 * Math.sin(t * 5);
+      ui.setLevelLabel(levelText());
+    }
+    const buildCtx = () => ({ x: build.cursor.x, z: build.cursor.z, vx: -Math.sin(cam.yaw), vz: -Math.cos(cam.yaw), rot: build.rot, level: build.level, lift: build.lift });
 
     // Actions
     const pressed = ui.consumePress();
     if (build.on) {
       if (build.remove) {
-        const target = building.pieceInFront(player, null, 4);
+        const target = building.pieceNear(buildCtx());
+        building.highlight(target);
         ui.setAction(target ? { label: `Fjern ${(PIECE[target.id]?.name ?? 'Etage').toLowerCase()}`, icon: PIECE[target.id]?.icon ?? 'ui/b_floor.webp', enabled: true, style: 'locked' } : { label: 'Peg på noget', icon: 'ui/b_wall.webp', enabled: false });
         ui.objective('Fjern: halvdelen af materialerne kommer tilbage');
         if (pressed && target) {
@@ -311,7 +368,7 @@ async function start() {
           }
         }
       } else {
-        const plan = building.updateGhost(player, inv);
+        const plan = building.updateGhost(buildCtx(), inv);
         const def = PIECE[build.piece];
         ui.setAction({ label: plan?.ok ? 'Placér' : 'Kan ikke', icon: def.icon, enabled: !!plan?.pos, style: plan?.ok ? 'build' : 'locked' });
         ui.objective(plan?.ok ? `${def.name}: ${Object.entries(def.cost).map(([id, n]) => `${n} ${itemName(id).toLowerCase()}`).join(', ')}` : plan?.reason ?? 'Gå tættere på');
@@ -348,11 +405,11 @@ async function start() {
     survival.update(dt * (sleeping ? 0 : 1), sleeping);
     if (survival.dead && player.state !== 'dead') handleDeath();
     dayNight.update(dt);
-    player.update(dt, mx, mz, input.move.mag);
+    player.update(dt, mx, mz, moveMag);
     gather.update(dt, gameTime, player);
     building.update(dt, t);
     chips.update(dt, (x, z) => world.groundAt(x, z));
-    cam.update(dt, player, look, input.takeZoom(), input.move.mag > 0.2);
+    cam.update(dt, player, look, input.takeZoom(), moveMag > 0.2, focus);
     world.update(dt, t, camera, dayNight.light, dayNight.sunDir);
 
     // Sun / shadows follow the player

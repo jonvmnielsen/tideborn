@@ -46,9 +46,16 @@
     <div class="objective" id="objective"></div>
 
     <div class="actions">
-      <div class="action-row" id="buildTools" hidden>
-        <button class="small-btn" id="rotateBtn" type="button">Drej</button>
-        <button class="small-btn" id="removeBtn" type="button">Fjern</button>
+      <div class="build-tools" id="buildTools" hidden>
+        <div class="action-row">
+          <button class="small-btn" id="upBtn" type="button" aria-label="Hæv">▲ Op</button>
+          <span class="level" id="levelLabel">Etage 1</span>
+          <button class="small-btn" id="downBtn" type="button" aria-label="Sænk">▼ Ned</button>
+        </div>
+        <div class="action-row">
+          <button class="small-btn" id="rotateBtn" type="button">⟳ Drej</button>
+          <button class="small-btn" id="removeBtn" type="button">Fjern</button>
+        </div>
       </div>
       <button class="action" id="action" type="button" disabled aria-label="Handling">
         <img id="actionIcon" src="./ui/tree.webp" alt="">

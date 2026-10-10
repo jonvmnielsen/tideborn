@@ -6,7 +6,10 @@ import { cloneModel } from '../assets.js';
 import { PIECE, GRID, WALL_H } from '../data/build.js';
 import { Inventory } from './inventory.js';
 
-const MAX_STEP = 2.1;   // foundation top may sit at most this far above the lowest ground under it
+const MAX_DEPTH = 4.5;  // foundation top may sit at most this far above the lowest ground under it
+const LIFT_STEP = 0.5;  // raise/lower step for foundations
+const FOOTING_H = 1.84; // height of one stone footing at the scale used
+const FENCE_LEN = 4.6;
 const LIFT = 0.35;      // foundation top above the highest ground under it
 const ROOF_PITCH = Math.PI / 6;
 
@@ -100,7 +103,8 @@ export class Building {
       g.add(floor);
       for (const [dx, dz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
         const f = normalized(a, 'build/footing', { scale: 0.92 });
-        f.position.set(dx, -0.15 - 1.84, dz);
+        f.userData.footing = true;
+        f.position.set(dx, -0.15 - FOOTING_H, dz);
         g.add(f);
       }
     } else if (id === 'loft') {
@@ -158,52 +162,84 @@ export class Building {
     const obj = this.makeVisual(id === 'loft' ? 'loft' : id);
     obj.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; o.renderOrder = 5; } });
     this.root.add(obj);
-    this.ghost = { id, obj, rot: 0, plan: null };
+    this.ghost = { id, obj, plan: null };
   }
 
-  rotateGhost() {
-    if (this.ghost) this.ghost.rot = (this.ghost.rot + Math.PI / 4) % (Math.PI * 2);
-  }
-
-  updateGhost(player, inventory) {
+  // ctx = { x, z, vx, vz, rot, level, lift } — cursor point, flat camera view direction,
+  // chosen rotation, floor level (0 = ground floor) and foundation lift (0.5 m steps).
+  updateGhost(ctx, inventory) {
     const g = this.ghost;
     if (!g) return null;
-    const plan = this.plan(g.id, player, g.rot);
+    const plan = this.plan(g.id, ctx);
     if (plan.ok && !inventory.canAfford(PIECE[g.id].cost)) { plan.ok = false; plan.reason = 'Du mangler materialer'; }
     g.plan = plan;
     g.obj.visible = !!plan.pos;
     if (plan.pos) {
       g.obj.position.set(plan.pos.x, plan.pos.y, plan.pos.z);
       g.obj.rotation.y = plan.rot;
+      if (g.id === 'foundation') this.setFootingDepth(g.obj, plan.depth);
     }
     const mat = plan.ok ? this.ghostMats.ok : this.ghostMats.bad;
     g.obj.traverse((o) => { if (o.isMesh) o.material = mat; });
     return plan;
   }
 
+  // Stretch the stone footings so a raised foundation still reaches the ground.
+  setFootingDepth(obj, depth) {
+    const s = Math.max(1, (depth + 0.4) / FOOTING_H);
+    for (const f of obj.children) {
+      if (!f.userData.footing) continue;
+      f.scale.y = s;
+      f.position.y = -0.15 - FOOTING_H * s;
+    }
+  }
+
   // --- Placement rules --------------------------------------------------------------
-  aim(player, dist) {
-    return { x: player.pos.x + Math.sin(player.facing) * dist, z: player.pos.z + Math.cos(player.facing) * dist };
-  }
-
-  levelOf(i, j, y) {
-    const f = this.byCell.get(cellKey(i, j, 0));
-    if (!f) return 0;
-    return Math.max(0, Math.round((y - f.top) / WALL_H));
-  }
-
   baseTop(i, j) {
     return this.byCell.get(cellKey(i, j, 0))?.top;
   }
 
-  plan(id, player, rot) {
+  // Which floor level is a height at, over cell (i, j)?
+  levelAt(x, z, y) {
+    const top = this.baseTop(Math.round(x / GRID), Math.round(z / GRID));
+    if (top === undefined) return 0;
+    return Math.max(0, Math.round((y - top) / WALL_H));
+  }
+
+  // Pick the best grid cell near the cursor. `want(i, j)` says whether a cell can take the piece.
+  // Free cells win; between candidates the one in the view direction wins.
+  pickCell(ctx, want, radius = 1) {
+    const ci = Math.round(ctx.x / GRID), cj = Math.round(ctx.z / GRID);
+    let best = null;
+    for (let i = ci - radius; i <= ci + radius; i++) for (let j = cj - radius; j <= cj + radius; j++) {
+      const w = want(i, j);
+      if (w === null) continue;
+      const dx = i * GRID - ctx.x, dz = j * GRID - ctx.z;
+      const d = Math.hypot(dx, dz);
+      const ahead = d > 0.01 ? (dx * ctx.vx + dz * ctx.vz) / d : 0;
+      const score = d - ahead * 0.9 + (w ? 0 : 6);
+      if (!best || score < best.score) best = { i, j, free: w, score, d };
+    }
+    return best;
+  }
+
+  plan(id, ctx) {
     const T = this.world.terrain;
+    const L = ctx.level ?? 0;
+
     if (id === 'foundation') {
-      const a = this.aim(player, 3.6);
-      const i = Math.round(a.x / GRID), j = Math.round(a.z / GRID);
+      // Next to existing foundations the empty neighbour you look toward is chosen.
+      const hasAny = this.byCell.size > 0;
+      const cell = this.pickCell(ctx, (i, j) => {
+        if (this.byCell.has(cellKey(i, j, 0))) return false;
+        if (!hasAny) return true;
+        const near = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([di, dj]) => this.byCell.has(cellKey(i + di, j + dj, 0)));
+        const ci = Math.round(ctx.x / GRID), cj = Math.round(ctx.z / GRID);
+        return near || (i === ci && j === cj);
+      });
+      if (!cell) return { pos: null, ok: false, reason: 'Ingen plads her' };
+      const { i, j } = cell;
       const x = i * GRID, z = j * GRID;
-      const pos = { x, y: 0, z };
-      if (this.byCell.has(cellKey(i, j, 0))) return { pos: null, ok: false, reason: 'Der er allerede et fundament' };
       let hMin = Infinity, hMax = -Infinity;
       for (const [dx, dz] of [[-2, -2], [2, -2], [-2, 2], [2, 2], [0, 0], [0, -2], [0, 2], [-2, 0], [2, 0]]) {
         const h = T.heightAt(x + dx * 0.98, z + dz * 0.98);
@@ -212,52 +248,64 @@ export class Building {
       let top = hMax + LIFT;
       for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
         const n = this.byCell.get(cellKey(i + di, j + dj, 0));
-        if (n && n.top >= hMax - 0.12 && n.top - hMin <= MAX_STEP) { top = n.top; break; }
+        if (n && n.top >= hMax - 0.12 && n.top - hMin <= MAX_DEPTH) { top = n.top; break; }
       }
-      pos.y = top;
-      const res = { pos, rot: 0, i, j, top };
+      top += (ctx.lift ?? 0) * LIFT_STEP;
+      const res = { pos: { x, y: top, z }, rot: 0, i, j, top, depth: top - hMin };
+      if (!cell.free) return { ...res, ok: false, reason: 'Der er allerede et fundament' };
       if (hMin < -0.2) return { ...res, ok: false, reason: 'For tæt på vandet' };
-      if (top - hMin > MAX_STEP) return { ...res, ok: false, reason: 'Jorden er for stejl' };
+      if (top < hMax - 0.15) return { ...res, ok: false, reason: 'For lavt: hæv fundamentet' };
+      if (top - hMin > MAX_DEPTH) return { ...res, ok: false, reason: 'For højt over jorden' };
       if (this.blockedByNature(x, z, 2.1, 2.1, 0)) return { ...res, ok: false, reason: 'Noget står i vejen' };
       return { ...res, ok: true };
     }
 
     if (id === 'wall' || id === 'doorway' || id === 'window') {
-      const a = this.aim(player, 2.4);
-      let best = null;
-      const ci = Math.round(a.x / GRID), cj = Math.round(a.z / GRID);
+      // All foundation edges around the cursor on this level. The edge you face wins at corners.
+      const cx0 = ctx.x + ctx.vx * 0.5, cz0 = ctx.z + ctx.vz * 0.5;
+      const ci = Math.round(ctx.x / GRID), cj = Math.round(ctx.z / GRID);
+      const seen = new Set();
+      let best = null, bestTaken = null;
       for (let i = ci - 1; i <= ci + 1; i++) for (let j = cj - 1; j <= cj + 1; j++) {
         const top = this.baseTop(i, j);
         if (top === undefined) continue;
-        const k = this.levelOf(i, j, player.pos.y + 0.5);
-        if (k > 0 && !this.byCell.has(cellKey(i, j, k))) continue;
         const cx = i * GRID, cz = j * GRID;
         for (const e of [
-          { key: `x:${i},${j},${k}`, x: cx, z: cz - 2, rot: 0 },
-          { key: `x:${i},${j + 1},${k}`, x: cx, z: cz + 2, rot: 0 },
-          { key: `z:${i},${j},${k}`, x: cx - 2, z: cz, rot: Math.PI / 2 },
-          { key: `z:${i + 1},${j},${k}`, x: cx + 2, z: cz, rot: Math.PI / 2 },
+          { key: `x:${i},${j},${L}`, below: `x:${i},${j},${L - 1}`, x: cx, z: cz - 2, rot: 0, nx: 0, nz: 1 },
+          { key: `x:${i},${j + 1},${L}`, below: `x:${i},${j + 1},${L - 1}`, x: cx, z: cz + 2, rot: 0, nx: 0, nz: 1 },
+          { key: `z:${i},${j},${L}`, below: `z:${i},${j},${L - 1}`, x: cx - 2, z: cz, rot: Math.PI / 2, nx: 1, nz: 0 },
+          { key: `z:${i + 1},${j},${L}`, below: `z:${i + 1},${j},${L - 1}`, x: cx + 2, z: cz, rot: Math.PI / 2, nx: 1, nz: 0 },
         ]) {
-          const d = Math.hypot(e.x - a.x, e.z - a.z);
-          if (!best || d < best.d) best = { ...e, d, y: top + k * WALL_H, k };
+          if (seen.has(e.key)) continue;
+          seen.add(e.key);
+          // Upper floors need a floor (loft) on this cell or a wall right below.
+          if (L > 0 && !this.byCell.has(cellKey(i, j, L)) && !this.byEdge.has(e.below)) continue;
+          const d = Math.hypot(e.x - cx0, e.z - cz0);
+          const facing = Math.abs(e.nx * ctx.vx + e.nz * ctx.vz);
+          const score = d + (1 - facing) * 1.4;
+          const cand = { ...e, score, d, y: top + L * WALL_H };
+          if (this.byEdge.has(e.key)) { if (!bestTaken || score < bestTaken.score) bestTaken = cand; }
+          else if (!best || score < best.score) best = cand;
         }
       }
-      if (!best || best.d > 4) return { pos: null, ok: false, reason: 'Byg et fundament først' };
-      const res = { pos: { x: best.x, y: best.y, z: best.z }, rot: best.rot, edge: best.key, k: best.k };
-      if (this.byEdge.has(best.key)) return { ...res, ok: false, reason: 'Der står allerede en væg' };
+      const pick = best && best.d < 4.5 ? best : bestTaken;
+      if (!pick || pick.d > 4.5) return { pos: null, ok: false, reason: L > 0 ? 'Byg en etage eller væg nedenunder først' : 'Byg et fundament først' };
+      const res = { pos: { x: pick.x, y: pick.y, z: pick.z }, rot: pick.rot, edge: pick.key, k: L };
+      if (pick === bestTaken) return { ...res, ok: false, reason: 'Der står allerede en væg' };
       return { ...res, ok: true };
     }
 
     if (id === 'loft' || id === 'roof') {
-      const a = this.aim(player, 2.2);
-      const i = Math.round(a.x / GRID), j = Math.round(a.z / GRID);
-      const top = this.baseTop(i, j);
-      if (top === undefined) return { pos: null, ok: false, reason: 'Skal stå over et fundament' };
-      const k = this.levelOf(i, j, player.pos.y + 0.5) + 1;
-      const y = top + k * WALL_H;
-      const res = { pos: { x: i * GRID, y, z: j * GRID }, rot: id === 'roof' ? rot % Math.PI >= Math.PI / 4 && rot % Math.PI < (3 * Math.PI) / 4 ? Math.PI / 2 : 0 : 0, i, j, k };
-      const key = cellKey(i, j, k);
-      if (this.byCell.has(key) || this.roofs.has(key)) return { ...res, ok: false, reason: 'Pladsen er optaget' };
+      // Sits on top of the walls of the current level.
+      const k = L + 1;
+      const taken = (i, j) => this.byCell.has(cellKey(i, j, k)) || this.roofs.has(cellKey(i, j, k));
+      const cell = this.pickCell(ctx, (i, j) => (this.baseTop(i, j) === undefined ? null : !taken(i, j)));
+      if (!cell || cell.d > 4.5) return { pos: null, ok: false, reason: 'Skal stå over et fundament' };
+      const { i, j } = cell;
+      const y = this.baseTop(i, j) + k * WALL_H;
+      const r = ((ctx.rot % Math.PI) + Math.PI) % Math.PI;
+      const res = { pos: { x: i * GRID, y, z: j * GRID }, rot: id === 'roof' && r >= Math.PI / 4 && r < (3 * Math.PI) / 4 ? Math.PI / 2 : 0, i, j, k };
+      if (!cell.free) return { ...res, ok: false, reason: 'Pladsen er optaget' };
       if (id === 'loft') {
         const walls = [`x:${i},${j},${k - 1}`, `x:${i},${j + 1},${k - 1}`, `z:${i},${j},${k - 1}`, `z:${i + 1},${j},${k - 1}`].some((e) => this.byEdge.has(e));
         const neighbor = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([di, dj]) => this.byCell.has(cellKey(i + di, j + dj, k)));
@@ -266,18 +314,71 @@ export class Building {
       return { ...res, ok: true };
     }
 
-    // Free pieces
+    // Free pieces: on the ground, or on a floor of the chosen level.
     const def = PIECE[id];
-    const a = this.aim(player, Math.max(1.8, def.size[1] / 2 + 1.1));
+    let x, z, rot = ctx.rot;
     const st = def.step ?? 0.25;
-    const x = Math.round(a.x / st) * st, z = Math.round(a.z / st) * st;
-    const y = this.world.groundAt(x, z, player.pos.y + 0.5);
+    x = Math.round(ctx.x / st) * st;
+    z = Math.round(ctx.z / st) * st;
+    if (id === 'fence') {
+      const snap = this.fenceSnap(ctx);
+      if (snap) ({ x, z, rot } = snap);
+    }
+    const base = this.baseTop(Math.round(x / GRID), Math.round(z / GRID));
+    const ref = (base ?? T.heightAt(x, z)) + L * WALL_H;
+    const y = this.world.groundAt(x, z, ref + 0.3);
     const res = { pos: { x, y, z }, rot };
+    if (L > 0 && y < ref - 0.3) return { ...res, ok: false, reason: 'Ingen etage her' };
     if (T.heightAt(x, z) < -0.2 && y <= T.heightAt(x, z) + 0.01) return { ...res, ok: false, reason: 'For tæt på vandet' };
     const onFloor = y > T.heightAt(x, z) + 0.05;
     if (!onFloor && T.slopeAt(x, z) > 0.5) return { ...res, ok: false, reason: 'Jorden er for stejl' };
     if (this.blockedByAnything(x, z, def.size[0] / 2, def.size[1] / 2, rot, y)) return { ...res, ok: false, reason: 'Noget står i vejen' };
     return { ...res, ok: true };
+  }
+
+  // Fences join end to end, straight on or at a right angle, when the cursor is near an end.
+  fenceSnap(ctx) {
+    let best = null;
+    for (const f of this.pieces) {
+      if (f.id !== 'fence' || Math.hypot(f.x - ctx.x, f.z - ctx.z) > 7) continue;
+      const c = Math.cos(f.rot), s = Math.sin(f.rot);
+      const ax = c, az = -s;           // along the fence
+      const px = s, pz = c;            // across the fence
+      const H = FENCE_LEN / 2;
+      const cands = [];
+      for (const e of [-1, 1]) {
+        cands.push({ x: f.x + ax * e * FENCE_LEN, z: f.z + az * e * FENCE_LEN, rot: f.rot });
+        for (const side of [-1, 1]) cands.push({ x: f.x + ax * e * H + px * side * H, z: f.z + az * e * H + pz * side * H, rot: f.rot + Math.PI / 2 });
+      }
+      for (const cnd of cands) {
+        if (this.pieces.some((p) => p.id === 'fence' && Math.hypot(p.x - cnd.x, p.z - cnd.z) < 0.5)) continue;
+        const d = Math.hypot(cnd.x - ctx.x, cnd.z - ctx.z);
+        if (d < 2.2 && (!best || d < best.d)) best = { ...cnd, d };
+      }
+    }
+    return best;
+  }
+
+  // Tint one placed piece red (removal target). null clears it.
+  highlight(piece) {
+    if (this.lit === piece) return;
+    if (this.lit) this.lit.obj.traverse((o) => { if (o.isMesh && o.userData.mat) { o.material = o.userData.mat; delete o.userData.mat; } });
+    this.lit = piece;
+    if (piece) piece.obj.traverse((o) => { if (o.isMesh) { o.userData.mat = o.material; o.material = this.ghostMats.bad; } });
+  }
+
+  // Piece closest to the cursor on the current level (for removal).
+  pieceNear(ctx, reach = 3.5) {
+    let best = null, bd = Infinity;
+    const L = ctx.level ?? 0;
+    for (const p of this.pieces) {
+      const d = Math.hypot(p.x - ctx.x, p.z - ctx.z);
+      if (d > reach) continue;
+      const lvl = p.k ?? this.levelAt(p.x, p.z, p.y + 0.1);
+      const score = d + Math.abs(lvl - L - (p.id === 'roof' || p.id === 'loft' ? 1 : 0)) * 3;
+      if (score < bd) { bd = score; best = p; }
+    }
+    return best;
   }
 
   blockedByNature(x, z, hw, hd) {
@@ -312,6 +413,8 @@ export class Building {
 
     if (id === 'foundation') {
       piece.i = plan.i; piece.j = plan.j; piece.top = y; piece.k = 0;
+      piece.depth = plan.depth ?? this.depthUnder(x, z, y);
+      this.setFootingDepth(obj, piece.depth);
       this.byCell.set(cellKey(plan.i, plan.j, 0), piece);
       piece.colliders.push(w.colliders.addBox(x, z, 2, 2, 0, piece, { top: y }));
       piece.surfaces.push(w.surfaces.add(x, z, 2, 2, 0, () => y, piece));
@@ -362,8 +465,15 @@ export class Building {
     return piece;
   }
 
+  depthUnder(x, z, top) {
+    let hMin = Infinity;
+    for (const [dx, dz] of [[-2, -2], [2, -2], [-2, 2], [2, 2], [0, 0]]) hMin = Math.min(hMin, this.world.terrain.heightAt(x + dx * 0.98, z + dz * 0.98));
+    return top - hMin;
+  }
+
   // Can this piece be removed without leaving others floating?
   removalBlocker(piece) {
+    if (this.stackedOn(piece)) return 'Fjern væggen ovenpå først';
     if (piece.id === 'foundation' || piece.id === 'loft') {
       const { i, j, k } = piece;
       const dependents = [...this.byEdge.keys()].some((e) => {
@@ -377,7 +487,19 @@ export class Building {
     return null;
   }
 
+  // Walls stacked on this wall, with no floor holding them up.
+  stackedOn(piece) {
+    if (!piece.edge) return false;
+    const [axis, rest] = piece.edge.split(':');
+    const [i, j, k] = rest.split(',').map(Number);
+    const above = `${axis}:${i},${j},${k + 1}`;
+    if (!this.byEdge.has(above)) return false;
+    const cells = axis === 'x' ? [[i, j], [i, j - 1]] : [[i, j], [i - 1, j]];
+    return !cells.some(([ci, cj]) => this.byCell.has(cellKey(ci, cj, k + 1)));
+  }
+
   remove(piece) {
+    if (this.lit === piece) this.highlight(null);
     const w = this.world;
     this.root.remove(piece.obj);
     for (const c of piece.colliders) w.colliders.remove(c);

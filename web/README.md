@@ -14,7 +14,7 @@ Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 | Zoom | – | Musehjul |
 | Handling (saml, fæld, åbn, sov) | Den runde knap (hold for at blive ved) | E eller mellemrum |
 | Rygsæk og crafting | Rygsæk-knappen | I eller Tab |
-| Byg | Byg-knappen, vælg en del, tryk Placér | B, vælg del, E for at placere, R for at dreje, X for at fjerne |
+| Byg | Byg-knappen → vælg en del. Venstre tommelfinger flytter delen, højre drejer kameraet. ▲/▼ skifter etage (fundament: hæv/sænk), Drej, Placér | B → WASD flytter delen, mus drejer kameraet, C/Z op/ned, R drej, E placér, X fjern |
 | Spis | Spis-knappen ved måleren | F |
 
 ## Spilløkken (Phase 1 — Camp)
@@ -22,7 +22,7 @@ Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 1. Knæk grene af døde træer, saml løse sten og plukker siv ved vandet.
 2. Lav en **stenøkse** i Rygsækken. Nu kan du fælde alle træer, også i skovene.
 3. Lav en **hakke** og hak sten af de store klipper.
-4. **Byg**: fundament → vægge, døråbning, vinduer → tag. Etage og trappe giver 2. sal. Bål og fakler lyser om natten, kisten gemmer ting, sengen bliver dit hjem.
+4. **Byg** (delen følger en markør, ikke figuren; den snapper til nærmeste plads og foretrækker den side, du kigger på): fundament → vægge, døråbning, vinduer → tag. Etage og trappe giver 2. sal. Bål og fakler lyser om natten, kisten gemmer ting, sengen bliver dit hjem.
 5. Sult tæres langsomt. Forsyningskasser skyller i land på stranden hver morgen.
 6. Udforsk: kæmpetræet midt på øen og udsigtstårnet på højderyggen mod nord.
 

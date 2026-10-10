@@ -23,3 +23,6 @@ ART_DIRECTION wants driftwood timber, lashed fiber and stone footings with pitch
 
 ## D-008 — Washed-up supplies as the food source (2026-10-09)
 No animal or plant food models yet. Supply crates wash up on the beach and are refilled by the tide every morning (fits "Tideborn"). Hunting and cooking come with creatures.
+
+## D-009 — Build mode moves a cursor, not the player (2026-10-10)
+Jon found placing pieces by walking the character around too fiddly. In build mode the left stick (WASD) moves a cursor and the camera orbits it; the player stays put and only walks after the cursor if it gets more than 11 m away. Pieces snap to the nearest valid spot around the cursor and prefer what the camera faces: next to existing foundations the empty neighbour in the view direction wins, and at a corner the wall edge you look at face-on wins. ▲/▼ pick the floor level (for foundations: raise/lower in 0.5 m steps, footings stretch to the ground, up to 4.5 m). Walls can stack on walls; fences join end to end or at right angles.

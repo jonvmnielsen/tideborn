@@ -48,7 +48,8 @@ export class OrbitCam {
     this.yaw = facing + Math.PI;
   }
 
-  update(dt, player, look, zoom, moving) {
+  // focus: optional point to orbit instead of the player (the build cursor).
+  update(dt, player, look, zoom, moving, focus = null) {
     const sens = 0.0055;
     if (look.dx || look.dy) {
       this.yaw -= look.dx * sens;
@@ -59,13 +60,14 @@ export class OrbitCam {
     }
     if (zoom) this.dist = clamp(this.dist * (1 + zoom * 0.1), 5, 24);
     // Drift back behind the player when walking and not steering the camera.
-    if (moving && this.idle > 1.2) {
+    if (moving && !focus && this.idle > 1.2) {
       const want = player.facing + Math.PI;
       this.yaw += angleDelta(this.yaw, want) * Math.min(1, dt * 0.9);
     }
 
     const k = 1 - Math.exp(-12 * dt);
-    this.target.lerp(new THREE.Vector3(player.pos.x, player.pos.y + 1.7, player.pos.z), dt ? k : 1);
+    const aimAt = focus ? new THREE.Vector3(focus.x, focus.y + 1.0, focus.z) : new THREE.Vector3(player.pos.x, player.pos.y + 1.7, player.pos.z);
+    this.target.lerp(aimAt, dt ? k : 1);
     const cp = Math.cos(this.pitch), sp = Math.sin(this.pitch);
     const { fx, fz } = this.basis();
     const cam = this.camera.position;
@@ -73,7 +75,7 @@ export class OrbitCam {
     // Pull in if the terrain is in the way between player and camera.
     for (let i = 0; i < 8; i++) {
       const x = this.target.x - fx * cp * d, z = this.target.z - fz * cp * d, y = this.target.y + sp * d;
-      if (this.world.terrain.heightAt(x, z) + 0.6 < y && !this.insideCanopy(x, y, z)) break;
+      if (this.world.terrain.heightAt(x, z) + 0.6 < y && (focus || !this.insideCanopy(x, y, z))) break;
       d *= 0.82;
     }
     cam.set(this.target.x - fx * cp * d, this.target.y + sp * d, this.target.z - fz * cp * d);
