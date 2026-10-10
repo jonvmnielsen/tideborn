@@ -2,22 +2,23 @@
   "out": "public/assets",
   "assets": [
     {
-      "id": "kaykit-adventurers/characters/barbarian",
+      "id": "quaternius-modular-men/characters/adventurer",
       "as": "player",
       "animations": [
         "Idle",
-        "Walking_A",
-        "Running_A",
-        "1H_Melee_Attack_Chop",
-        "PickUp",
+        "Walk",
+        "Run",
+        "Sword_Slash",
         "Interact",
-        "Use_Item",
-        "Cheer",
-        "Death_A",
-        "Lie_Idle",
-        "Sit_Floor_Idle",
-        "Jump_Full_Short"
+        "Wave",
+        "Death",
+        "Roll",
+        "HitRecieve"
       ]
+    },
+    {
+      "id": "quaternius-zombie-weapons/axe",
+      "as": "props/axe"
     },
     {
       "id": "polyhaven-sky/kloofendal_48d_partly_cloudy_puresky_1k",

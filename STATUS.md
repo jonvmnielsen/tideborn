@@ -17,7 +17,7 @@ Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 - [x] Save/load of inventory, buildings, chest contents, felled trees, time, home
 
 ### Known gaps
-- Player character and building kit are still the KayKit look (D-007) — they clash with style B until replacements exist
+- Player is the Quaternius Modular Men adventurer (D-011): realistic proportions but low-poly flat colours; no sit/lie/jump clips (falls back to idle/death pose). Building kit is still KayKit (D-007)
 - Gable ends of roofs are open
 - No sound yet
 - Real-phone frame rate not measured yet (headless: ~0.4 M triangles/frame on phone settings); download ~26 MB

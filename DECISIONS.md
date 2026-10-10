@@ -37,3 +37,6 @@ Jon wants adult games and found the KayKit/Quaternius look childish; he chose di
 - Saves keep buildings and inventory; felled-tree state is only restored on the same flora layout (`floraVersion`).
 - Download is ~26 MB (was ~6 MB): 1024 px textures on big rocks and the ship, 256–512 px on small things.
 
+## D-011 — Player: Quaternius Modular Men "adventurer" (2026-10-10)
+The big-headed KayKit barbarian clashed with style B. Interim player until a style-B character exists: the adventurer from Quaternius Ultimate Modular Men (CC0, realistic proportions, beard and work clothes, ~8k triangles). Its clips are mapped by role in `player.js` (walk → Walk, chop → Sword_Slash, sleep → Death held at the end…), so another model can be dropped in. The stone axe is the Zombie Apocalypse Kit axe, placed in the right hand from the finger bones. The camera sits closer (8 m desktop, 9 m phone) for the smaller figure.
+

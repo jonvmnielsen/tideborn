@@ -1,45 +1,99 @@
-// The castaway: KayKit barbarian. Walks on terrain and floors, collides with the world,
-// and plays an action animation for gathering, eating, sleeping.
+// The castaway (Quaternius Modular Men "adventurer"). Walks on terrain and floors, collides
+// with the world, and plays an action animation for gathering, eating, sleeping.
+// Clips are looked up by role, so the model can be swapped for one with other clip names.
 import * as THREE from 'three';
 import { damp, angleDelta } from './util.js';
 
 const ALWAYS_HIDDEN = ['1H_Axe_Offhand', 'Barbarian_Round_Shield', '2H_Axe', 'Mug'];
-const HEIGHT = 1.9;
+const HEIGHT = 1.8;
 export const RADIUS = 0.42;
 const WALK = 3.2, RUN = 6.2;
 
+// role → candidate clip names (first one the model has wins)
+const CLIPS = {
+  idle: ['Idle', 'Idle_Neutral'],
+  walk: ['Walking_A', 'Walk'],
+  run: ['Running_A', 'Run'],
+  chop: ['1H_Melee_Attack_Chop', 'Sword_Slash', 'Punch_Right'],
+  pickup: ['PickUp', 'Interact'],
+  interact: ['Interact'],
+  eat: ['Use_Item', 'Interact'],
+  cheer: ['Cheer', 'Wave'],
+  death: ['Death_A', 'Death'],
+  lie: ['Lie_Idle', 'Death'],
+  sit: ['Sit_Floor_Idle', 'Idle_Neutral', 'Idle'],
+};
+const ONCE = ['chop', 'pickup', 'interact', 'eat', 'cheer', 'death', 'lie'];
+
 const ACTIONS = {
-  chop:     { clip: '1H_Melee_Attack_Chop', speed: 1.35, impact: 0.42 },
-  pickup:   { clip: 'PickUp',               speed: 1.4,  impact: 0.5 },
-  interact: { clip: 'Interact',             speed: 1.2,  impact: 0.5 },
-  eat:      { clip: 'Use_Item',             speed: 1.2,  impact: 0.6 },
-  build:    { clip: 'Interact',             speed: 1.5,  impact: 0.4 },
+  chop:     { clip: 'chop',     speed: 1.35, impact: 0.42 },
+  pickup:   { clip: 'pickup',   speed: 1.4,  impact: 0.5 },
+  interact: { clip: 'interact', speed: 1.2,  impact: 0.5 },
+  eat:      { clip: 'eat',      speed: 1.2,  impact: 0.6 },
+  build:    { clip: 'interact', speed: 1.5,  impact: 0.4 },
 };
 
+// Where a hand-held tool sits on the right hand bone (model specific).
+const GRIP = { bone: 'Wrist.R', fingers: '', length: 0.75 };
+
 export class Player {
-  constructor(scene, gltf, world) {
+  constructor(scene, gltf, world, axe = null) {
     this.world = world;
     this.root = gltf.scene;
     this.root.name = 'player';
     this.axeMesh = null;
+    let hand = null;
     this.root.traverse((o) => {
       if (ALWAYS_HIDDEN.includes(o.name)) o.visible = false;
       if (o.name === '1H_Axe') this.axeMesh = o;
+      if (o.name.replace(/[.\s_]/g, '') === GRIP.bone.replace(/[.\s_]/g, '')) hand = o; // three drops '.' from names
       if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; }
     });
     const box = new THREE.Box3().setFromObject(this.root);
     this.root.scale.setScalar(HEIGHT / (box.max.y - box.min.y));
     scene.add(this.root);
+    // A separate tool model goes into the right hand (models without a built-in axe).
+    // The grip is worked out from the finger bones: the handle runs across the fist from the
+    // little finger to the index finger (head above the thumb), the blade faces where the
+    // fingers point, and the handle's lower end sits in the palm.
+    if (!this.axeMesh && axe && hand) {
+      this.root.updateMatrixWorld(true);
+      const bone = (n) => { let f = null; this.root.traverse((o) => { if (!f && o.name === n) f = o; }); return f; };
+      const local = (n) => hand.worldToLocal(bone(n).getWorldPosition(new THREE.Vector3()));
+      const mid = local(`${GRIP.fingers}Middle1R`), idx = local(`${GRIP.fingers}Index1R`), pinky = local(`${GRIP.fingers}Pinky1R`);
+      const H = idx.clone().sub(pinky).normalize();
+      const F = mid.clone().normalize();
+      F.sub(H.clone().multiplyScalar(F.dot(H))).normalize();
+      const Y = new THREE.Vector3().crossVectors(H, F);
+      const holder = new THREE.Group();
+      holder.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(F, Y, H));
+      holder.position.copy(mid).multiplyScalar(0.85);
+      const ws = hand.getWorldScale(new THREE.Vector3());
+      holder.scale.set(1 / ws.x, 1 / ws.y, 1 / ws.z); // tool keeps its size in metres
+      const tool = axe.scene.clone(true);
+      const tb = new THREE.Box3().setFromObject(tool);
+      const len = tb.max.z - tb.min.z;
+      const k = GRIP.length / len;
+      tool.scale.setScalar(k);
+      tool.position.set(0, 0, -(tb.min.z + len * 0.12) * k);
+      tool.traverse((o) => { if (o.isMesh) o.castShadow = true; });
+      holder.add(tool);
+      hand.add(holder);
+      this.axeMesh = holder;
+    }
 
     this.mixer = new THREE.AnimationMixer(this.root);
+    const byName = Object.fromEntries(gltf.animations.map((c) => [c.name, c]));
     this.actions = {};
-    for (const clip of gltf.animations) this.actions[clip.name] = this.mixer.clipAction(clip);
-    for (const n of ['1H_Melee_Attack_Chop', 'PickUp', 'Interact', 'Use_Item', 'Cheer', 'Death_A', 'Jump_Full_Short']) {
-      const a = this.actions[n];
-      if (a) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; }
+    for (const [role, names] of Object.entries(CLIPS)) {
+      const clip = names.map((n) => byName[n]).find(Boolean);
+      if (!clip) continue;
+      const a = this.mixer.clipAction(clip);
+      if (ONCE.includes(role)) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; }
+      this.actions[role] = a;
     }
     this.current = null;
-    this.play('Idle', 0);
+    this.play('idle', 0);
 
     const s = world.spawn;
     this.pos = new THREE.Vector3(s.x, s.y, s.z);
@@ -87,21 +141,21 @@ export class Player {
   cheer() {
     if (this.state !== 'free') return;
     this.state = 'action';
-    const c = this.actions.Cheer;
+    const c = this.actions.cheer;
     this.action = { kind: 'cheer', t: 0, dur: c.getClip().duration / 1.2, impactAt: 2, hit: true };
-    this.play('Cheer', 0.15, 1.2, true);
+    this.play('cheer', 0.15, 1.2, true);
   }
 
   die() {
     this.state = 'dead';
     this.action = null;
-    this.play('Death_A', 0.15, 1, true);
+    this.play('death', 0.15, 1, true);
   }
 
   sleep(on) {
     if (on) {
       this.state = 'sleep';
-      this.play('Lie_Idle', 0.4);
+      this.play('lie', 0.4);
     } else if (this.state === 'sleep') {
       this.state = 'free';
     }
@@ -112,7 +166,7 @@ export class Player {
     this.facing = facing ?? this.facing;
     this.state = 'free';
     this.vel.set(0, 0);
-    this.play('Idle', 0.1);
+    this.play('idle', 0.1);
   }
 
   update(dt, moveX, moveZ, mag) {
@@ -146,9 +200,9 @@ export class Player {
         this.moveBy(this.vel.x * dt, this.vel.y * dt);
         this.facing += angleDelta(this.facing, Math.atan2(this.vel.x, this.vel.y)) * Math.min(1, dt * 12);
       }
-      if (sp > RUN * 0.72) this.play('Running_A', 0.2, sp / RUN);
-      else if (sp > 0.35) this.play('Walking_A', 0.2, Math.max(0.6, sp / WALK) * 1.05);
-      else this.play('Idle', 0.25);
+      if (sp > RUN * 0.72) this.play('run', 0.2, sp / RUN);
+      else if (sp > 0.35) this.play('walk', 0.2, Math.max(0.6, sp / WALK) * 1.05);
+      else this.play('idle', 0.25);
     }
 
     // Ground: terrain, or a floor/stair we can step onto.

@@ -87,7 +87,7 @@ async function start() {
   pmrem.dispose();
   const world = new World(scene, assets, { renderer, mobile });
   loadFill.style.width = '90%';
-  const player = new Player(scene, assets.player, world);
+  const player = new Player(scene, assets.player, world, assets['props/axe']);
   const chips = new Chips(scene);
   const gather = new Gather(world, chips);
   const building = new Building(world, assets);
@@ -130,7 +130,7 @@ async function start() {
     }
   }
 
-  if (camera.aspect < 0.8) { cam.dist = 12.5; cam.pitch = 0.5; }
+  if (camera.aspect < 0.8) { cam.dist = 9; cam.pitch = 0.42; } else cam.dist = 8; // closer than for the old big-headed figure
   cam.snapBehind(player.facing);
   player.setTool(inv.hasTool('axe'));
 
