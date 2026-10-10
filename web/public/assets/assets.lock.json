@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "bfa1c01",
-  "synced": "2026-10-09T20:35:32.307Z",
+  "libraryCommit": "1ead11c",
+  "synced": "2026-10-10T20:04:13.546Z",
   "assets": {
     "player": {
       "id": "kaykit-adventurers/characters/barbarian",
@@ -9,6 +9,7 @@
       "bytes": 506324,
       "sha": "f8eb689456e3",
       "license": "CC0-1.0",
+      "kind": "model",
       "animations": [
         "Idle",
         "Walking_A",
@@ -24,334 +25,589 @@
         "Jump_Full_Short"
       ]
     },
-    "nature/tree_cone_a": {
-      "id": "kaykit-hexagon/decoration/nature/tree_single_a",
-      "file": "nature/tree_cone_a.glb",
-      "bytes": 8516,
-      "sha": "3f144a758cd5",
+    "sky/day": {
+      "id": "polyhaven-sky/kloofendal_48d_partly_cloudy_puresky_1k",
+      "file": "sky/day.hdr",
+      "bytes": 1435119,
+      "sha": "66815a758eba",
+      "license": "CC0-1.0",
+      "kind": "hdri"
+    },
+    "ground/sand": {
+      "id": "polyhaven-terrain/coast_sand_01",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/sand/diff.webp",
+        "nor": "ground/sand/nor.webp"
+      },
+      "bytes": 937870,
       "license": "CC0-1.0"
     },
-    "nature/tree_cone_b": {
-      "id": "kaykit-hexagon/decoration/nature/tree_single_b",
-      "file": "nature/tree_cone_b.glb",
-      "bytes": 9988,
-      "sha": "be60d284b9ae",
+    "ground/grass": {
+      "id": "polyhaven-terrain/forrest_ground_01",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/grass/diff.webp",
+        "nor": "ground/grass/nor.webp"
+      },
+      "bytes": 1137122,
       "license": "CC0-1.0"
     },
-    "nature/stump_a": {
-      "id": "kaykit-hexagon/decoration/nature/tree_single_a_cut",
-      "file": "nature/stump_a.glb",
-      "bytes": 7696,
-      "sha": "f38d49bc98b4",
+    "ground/forest": {
+      "id": "polyhaven-terrain/brown_mud_leaves_01",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/forest/diff.webp",
+        "nor": "ground/forest/nor.webp"
+      },
+      "bytes": 1199572,
       "license": "CC0-1.0"
     },
-    "nature/stump_b": {
-      "id": "kaykit-hexagon/decoration/nature/tree_single_b_cut",
-      "file": "nature/stump_b.glb",
-      "bytes": 7852,
-      "sha": "e9b4246b2d71",
+    "ground/rock": {
+      "id": "polyhaven-terrain/rock_face_03",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/rock/diff.webp",
+        "nor": "ground/rock/nor.webp"
+      },
+      "bytes": 858896,
       "license": "CC0-1.0"
     },
-    "nature/pine_large": {
-      "id": "kaykit-halloween/tree_pine_yellow_large",
-      "file": "nature/pine_large.glb",
-      "bytes": 15016,
-      "sha": "0371788a241e",
-      "license": "CC0-1.0"
+    "tree/pine_large_a": {
+      "id": "ez-tree/pine_large_a",
+      "file": "tree/pine_large_a.glb",
+      "bytes": 414684,
+      "sha": "19a439521cb9",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/pine_medium": {
-      "id": "kaykit-halloween/tree_pine_yellow_medium",
-      "file": "nature/pine_medium.glb",
-      "bytes": 14996,
-      "sha": "9fbedd640fa5",
-      "license": "CC0-1.0"
+    "tree/pine_large_a_far": {
+      "id": "ez-tree/pine_large_a_far",
+      "file": "tree/pine_large_a_far.glb",
+      "bytes": 32688,
+      "sha": "46ad10d8b587",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/pine_small": {
-      "id": "kaykit-halloween/tree_pine_yellow_small",
-      "file": "nature/pine_small.glb",
-      "bytes": 13488,
-      "sha": "eb9fb20a7de1",
-      "license": "CC0-1.0"
+    "tree/pine_large_b": {
+      "id": "ez-tree/pine_large_b",
+      "file": "tree/pine_large_b.glb",
+      "bytes": 414688,
+      "sha": "7431b5c55edd",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/dead_large": {
-      "id": "kaykit-halloween/tree_dead_large",
-      "file": "nature/dead_large.glb",
-      "bytes": 10412,
-      "sha": "0c6eb82ca524",
-      "license": "CC0-1.0"
+    "tree/pine_large_b_far": {
+      "id": "ez-tree/pine_large_b_far",
+      "file": "tree/pine_large_b_far.glb",
+      "bytes": 29488,
+      "sha": "599f1608b276",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/dead_medium": {
-      "id": "kaykit-halloween/tree_dead_medium",
-      "file": "nature/dead_medium.glb",
-      "bytes": 9712,
-      "sha": "774d55bea88b",
-      "license": "CC0-1.0"
+    "tree/pine_medium_a": {
+      "id": "ez-tree/pine_medium_a",
+      "file": "tree/pine_medium_a.glb",
+      "bytes": 430120,
+      "sha": "ae6852cb73f3",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/dead_small": {
-      "id": "kaykit-halloween/tree_dead_small",
-      "file": "nature/dead_small.glb",
-      "bytes": 9624,
-      "sha": "a184bb855708",
-      "license": "CC0-1.0"
+    "tree/pine_medium_a_far": {
+      "id": "ez-tree/pine_medium_a_far",
+      "file": "tree/pine_medium_a_far.glb",
+      "bytes": 31432,
+      "sha": "081c342aaea9",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/rock_c": {
-      "id": "kaykit-hexagon/decoration/nature/rock_single_c",
-      "file": "nature/rock_c.glb",
-      "bytes": 8096,
-      "sha": "f6c1a79ebdcd",
-      "license": "CC0-1.0"
+    "tree/pine_medium_b": {
+      "id": "ez-tree/pine_medium_b",
+      "file": "tree/pine_medium_b.glb",
+      "bytes": 428948,
+      "sha": "13c9589c2eea",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/rock_d": {
-      "id": "kaykit-hexagon/decoration/nature/rock_single_d",
-      "file": "nature/rock_d.glb",
-      "bytes": 7828,
-      "sha": "d0a4293126b1",
-      "license": "CC0-1.0"
+    "tree/pine_medium_b_far": {
+      "id": "ez-tree/pine_medium_b_far",
+      "file": "tree/pine_medium_b_far.glb",
+      "bytes": 30872,
+      "sha": "943315b9b8fa",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/rock_e": {
-      "id": "kaykit-hexagon/decoration/nature/rock_single_e",
-      "file": "nature/rock_e.glb",
-      "bytes": 8804,
-      "sha": "6eb23f5e5994",
-      "license": "CC0-1.0"
+    "tree/pine_small": {
+      "id": "ez-tree/pine_small",
+      "file": "tree/pine_small.glb",
+      "bytes": 400812,
+      "sha": "65d246d5e099",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/pebble_a": {
-      "id": "kaykit-hexagon/decoration/nature/rock_single_a",
-      "file": "nature/pebble_a.glb",
-      "bytes": 7736,
-      "sha": "cfbee317eef4",
-      "license": "CC0-1.0"
+    "tree/pine_small_far": {
+      "id": "ez-tree/pine_small_far",
+      "file": "tree/pine_small_far.glb",
+      "bytes": 26184,
+      "sha": "5d148ee2c793",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/pebble_b": {
-      "id": "kaykit-hexagon/decoration/nature/rock_single_b",
-      "file": "nature/pebble_b.glb",
-      "bytes": 7928,
-      "sha": "ca55f3800296",
-      "license": "CC0-1.0"
+    "tree/oak_medium": {
+      "id": "ez-tree/oak_medium",
+      "file": "tree/oak_medium.glb",
+      "bytes": 435612,
+      "sha": "7a61335c3a64",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/boulders_a": {
-      "id": "kaykit-space/rocks_a",
-      "file": "nature/boulders_a.glb",
-      "bytes": 11776,
-      "sha": "fd1c9ef4751b",
-      "license": "CC0-1.0"
+    "tree/oak_medium_far": {
+      "id": "ez-tree/oak_medium_far",
+      "file": "tree/oak_medium_far.glb",
+      "bytes": 41436,
+      "sha": "062f5d8297f8",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/boulders_b": {
-      "id": "kaykit-space/rocks_b",
-      "file": "nature/boulders_b.glb",
-      "bytes": 13184,
-      "sha": "77671ed30418",
-      "license": "CC0-1.0"
+    "tree/oak_large": {
+      "id": "ez-tree/oak_large",
+      "file": "tree/oak_large.glb",
+      "bytes": 485104,
+      "sha": "e9467a844be9",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/crag_a": {
-      "id": "kaykit-hexagon/decoration/nature/mountain_b_grass_trees",
-      "file": "nature/crag_a.glb",
-      "bytes": 19300,
-      "sha": "6eecde034d20",
-      "license": "CC0-1.0"
+    "tree/oak_large_far": {
+      "id": "ez-tree/oak_large_far",
+      "file": "tree/oak_large_far.glb",
+      "bytes": 47128,
+      "sha": "55e8ea6ec6b0",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/crag_b": {
-      "id": "kaykit-hexagon/decoration/nature/mountain_c_grass_trees",
-      "file": "nature/crag_b.glb",
-      "bytes": 22856,
-      "sha": "c83fb8d9cec2",
-      "license": "CC0-1.0"
+    "tree/ash_medium": {
+      "id": "ez-tree/ash_medium",
+      "file": "tree/ash_medium.glb",
+      "bytes": 418552,
+      "sha": "9cc1b7a44ab9",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/reed_a": {
-      "id": "kaykit-hexagon/decoration/nature/waterplant_a",
-      "file": "nature/reed_a.glb",
-      "bytes": 8732,
-      "sha": "d2b6c6f3e777",
-      "license": "CC0-1.0"
+    "tree/ash_medium_far": {
+      "id": "ez-tree/ash_medium_far",
+      "file": "tree/ash_medium_far.glb",
+      "bytes": 46596,
+      "sha": "ffdda3c64e44",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/reed_b": {
-      "id": "kaykit-hexagon/decoration/nature/waterplant_b",
-      "file": "nature/reed_b.glb",
-      "bytes": 9828,
-      "sha": "c7f97958e310",
-      "license": "CC0-1.0"
+    "tree/aspen_medium": {
+      "id": "ez-tree/aspen_medium",
+      "file": "tree/aspen_medium.glb",
+      "bytes": 304220,
+      "sha": "d12c5cd01547",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/reed_c": {
-      "id": "kaykit-hexagon/decoration/nature/waterplant_c",
-      "file": "nature/reed_c.glb",
-      "bytes": 12400,
-      "sha": "c13537abcb36",
-      "license": "CC0-1.0"
+    "tree/aspen_medium_far": {
+      "id": "ez-tree/aspen_medium_far",
+      "file": "tree/aspen_medium_far.glb",
+      "bytes": 27800,
+      "sha": "4cbb09a63494",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/cloud_big": {
-      "id": "kaykit-hexagon/decoration/nature/cloud_big",
-      "file": "nature/cloud_big.glb",
-      "bytes": 13332,
-      "sha": "93397f8a32fa",
-      "license": "CC0-1.0"
+    "tree/dead_oak": {
+      "id": "ez-tree/dead_oak",
+      "file": "tree/dead_oak.glb",
+      "bytes": 319596,
+      "sha": "78cbf7ad0585",
+      "license": "MIT",
+      "kind": "model"
     },
-    "nature/cloud_small": {
-      "id": "kaykit-hexagon/decoration/nature/cloud_small",
-      "file": "nature/cloud_small.glb",
-      "bytes": 10688,
-      "sha": "a38d18489940",
-      "license": "CC0-1.0"
+    "tree/dead_oak_far": {
+      "id": "ez-tree/dead_oak_far",
+      "file": "tree/dead_oak_far.glb",
+      "bytes": 31216,
+      "sha": "99ee791431d1",
+      "license": "MIT",
+      "kind": "model"
     },
-    "landmark/tower": {
-      "id": "kaykit-hexagon/buildings/blue/building_tower_b_blue",
-      "file": "landmark/tower.glb",
-      "bytes": 46708,
-      "sha": "471a84650f09",
-      "license": "CC0-1.0"
+    "tree/dead_ash": {
+      "id": "ez-tree/dead_ash",
+      "file": "tree/dead_ash.glb",
+      "bytes": 303320,
+      "sha": "3c30b08fdc83",
+      "license": "MIT",
+      "kind": "model"
     },
-    "landmark/ruin": {
-      "id": "kaykit-hexagon/buildings/neutral/building_destroyed",
-      "file": "landmark/ruin.glb",
-      "bytes": 25936,
-      "sha": "16b40a317439",
-      "license": "CC0-1.0"
+    "tree/dead_ash_far": {
+      "id": "ez-tree/dead_ash_far",
+      "file": "tree/dead_ash_far.glb",
+      "bytes": 26984,
+      "sha": "08107f277108",
+      "license": "MIT",
+      "kind": "model"
     },
-    "landmark/rubble_large": {
-      "id": "kaykit-dungeon/rubble_large_gltf",
-      "file": "landmark/rubble_large.glb",
-      "bytes": 24664,
-      "sha": "fa296dc0289e",
-      "license": "CC0-1.0"
+    "tree/bush_a": {
+      "id": "ez-tree/bush_a",
+      "file": "tree/bush_a.glb",
+      "bytes": 338832,
+      "sha": "cc670c593f65",
+      "license": "MIT",
+      "kind": "model"
     },
-    "landmark/rubble_half": {
-      "id": "kaykit-dungeon/rubble_half_gltf",
-      "file": "landmark/rubble_half.glb",
-      "bytes": 16408,
-      "sha": "1309b34f6cf0",
-      "license": "CC0-1.0"
+    "tree/bush_a_far": {
+      "id": "ez-tree/bush_a_far",
+      "file": "tree/bush_a_far.glb",
+      "bytes": 62568,
+      "sha": "41923ef728f0",
+      "license": "MIT",
+      "kind": "model"
     },
-    "props/barrel_large": {
-      "id": "kaykit-dungeon/barrel_large_gltf",
-      "file": "props/barrel_large.glb",
-      "bytes": 16956,
-      "sha": "81ade327cc60",
-      "license": "CC0-1.0"
+    "tree/bush_c": {
+      "id": "ez-tree/bush_c",
+      "file": "tree/bush_c.glb",
+      "bytes": 379136,
+      "sha": "5d4b5222e383",
+      "license": "MIT",
+      "kind": "model"
     },
-    "props/barrel_stack": {
-      "id": "kaykit-dungeon/barrel_small_stack_gltf",
-      "file": "props/barrel_stack.glb",
-      "bytes": 33572,
-      "sha": "034af8320778",
-      "license": "CC0-1.0"
+    "tree/bush_c_far": {
+      "id": "ez-tree/bush_c_far",
+      "file": "tree/bush_c_far.glb",
+      "bytes": 44724,
+      "sha": "75186abb7713",
+      "license": "MIT",
+      "kind": "model"
     },
-    "props/crates_stacked": {
-      "id": "kaykit-dungeon/crates_stacked_gltf",
-      "file": "props/crates_stacked.glb",
-      "bytes": 38148,
-      "sha": "8e7961b87e29",
-      "license": "CC0-1.0"
+    "tree/giant_oak": {
+      "id": "ez-tree/giant_oak",
+      "file": "tree/giant_oak.glb",
+      "bytes": 623732,
+      "sha": "aad1d8d51038",
+      "license": "MIT",
+      "kind": "model"
     },
-    "props/sail": {
-      "id": "kaykit-dungeon/banner_patterna_white_gltf",
-      "file": "props/sail.glb",
-      "bytes": 10588,
-      "sha": "a61abfc2413c",
-      "license": "CC0-1.0"
+    "rock/moss_a": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "file": "rock/moss_a.glb",
+      "bytes": 493088,
+      "sha": "b4c378d703b2",
+      "license": "CC0-1.0",
+      "kind": "model"
     },
-    "props/supply_carrots": {
-      "id": "kaykit-restaurant/crate_carrots",
-      "file": "props/supply_carrots.glb",
-      "bytes": 33796,
-      "sha": "411fabb2ccf3",
-      "license": "CC0-1.0"
+    "rock/moss_a_far": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "file": "rock/moss_a_far.glb",
+      "bytes": 30204,
+      "sha": "61bb5471a750",
+      "license": "CC0-1.0",
+      "kind": "model"
     },
-    "props/supply_potatoes": {
-      "id": "kaykit-restaurant/crate_potatoes",
-      "file": "props/supply_potatoes.glb",
-      "bytes": 19224,
-      "sha": "1d2eaca2aae6",
-      "license": "CC0-1.0"
+    "rock/moss_b": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock03",
+      "file": "rock/moss_b.glb",
+      "bytes": 496084,
+      "sha": "30b139815dac",
+      "license": "CC0-1.0",
+      "kind": "model"
     },
-    "props/supply_tomatoes": {
-      "id": "kaykit-restaurant/crate_tomatoes",
-      "file": "props/supply_tomatoes.glb",
-      "bytes": 40408,
-      "sha": "86c75e7d3af6",
-      "license": "CC0-1.0"
+    "rock/moss_b_far": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock03",
+      "file": "rock/moss_b_far.glb",
+      "bytes": 30404,
+      "sha": "164afafdde17",
+      "license": "CC0-1.0",
+      "kind": "model"
     },
-    "props/lumber": {
-      "id": "kaykit-hexagon/decoration/props/resource_lumber",
-      "file": "props/lumber.glb",
-      "bytes": 12036,
-      "sha": "5ec795969429",
-      "license": "CC0-1.0"
+    "rock/moss_c": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock05",
+      "file": "rock/moss_c.glb",
+      "bytes": 489016,
+      "sha": "5e393c2d52b0",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/moss_c_far": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock05",
+      "file": "rock/moss_c_far.glb",
+      "bytes": 29228,
+      "sha": "00eeb132de33",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/boulder_a": {
+      "id": "polyhaven-nature/namaqualand_boulder_02",
+      "file": "rock/boulder_a.glb",
+      "bytes": 1014780,
+      "sha": "1f6aee43add8",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/boulder_a_far": {
+      "id": "polyhaven-nature/namaqualand_boulder_02",
+      "file": "rock/boulder_a_far.glb",
+      "bytes": 66288,
+      "sha": "164bb7279e2e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/coast": {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "file": "rock/coast.glb",
+      "bytes": 1206852,
+      "sha": "9153867b2ab7",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/coast_far": {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "file": "rock/coast_far.glb",
+      "bytes": 84108,
+      "sha": "bcf6f02fe5a4",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/stone_a": {
+      "id": "polyhaven-nature/namaqualand_stones_01_b",
+      "file": "rock/stone_a.glb",
+      "bytes": 55276,
+      "sha": "de0269045a42",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/stone_b": {
+      "id": "polyhaven-nature/namaqualand_stones_01_e",
+      "file": "rock/stone_b.glb",
+      "bytes": 55232,
+      "sha": "49c34ce9ee17",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/stone_c": {
+      "id": "polyhaven-nature/stone_01",
+      "file": "rock/stone_c.glb",
+      "bytes": 57252,
+      "sha": "7120b8b6b942",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/stump_a": {
+      "id": "polyhaven-nature/tree_stump_01",
+      "file": "wood/stump_a.glb",
+      "bytes": 253476,
+      "sha": "7b67f8d6f2ea",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/stump_b": {
+      "id": "polyhaven-nature/tree_stump_02",
+      "file": "wood/stump_b.glb",
+      "bytes": 233380,
+      "sha": "7a2459c6d44b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/drift_a": {
+      "id": "polyhaven-nature/dead_tree_trunk",
+      "file": "wood/drift_a.glb",
+      "bytes": 183796,
+      "sha": "f08befba2170",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/drift_b": {
+      "id": "polyhaven-nature/dead_tree_trunk_02",
+      "file": "wood/drift_b.glb",
+      "bytes": 240104,
+      "sha": "c14c9e573dd6",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/branches": {
+      "id": "polyhaven-nature/dry_branches_medium_01",
+      "file": "wood/branches.glb",
+      "bytes": 240988,
+      "sha": "d3c18bb4cd08",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/nettle_a": {
+      "id": "polyhaven-nature/nettle_plant_medium_a",
+      "file": "plant/nettle_a.glb",
+      "bytes": 118436,
+      "sha": "6ec679be4370",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/nettle_b": {
+      "id": "polyhaven-nature/nettle_plant_tall_a",
+      "file": "plant/nettle_b.glb",
+      "bytes": 118660,
+      "sha": "183d3eb2cbfd",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/fern_a": {
+      "id": "polyhaven-nature/fern_02_b",
+      "file": "plant/fern_a.glb",
+      "bytes": 74312,
+      "sha": "4d323237fa6b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/fern_b": {
+      "id": "polyhaven-nature/fern_02_c",
+      "file": "plant/fern_b.glb",
+      "bytes": 74112,
+      "sha": "87014c7d5199",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "landmark/ship": {
+      "id": "polyhaven-props/dutch_ship_medium",
+      "file": "landmark/ship.glb",
+      "bytes": 2420464,
+      "sha": "f0229457d84e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "landmark/fort": {
+      "id": "polyhaven-props/modular_fort_01",
+      "file": "landmark/fort.glb",
+      "bytes": 3967720,
+      "sha": "b73d5dabd66c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/crate_a": {
+      "id": "polyhaven-props/wooden_crate_01",
+      "file": "props/crate_a.glb",
+      "bytes": 179944,
+      "sha": "9bddd1aa9009",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/crate_b": {
+      "id": "polyhaven-props/wooden_crate_02",
+      "file": "props/crate_b.glb",
+      "bytes": 170468,
+      "sha": "2fc6ef9a4b1c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/planks": {
+      "id": "polyhaven-props/modular_wooden_pier_planks",
+      "file": "props/planks.glb",
+      "bytes": 228340,
+      "sha": "6871520ac60a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/lantern": {
+      "id": "polyhaven-props/wooden_lantern_01",
+      "file": "props/lantern.glb",
+      "bytes": 264844,
+      "sha": "d659c7c9708d",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/firepit": {
+      "id": "polyhaven-props/stone_fire_pit",
+      "file": "build/firepit.glb",
+      "bytes": 200664,
+      "sha": "f8ea4f2500d9",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/chest": {
+      "id": "polyhaven-props/treasure_chest",
+      "file": "build/chest.glb",
+      "bytes": 280200,
+      "sha": "ef34765e9168",
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/footing": {
       "id": "kaykit-dungeon/floor_foundation_allsides_gltf",
       "file": "build/footing.glb",
       "bytes": 17356,
       "sha": "91b762d7c4e8",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/floor": {
       "id": "kaykit-dungeon/floor_wood_large_gltf",
       "file": "build/floor.glb",
       "bytes": 13248,
       "sha": "664472fd5e41",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/wall": {
       "id": "kaykit-dungeon/wall_scaffold_gltf",
       "file": "build/wall.glb",
       "bytes": 23900,
       "sha": "67eb5a1b752e",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/doorway": {
       "id": "kaykit-dungeon/wall_open_scaffold_gltf",
       "file": "build/doorway.glb",
       "bytes": 11756,
       "sha": "aa7bed063535",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/window": {
       "id": "kaykit-dungeon/wall_window_open_scaffold_gltf",
       "file": "build/window.glb",
       "bytes": 24352,
       "sha": "08616ec7e6b4",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/gable": {
       "id": "kaykit-dungeon/wall_sloped_gltf",
       "file": "build/gable.glb",
       "bytes": 14984,
       "sha": "42879b10bb92",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/stairs": {
       "id": "kaykit-dungeon/stairs_wood_gltf",
       "file": "build/stairs.glb",
       "bytes": 12764,
       "sha": "97d5181d2b73",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/torch": {
       "id": "kaykit-dungeon/torch_lit_gltf",
       "file": "build/torch.glb",
       "bytes": 12452,
       "sha": "0b03008ea209",
-      "license": "CC0-1.0"
-    },
-    "build/chest": {
-      "id": "kaykit-dungeon/chest",
-      "file": "build/chest.glb",
-      "bytes": 24092,
-      "sha": "7b374746d0c6",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/bed": {
       "id": "kaykit-furniture/bed_single_a",
       "file": "build/bed.glb",
       "bytes": 15664,
       "sha": "825f4f300c0b",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     },
     "build/fence": {
       "id": "kaykit-hexagon/buildings/neutral/fence_wood_straight",
       "file": "build/fence.glb",
       "bytes": 12120,
       "sha": "fa042d53b1f7",
-      "license": "CC0-1.0"
+      "license": "CC0-1.0",
+      "kind": "model"
     }
   }
 }

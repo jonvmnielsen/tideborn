@@ -1,11 +1,12 @@
 # Status
 
-_Last updated: 2026-10-09_ · Play: https://jonvmnielsen.github.io/tideborn/
+_Last updated: 2026-10-10_ · Play: https://jonvmnielsen.github.io/tideborn/
 
 Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 
 ## Phase 1 — Camp (web v0.2) ✅ playable
-- [x] One island biome with three bands and three landmarks: wreck on the shore, giant tree on the forest rise, ruined watchtower on the ridge
+- [x] One island biome with three bands and three landmarks: shipwreck on the shore, giant oak on the forest rise, sunken fort ruin on the ridge
+- [x] Style B (D-010): textured ground, scanned rocks/driftwood/plants, generated trees with far versions, sky light
 - [x] Third-person camera, touch joystick + camera drag, keyboard/mouse
 - [x] Gather wood / stone / fiber; every tree choppable; regrowth
 - [x] Crafting: stone axe, pick (tool gates gathering)
@@ -16,10 +17,10 @@ Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 - [x] Save/load of inventory, buildings, chest contents, felled trees, time, home
 
 ### Known gaps
-- Building kit is the interim KayKit Dungeon look (D-007); gable ends of roofs are open
+- Player character and building kit are still the KayKit look (D-007) — they clash with style B until replacements exist
+- Gable ends of roofs are open
 - No sound yet
-- Wreck is kitbashed debris, not a real hull (waiting for a ship model)
-- Real-phone frame rate not measured yet
+- Real-phone frame rate not measured yet (headless: ~0.4 M triangles/frame on phone settings); download ~26 MB
 
 ## Phase 2 — Wild ⏳ blocked on art
 Burr-hound (night threat), Kelp-back (haul tame), Cliff-glider (opens the overlook). Needs animal models: Quaternius animal pack requested from Jon.

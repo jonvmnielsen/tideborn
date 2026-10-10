@@ -165,7 +165,7 @@ export class UI {
     const itemsEl = $('invItems');
     itemsEl.textContent = '';
     const list = inv.list();
-    if (!list.length) itemsEl.innerHTML = '<p class="empty">Tom. Saml grene, sten og siv på stranden.</p>';
+    if (!list.length) itemsEl.innerHTML = '<p class="empty">Tom. Saml drivtømmer, sten og nælder ved stranden.</p>';
     for (const [id, n] of list) {
       const el = this.itemCard(id, n);
       if (chest) el.appendChild(this.btn('Læg i', () => { const k = inv.count(id); inv.remove(id, k); chest.add(id, k); this.renderSheet(); this.handlers.changed?.(); }));

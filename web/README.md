@@ -19,12 +19,12 @@ Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 
 ## Spilløkken (Phase 1 — Camp)
 
-1. Knæk grene af døde træer, saml løse sten og plukker siv ved vandet.
+1. Saml drivtømmer på stranden, knæk grene af døde træer, saml løse sten og pluk nælder i græsset.
 2. Lav en **stenøkse** i Rygsækken. Nu kan du fælde alle træer, også i skovene.
 3. Lav en **hakke** og hak sten af de store klipper.
 4. **Byg** (delen følger en markør, ikke figuren; den snapper til nærmeste plads og foretrækker den side, du kigger på): fundament → vægge, døråbning, vinduer → tag. Etage og trappe giver 2. sal. Bål og fakler lyser om natten, kisten gemmer ting, sengen bliver dit hjem.
 5. Sult tæres langsomt. Forsyningskasser skyller i land på stranden hver morgen.
-6. Udforsk: kæmpetræet midt på øen og udsigtstårnet på højderyggen mod nord.
+6. Udforsk: kæmpeegen midt på øen, skibsvraget på stranden og fæstningsruinen på højderyggen mod nord.
 
 Spillet gemmer automatisk i browseren på den enhed, du spiller på.
 
@@ -45,9 +45,10 @@ Hvert push til `main`, der ændrer `web/`, bygger og udgiver spillet automatisk 
 | Mappe/fil | Ansvar |
 |-----|--------|
 | `src/main.js` | Opstart, spil-loop, handlinger, mål, gemning |
-| `src/world/terrain.js` | Øens højdekort, bælter, farver, afstandsfelt til havet |
+| `src/world/terrain.js` | Øens højdekort, bælter, blandingsvægte for jordtyper, afstandsfelt til havet |
+| `src/world/ground.js` | Jordens materiale: sand, græs, skovbund og klippe (Poly Haven-teksturer) blandet efter højde og hældning |
 | `src/world/world.js` | Samler øen: landemærker, flora, kollision, himmel og hav |
-| `src/world/scatter.js` | Instansering pr. 64 m chunk; hvert træ kan skjules/vises |
+| `src/world/scatter.js` | Instansering pr. 64 m chunk; træer og sten skifter mellem fuld model nær spilleren og billig fjern-udgave; stubbe vises kun når de bruges |
 | `src/world/collide.js` | Cirkler og bokse til kollision, gangbare flader (gulve, trapper) |
 | `src/systems/gather.js` | Fæld, hak, saml; fald-animation; genvækst; tidevand |
 | `src/systems/building.js` | Byggesystem: ghost, snap, regler, placering, fjern, gem |

@@ -4,57 +4,364 @@
     {
       "id": "kaykit-adventurers/characters/barbarian",
       "as": "player",
-      "animations": ["Idle", "Walking_A", "Running_A", "1H_Melee_Attack_Chop", "PickUp", "Interact", "Use_Item", "Cheer", "Death_A", "Lie_Idle", "Sit_Floor_Idle", "Jump_Full_Short"]
+      "animations": [
+        "Idle",
+        "Walking_A",
+        "Running_A",
+        "1H_Melee_Attack_Chop",
+        "PickUp",
+        "Interact",
+        "Use_Item",
+        "Cheer",
+        "Death_A",
+        "Lie_Idle",
+        "Sit_Floor_Idle",
+        "Jump_Full_Short"
+      ]
     },
-
-    { "id": "kaykit-hexagon/decoration/nature/tree_single_a", "as": "nature/tree_cone_a" },
-    { "id": "kaykit-hexagon/decoration/nature/tree_single_b", "as": "nature/tree_cone_b" },
-    { "id": "kaykit-hexagon/decoration/nature/tree_single_a_cut", "as": "nature/stump_a" },
-    { "id": "kaykit-hexagon/decoration/nature/tree_single_b_cut", "as": "nature/stump_b" },
-    { "id": "kaykit-halloween/tree_pine_yellow_large", "as": "nature/pine_large" },
-    { "id": "kaykit-halloween/tree_pine_yellow_medium", "as": "nature/pine_medium" },
-    { "id": "kaykit-halloween/tree_pine_yellow_small", "as": "nature/pine_small" },
-    { "id": "kaykit-halloween/tree_dead_large", "as": "nature/dead_large" },
-    { "id": "kaykit-halloween/tree_dead_medium", "as": "nature/dead_medium" },
-    { "id": "kaykit-halloween/tree_dead_small", "as": "nature/dead_small" },
-    { "id": "kaykit-hexagon/decoration/nature/rock_single_c", "as": "nature/rock_c" },
-    { "id": "kaykit-hexagon/decoration/nature/rock_single_d", "as": "nature/rock_d" },
-    { "id": "kaykit-hexagon/decoration/nature/rock_single_e", "as": "nature/rock_e" },
-    { "id": "kaykit-hexagon/decoration/nature/rock_single_a", "as": "nature/pebble_a" },
-    { "id": "kaykit-hexagon/decoration/nature/rock_single_b", "as": "nature/pebble_b" },
-    { "id": "kaykit-space/rocks_a", "as": "nature/boulders_a" },
-    { "id": "kaykit-space/rocks_b", "as": "nature/boulders_b" },
-    { "id": "kaykit-hexagon/decoration/nature/mountain_b_grass_trees", "as": "nature/crag_a" },
-    { "id": "kaykit-hexagon/decoration/nature/mountain_c_grass_trees", "as": "nature/crag_b" },
-    { "id": "kaykit-hexagon/decoration/nature/waterplant_a", "as": "nature/reed_a" },
-    { "id": "kaykit-hexagon/decoration/nature/waterplant_b", "as": "nature/reed_b" },
-    { "id": "kaykit-hexagon/decoration/nature/waterplant_c", "as": "nature/reed_c" },
-    { "id": "kaykit-hexagon/decoration/nature/cloud_big", "as": "nature/cloud_big" },
-    { "id": "kaykit-hexagon/decoration/nature/cloud_small", "as": "nature/cloud_small" },
-
-    { "id": "kaykit-hexagon/buildings/blue/building_tower_b_blue", "as": "landmark/tower" },
-    { "id": "kaykit-hexagon/buildings/neutral/building_destroyed", "as": "landmark/ruin" },
-    { "id": "kaykit-dungeon/rubble_large_gltf", "as": "landmark/rubble_large" },
-    { "id": "kaykit-dungeon/rubble_half_gltf", "as": "landmark/rubble_half" },
-    { "id": "kaykit-dungeon/barrel_large_gltf", "as": "props/barrel_large" },
-    { "id": "kaykit-dungeon/barrel_small_stack_gltf", "as": "props/barrel_stack" },
-    { "id": "kaykit-dungeon/crates_stacked_gltf", "as": "props/crates_stacked" },
-    { "id": "kaykit-dungeon/banner_patterna_white_gltf", "as": "props/sail" },
-    { "id": "kaykit-restaurant/crate_carrots", "as": "props/supply_carrots" },
-    { "id": "kaykit-restaurant/crate_potatoes", "as": "props/supply_potatoes" },
-    { "id": "kaykit-restaurant/crate_tomatoes", "as": "props/supply_tomatoes" },
-    { "id": "kaykit-hexagon/decoration/props/resource_lumber", "as": "props/lumber" },
-
-    { "id": "kaykit-dungeon/floor_foundation_allsides_gltf", "as": "build/footing" },
-    { "id": "kaykit-dungeon/floor_wood_large_gltf", "as": "build/floor" },
-    { "id": "kaykit-dungeon/wall_scaffold_gltf", "as": "build/wall" },
-    { "id": "kaykit-dungeon/wall_open_scaffold_gltf", "as": "build/doorway" },
-    { "id": "kaykit-dungeon/wall_window_open_scaffold_gltf", "as": "build/window" },
-    { "id": "kaykit-dungeon/wall_sloped_gltf", "as": "build/gable" },
-    { "id": "kaykit-dungeon/stairs_wood_gltf", "as": "build/stairs" },
-    { "id": "kaykit-dungeon/torch_lit_gltf", "as": "build/torch" },
-    { "id": "kaykit-dungeon/chest", "as": "build/chest" },
-    { "id": "kaykit-furniture/bed_single_a", "as": "build/bed" },
-    { "id": "kaykit-hexagon/buildings/neutral/fence_wood_straight", "as": "build/fence" }
+    {
+      "id": "polyhaven-sky/kloofendal_48d_partly_cloudy_puresky_1k",
+      "as": "sky/day"
+    },
+    {
+      "id": "polyhaven-terrain/coast_sand_01",
+      "as": "ground/sand",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-terrain/forrest_ground_01",
+      "as": "ground/grass",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-terrain/brown_mud_leaves_01",
+      "as": "ground/forest",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-terrain/rock_face_03",
+      "as": "ground/rock",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "ez-tree/pine_large_a",
+      "as": "tree/pine_large_a"
+    },
+    {
+      "id": "ez-tree/pine_large_a_far",
+      "as": "tree/pine_large_a_far"
+    },
+    {
+      "id": "ez-tree/pine_large_b",
+      "as": "tree/pine_large_b"
+    },
+    {
+      "id": "ez-tree/pine_large_b_far",
+      "as": "tree/pine_large_b_far"
+    },
+    {
+      "id": "ez-tree/pine_medium_a",
+      "as": "tree/pine_medium_a"
+    },
+    {
+      "id": "ez-tree/pine_medium_a_far",
+      "as": "tree/pine_medium_a_far"
+    },
+    {
+      "id": "ez-tree/pine_medium_b",
+      "as": "tree/pine_medium_b"
+    },
+    {
+      "id": "ez-tree/pine_medium_b_far",
+      "as": "tree/pine_medium_b_far"
+    },
+    {
+      "id": "ez-tree/pine_small",
+      "as": "tree/pine_small"
+    },
+    {
+      "id": "ez-tree/pine_small_far",
+      "as": "tree/pine_small_far"
+    },
+    {
+      "id": "ez-tree/oak_medium",
+      "as": "tree/oak_medium"
+    },
+    {
+      "id": "ez-tree/oak_medium_far",
+      "as": "tree/oak_medium_far"
+    },
+    {
+      "id": "ez-tree/oak_large",
+      "as": "tree/oak_large"
+    },
+    {
+      "id": "ez-tree/oak_large_far",
+      "as": "tree/oak_large_far"
+    },
+    {
+      "id": "ez-tree/ash_medium",
+      "as": "tree/ash_medium"
+    },
+    {
+      "id": "ez-tree/ash_medium_far",
+      "as": "tree/ash_medium_far"
+    },
+    {
+      "id": "ez-tree/aspen_medium",
+      "as": "tree/aspen_medium"
+    },
+    {
+      "id": "ez-tree/aspen_medium_far",
+      "as": "tree/aspen_medium_far"
+    },
+    {
+      "id": "ez-tree/dead_oak",
+      "as": "tree/dead_oak"
+    },
+    {
+      "id": "ez-tree/dead_oak_far",
+      "as": "tree/dead_oak_far"
+    },
+    {
+      "id": "ez-tree/dead_ash",
+      "as": "tree/dead_ash"
+    },
+    {
+      "id": "ez-tree/dead_ash_far",
+      "as": "tree/dead_ash_far"
+    },
+    {
+      "id": "ez-tree/bush_a",
+      "as": "tree/bush_a"
+    },
+    {
+      "id": "ez-tree/bush_a_far",
+      "as": "tree/bush_a_far"
+    },
+    {
+      "id": "ez-tree/bush_c",
+      "as": "tree/bush_c"
+    },
+    {
+      "id": "ez-tree/bush_c_far",
+      "as": "tree/bush_c_far"
+    },
+    {
+      "id": "ez-tree/giant_oak",
+      "as": "tree/giant_oak"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "as": "rock/moss_a"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "as": "rock/moss_a_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock03",
+      "as": "rock/moss_b"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock03",
+      "as": "rock/moss_b_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock05",
+      "as": "rock/moss_c"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock05",
+      "as": "rock/moss_c_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-nature/namaqualand_boulder_02",
+      "as": "rock/boulder_a"
+    },
+    {
+      "id": "polyhaven-nature/namaqualand_boulder_02",
+      "as": "rock/boulder_a_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "as": "rock/coast"
+    },
+    {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "as": "rock/coast_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-nature/namaqualand_stones_01_b",
+      "as": "rock/stone_a",
+      "textureMax": 256,
+      "simplify": 300
+    },
+    {
+      "id": "polyhaven-nature/namaqualand_stones_01_e",
+      "as": "rock/stone_b",
+      "textureMax": 256,
+      "simplify": 300
+    },
+    {
+      "id": "polyhaven-nature/stone_01",
+      "as": "rock/stone_c",
+      "textureMax": 256,
+      "simplify": 300
+    },
+    {
+      "id": "polyhaven-nature/tree_stump_01",
+      "as": "wood/stump_a",
+      "textureMax": 512,
+      "simplify": 800
+    },
+    {
+      "id": "polyhaven-nature/tree_stump_02",
+      "as": "wood/stump_b",
+      "textureMax": 512,
+      "simplify": 800
+    },
+    {
+      "id": "polyhaven-nature/dead_tree_trunk",
+      "as": "wood/drift_a",
+      "textureMax": 512,
+      "simplify": 1500
+    },
+    {
+      "id": "polyhaven-nature/dead_tree_trunk_02",
+      "as": "wood/drift_b",
+      "textureMax": 512,
+      "simplify": 2000
+    },
+    {
+      "id": "polyhaven-nature/dry_branches_medium_01",
+      "as": "wood/branches",
+      "textureMax": 512,
+      "simplify": 2500
+    },
+    {
+      "id": "polyhaven-nature/nettle_plant_medium_a",
+      "as": "plant/nettle_a",
+      "textureMax": 512,
+      "simplify": 1500
+    },
+    {
+      "id": "polyhaven-nature/nettle_plant_tall_a",
+      "as": "plant/nettle_b",
+      "textureMax": 512,
+      "simplify": 1500
+    },
+    {
+      "id": "polyhaven-nature/fern_02_b",
+      "as": "plant/fern_a",
+      "textureMax": 512,
+      "simplify": 1200
+    },
+    {
+      "id": "polyhaven-nature/fern_02_c",
+      "as": "plant/fern_b",
+      "textureMax": 512,
+      "simplify": 1200
+    },
+    {
+      "id": "polyhaven-props/dutch_ship_medium",
+      "as": "landmark/ship"
+    },
+    {
+      "id": "polyhaven-props/modular_fort_01",
+      "as": "landmark/fort"
+    },
+    {
+      "id": "polyhaven-props/wooden_crate_01",
+      "as": "props/crate_a",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/wooden_crate_02",
+      "as": "props/crate_b",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/modular_wooden_pier_planks",
+      "as": "props/planks",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/wooden_lantern_01",
+      "as": "props/lantern",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/stone_fire_pit",
+      "as": "build/firepit",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/treasure_chest",
+      "as": "build/chest",
+      "textureMax": 512
+    },
+    {
+      "id": "kaykit-dungeon/floor_foundation_allsides_gltf",
+      "as": "build/footing"
+    },
+    {
+      "id": "kaykit-dungeon/floor_wood_large_gltf",
+      "as": "build/floor"
+    },
+    {
+      "id": "kaykit-dungeon/wall_scaffold_gltf",
+      "as": "build/wall"
+    },
+    {
+      "id": "kaykit-dungeon/wall_open_scaffold_gltf",
+      "as": "build/doorway"
+    },
+    {
+      "id": "kaykit-dungeon/wall_window_open_scaffold_gltf",
+      "as": "build/window"
+    },
+    {
+      "id": "kaykit-dungeon/wall_sloped_gltf",
+      "as": "build/gable"
+    },
+    {
+      "id": "kaykit-dungeon/stairs_wood_gltf",
+      "as": "build/stairs"
+    },
+    {
+      "id": "kaykit-dungeon/torch_lit_gltf",
+      "as": "build/torch"
+    },
+    {
+      "id": "kaykit-furniture/bed_single_a",
+      "as": "build/bed"
+    },
+    {
+      "id": "kaykit-hexagon/buildings/neutral/fence_wood_straight",
+      "as": "build/fence"
+    }
   ]
 }

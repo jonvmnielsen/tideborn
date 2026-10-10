@@ -4,18 +4,32 @@ import { Terrain, SEA } from './terrain.js';
 import { Scatter, placement } from './scatter.js';
 import { Colliders, Surfaces, SpatialGrid } from './collide.js';
 import { createOcean, createSky } from '../water.js';
-import { cloneModel } from '../assets.js';
+import { cloneModel, modelBox } from '../assets.js';
+import { makeGroundMaterial } from './ground.js';
 import { HARVEST } from '../data/harvest.js';
 import { makeRng } from '../util.js';
 import { smoothstep } from '../noise.js';
 
-const PINE_TINT = '#4fae63';
-const GIANT_TINT = '#3f9a58';
+// Bump when the placement of trees/rocks changes, so saved node states are not applied
+// to different nodes (see main.js).
+const FLORA_VERSION = 'b1';
+
+const PINES = ['tree/pine_large_a', 'tree/pine_large_b', 'tree/pine_medium_a', 'tree/pine_medium_b', 'tree/pine_small'];
+const LEAFY = ['tree/oak_medium', 'tree/ash_medium', 'tree/aspen_medium', 'tree/oak_medium', 'tree/oak_large'];
+const DEAD = ['tree/dead_oak', 'tree/dead_ash'];
+const BUSHES = ['tree/bush_a', 'tree/bush_c'];
+const ROCKS = ['rock/moss_a', 'rock/moss_b', 'rock/moss_c', 'rock/boulder_a'];
+const STONES = ['rock/stone_a', 'rock/stone_b', 'rock/stone_c'];
+const DRIFT = ['wood/drift_a', 'wood/drift_b', 'wood/branches', 'wood/drift_a'];
+const NETTLES = ['plant/nettle_a', 'plant/nettle_b'];
+const FERNS = ['plant/fern_a', 'plant/fern_b'];
+const CRATES = ['props/crate_a', 'props/crate_b'];
 
 export class World {
-  constructor(scene, assets) {
+  constructor(scene, assets, { renderer, mobile = false } = {}) {
     this.scene = scene;
     this.assets = assets;
+    this.floraVersion = FLORA_VERSION;
     this.root = new THREE.Group();
     this.root.name = 'world';
     scene.add(this.root);
@@ -25,15 +39,21 @@ export class World {
     this.surfaces = new Surfaces();
     this.nodeGrid = new SpatialGrid();
     this.nodes = [];
-    this.clouds = [];
-    this.scatter = new Scatter(this.root, assets);
+    this.boxes = new Map();
+    this.scatter = new Scatter(this.root, assets, mobile ? { nearRadius: 30, nearCap: 30 } : { nearRadius: 44, nearCap: 60 });
 
-    this.root.add(this.terrain.buildMesh());
+    this.root.add(this.terrain.buildMesh(makeGroundMaterial(assets, renderer)));
     this.findSpawn();
     this.buildLandmarks();
     this.plantFlora();
     this.scatter.build();
     this.buildSky();
+  }
+
+  // Model size in metres at scale 1 (cached).
+  size(key) {
+    if (!this.boxes.has(key)) this.boxes.set(key, modelBox(this.assets, key).getSize(new THREE.Vector3()));
+    return this.boxes.get(key);
   }
 
   // --- Ground queries ----------------------------------------------------------
@@ -66,19 +86,52 @@ export class World {
   }
 
   // --- Landmarks ---------------------------------------------------------------
+  // Solid parts of a big model become small circle colliders: rays from above find where
+  // the model stands more than knee-high over the ground.
+  addFootprint(obj, step = 1.25, minH = 1.0) {
+    obj.updateMatrixWorld(true);
+    const box = new THREE.Box3().setFromObject(obj);
+    const ray = new THREE.Raycaster();
+    const down = new THREE.Vector3(0, -1, 0);
+    let n = 0;
+    for (let x = box.min.x; x <= box.max.x; x += step) {
+      for (let z = box.min.z; z <= box.max.z; z += step) {
+        ray.set(new THREE.Vector3(x, box.max.y + 1, z), down);
+        const hits = ray.intersectObject(obj, true);
+        const g = this.terrain.heightAt(x, z);
+        if (hits.some((h) => h.point.y > g + minH) && hits.some((h) => h.point.y < g + 2.2)) {
+          this.colliders.addCircle(x, z, step * 0.7);
+          n++;
+        }
+      }
+    }
+    return n;
+  }
+
   buildLandmarks() {
     const rng = this.rng;
     const T = this.terrain;
     const sp = this.spawn;
     this.landmarks = [];
 
-    // 1) The wreck: broken planking, cargo and a torn sail on the beach.
+    // 1) The wreck: a ship run aground in the shallows, listing to one side, with its
+    //    cargo and timbers strewn up the beach.
     const wreck = new THREE.Group();
     wreck.name = 'wreck';
-    const wx = sp.x - 9, wz = this.beachLine + 3;
-    const put = (key, dx, dz, { rotY = 0, rotX = 0, rotZ = 0, s = 1, dy = 0, collide = 0 } = {}) => {
+    const wx = sp.x - 17, wz = this.beachLine + 7;
+    const ship = cloneModel(this.assets, 'landmark/ship');
+    ship.position.set(wx, T.heightAt(wx, wz) - 1.6, wz);
+    ship.rotation.set(0, 0.42, 0);
+    ship.rotateX(0.3);   // heeled over onto its side (the hull runs along local x)
+    ship.rotateZ(-0.05); // bow dug into the sand
+    // No sails left on a wreck; the rigging hangs on.
+    ship.traverse((o) => { if (o.isMesh && /sail/i.test(o.name + (o.material?.name ?? ''))) o.visible = false; });
+    wreck.add(ship);
+    this.root.add(wreck);
+    this.addFootprint(ship, 1.5, 1.2);
+
+    const put = (key, x, z, { rotY = 0, rotX = 0, rotZ = 0, s = 1, dy = 0, collide = 0 } = {}) => {
       const o = cloneModel(this.assets, key);
-      const x = wx + dx, z = wz + dz;
       o.position.set(x, T.heightAt(x, z) + dy, z);
       o.rotation.set(rotX, rotY, rotZ);
       o.scale.setScalar(s);
@@ -86,81 +139,74 @@ export class World {
       if (collide) this.colliders.addCircle(x, z, collide);
       return o;
     };
-    // Hull planks jutting from the sand like ribs.
-    for (let k = 0; k < 6; k++) {
-      put('build/floor', -6 + k * 2.4, -1 + Math.sin(k) * 0.8, { rotY: 0.35, rotX: -1.15 + k * 0.05, rotZ: 0.2 * Math.sin(k * 1.7), dy: -0.6, s: 1 });
-    }
-    this.colliders.addBox(wx + 0.4, wz - 0.3, 7.5, 1.2, 0.35, null);
-    put('props/sail', 3.5, 2.5, { rotY: -0.6, rotZ: 0.18, s: 1.6, dy: -0.3, collide: 0.6 });
-    put('props/barrel_large', 6.5, -2.2, { rotY: 0.4, rotZ: 1.45, dy: 0.5, collide: 1.2 });
-    put('props/barrel_stack', -8.5, -3.5, { rotY: 2.1, collide: 1.2 });
-    put('props/crates_stacked', 8.5, 1.2, { rotY: 0.7, collide: 1.5 });
-    put('props/lumber', -3.5, -4.5, { rotY: 1.2, s: 4 });
-    this.root.add(wreck);
+    const bx = sp.x - 4, bz = this.beachLine - 2;
+    put('props/crate_b', bx + 3.5, bz - 1.5, { rotY: 0.6, collide: 0.7 });
+    put('props/crate_a', bx + 4.6, bz - 2.6, { rotY: 1.9, rotZ: 0.15, collide: 0.6 });
+    put('props/planks', bx - 3, bz + 1.5, { rotY: 0.3, rotX: 0.05, dy: -0.05, s: 0.9 });
+    put('props/planks', bx + 8, bz + 2.5, { rotY: 2.2, dy: -0.05, s: 0.8 });
+    put('props/lantern', bx + 3.2, bz - 0.5, { rotY: 0.4, rotZ: 1.45, dy: 0.1 });
+    put('wood/drift_b', bx - 7, bz - 1, { rotY: 0.9, dy: -0.15, collide: 0.8 });
     this.landmarks.push({ id: 'wreck', name: 'Vraget', x: wx, z: wz });
 
-    // 2) Forest rise: one enormous tree on the hill in the middle of the island.
+    // 2) Forest rise: one enormous oak on the hill in the middle of the island.
     const gx = T.riseX, gz = T.riseZ;
-    const giant = cloneModel(this.assets, 'nature/pine_large');
-    giant.traverse((o) => {
-      if (o.isMesh) {
-        o.material = o.material.clone();
-        o.material.color = new THREE.Color(GIANT_TINT);
-      }
-    });
-    giant.scale.setScalar(4.6);
-    giant.position.set(gx, T.heightAt(gx, gz) - 0.5, gz);
+    const giant = cloneModel(this.assets, 'tree/giant_oak');
+    giant.position.set(gx, T.heightAt(gx, gz) - 0.4, gz);
     giant.rotation.y = 0.7;
     this.root.add(giant);
-    this.colliders.addCircle(gx, gz, 3.6);
+    // Crowns that are not harvest nodes, so the camera stays out of them too.
+    const gs = this.size('tree/giant_oak');
+    this.canopies = [{ x: gx, z: gz, y: giant.position.y, height: gs.y, r: Math.max(gs.x, gs.z) * 0.42 }];
+    this.colliders.addCircle(gx, gz, 2.4);
     this.landmarks.push({ id: 'giant', name: 'Kæmpetræet', x: gx, z: gz });
 
-    // 3) Ridge overlook: a ruined watchtower on the highest northern ground.
+    // 3) Ridge overlook: the ruins of an old stone fort on the highest northern ground.
     let best = { h: -1 };
     for (let i = 0; i < 2500; i++) {
       const x = rng.range(-120, 120), z = rng.range(-190, -90);
       const h = T.heightAt(x, z);
-      if (h > best.h && T.slopeAt(x, z) < 0.35) best = { x, z, h };
+      if (h > best.h && T.slopeAt(x, z) < 0.3) best = { x, z, h };
     }
-    const tower = cloneModel(this.assets, 'landmark/tower');
-    tower.scale.setScalar(5.5);
-    tower.position.set(best.x, best.h - 0.3, best.z);
-    tower.rotation.y = rng() * Math.PI * 2;
-    this.root.add(tower);
-    this.colliders.addCircle(best.x, best.z, 4.2);
-    const ruin = cloneModel(this.assets, 'landmark/rubble_half');
-    ruin.position.set(best.x + 7, T.heightAt(best.x + 7, best.z + 3), best.z + 3);
-    ruin.rotation.y = 1.1;
-    this.root.add(ruin);
-    this.colliders.addCircle(best.x + 7, best.z + 3, 2.2);
-    this.landmarks.push({ id: 'overlook', name: 'Udsigtstårnet', x: best.x, z: best.z });
+    // An old fort, half sunk into the hill and overgrown: only the upper walls stand.
+    const fort = cloneModel(this.assets, 'landmark/fort');
+    fort.position.set(best.x, best.h - this.size('landmark/fort').y * 0.42, best.z);
+    fort.rotation.y = rng() * Math.PI * 2;
+    this.root.add(fort);
+    this.addFootprint(fort, 1.25, 1.0);
+    // The model's pivot is not its middle: use the real footprint for the landmark.
+    const fb = new THREE.Box3().setFromObject(fort);
+    const fc = fb.getCenter(new THREE.Vector3());
+    this.landmarks.push({ id: 'overlook', name: 'Fæstningsruinen', x: fc.x, z: fc.z, r: Math.hypot(fb.max.x - fb.min.x, fb.max.z - fb.min.z) / 2 + 3 });
 
-    // Rock crags on the ridge give it a skyline from the beach.
+    // Great mossy boulders on the ridge give it a skyline from the beach.
     let crags = 0;
-    for (let i = 0; i < 400 && crags < 5; i++) {
+    for (let i = 0; i < 400 && crags < 9; i++) {
       const x = rng.range(-150, 150), z = rng.range(-170, -70);
       const h = T.heightAt(x, z);
-      if (h < 10 || Math.hypot(x - best.x, z - best.z) < 40) continue;
-      if (this.colliders.blocked(x, z, 14)) continue;
-      const c = cloneModel(this.assets, rng() < 0.5 ? 'nature/crag_a' : 'nature/crag_b');
-      c.scale.setScalar(rng.range(7, 10));
-      c.position.set(x, h - 2, z);
+      if (h < 10 || Math.hypot(x - best.x, z - best.z) < 45) continue;
+      if (this.colliders.blocked(x, z, 10)) continue;
+      const key = rng.pick(['rock/moss_a', 'rock/moss_c', 'rock/boulder_a', 'rock/moss_b']);
+      const s = rng.range(3.2, 5.5);
+      const c = cloneModel(this.assets, key);
+      c.scale.setScalar(s);
+      c.position.set(x, h - this.size(key).y * s * 0.25, z);
       c.rotation.y = rng() * Math.PI * 2;
       this.root.add(c);
-      this.colliders.addCircle(x, z, 7.5);
+      const sz = this.size(key);
+      this.colliders.addCircle(x, z, Math.max(sz.x, sz.z) * s * 0.4);
       crags++;
     }
   }
 
-  // --- Flora: every tree, rock and reed is a harvestable node -----------------------
+  // --- Flora: every tree, rock and plant is a harvestable node ------------------------
   plantFlora() {
-    const rng = makeRng('tideborn-flora-2');
+    const rng = makeRng('tideborn-flora-b');
     const T = this.terrain;
     const sp = this.spawn;
     const avoid = [
       { x: sp.x, z: sp.z, r: 9 },
-      { x: T.riseX, z: T.riseZ, r: 9 },
-      ...this.landmarks.map((l) => ({ x: l.x, z: l.z, r: 10 })),
+      { x: T.riseX, z: T.riseZ, r: 12 },
+      ...this.landmarks.map((l) => ({ x: l.x, z: l.z, r: l.r ?? (l.id === 'wreck' ? 14 : 16) })),
     ];
     const clear = (x, z) => avoid.every((a) => Math.hypot(x - a.x, z - a.z) > a.r);
     const step = 3.4;
@@ -174,49 +220,60 @@ export class World {
         const r = rng();
         if (!clear(px, pz)) continue;
 
-        if (h < 1.6 && h > 0.05 && slope < 0.4) {
-          if (r < 0.3) this.addNode('reed', rng.pick(['nature/reed_a', 'nature/reed_b', 'nature/reed_c']), px, pz, rng() * 6.3, rng.range(4.5, 6.5), rng);
+        if (h < 1.7 && h > 0.05 && slope < 0.4) {
+          // Beach: driftwood, stones, the odd rock.
+          if (r < 0.022) this.addNode('drift', rng.pick(DRIFT), px, pz, rng() * 6.3, rng.range(0.8, 1.15), rng);
+          else if (r < 0.05) this.addStone(px, pz, rng);
+          else if (r < 0.056) this.addRock(px, pz, rng, 'rock/coast');
           continue;
         }
         if (slope > 0.7) continue;
         if (biome === 'forest') {
-          const dens = smoothstep(0.62, 0.9, T.forestMask(px, pz)) * 0.75 + 0.12;
-          if (r < dens * 0.72) this.addPine(px, pz, rng);
-          else if (r < dens * 0.95) this.addNode('cone', rng.pick(['nature/tree_cone_a', 'nature/tree_cone_b']), px, pz, rng() * 6.3, rng.range(3.8, 5.4), rng);
-          else if (r < dens * 0.95 + 0.02) this.addNode('pebble', rng.pick(['nature/pebble_a', 'nature/pebble_b']), px, pz, rng() * 6.3, rng.range(3.5, 5), rng);
+          const dens = smoothstep(0.62, 0.9, T.forestMask(px, pz)) * 0.55 + 0.1;
+          if (r < dens * 0.5) this.addTree('pine', rng.pick(PINES), px, pz, rng);
+          else if (r < dens * 0.72) this.addTree('cone', rng.pick(LEAFY), px, pz, rng);
+          else if (r < dens * 0.72 + 0.05) this.addDecor(rng.pick(BUSHES), px, pz, rng.range(0.8, 1.3), rng, true);
+          else if (r < dens * 0.72 + 0.09) this.addNode('fern', rng.pick(FERNS), px, pz, rng() * 6.3, rng.range(1.1, 1.6), rng);
+          else if (r < dens * 0.72 + 0.1) this.addStone(px, pz, rng);
         } else if (biome === 'meadow') {
-          if (r < 0.045) this.addNode('cone', rng.pick(['nature/tree_cone_a', 'nature/tree_cone_b']), px, pz, rng() * 6.3, rng.range(3.8, 5.6), rng);
-          else if (r < 0.065) this.addPine(px, pz, rng);
-          else if (r < 0.08) this.addBoulder(px, pz, rng);
-          else if (r < 0.11) this.addNode('pebble', rng.pick(['nature/pebble_a', 'nature/pebble_b']), px, pz, rng() * 6.3, rng.range(3.5, 5), rng);
-          else if (r < 0.12) this.addNode('dead', rng.pick(['nature/dead_medium', 'nature/dead_small']), px, pz, rng() * 6.3, rng.range(0.9, 1.2), rng);
+          if (r < 0.03) this.addTree('cone', rng.pick(LEAFY), px, pz, rng);
+          else if (r < 0.045) this.addTree('pine', rng.pick(PINES), px, pz, rng);
+          else if (r < 0.058) this.addRock(px, pz, rng);
+          else if (r < 0.08) this.addNode('reed', rng.pick(NETTLES), px, pz, rng() * 6.3, 1, rng);
+          else if (r < 0.1) this.addDecor(rng.pick(BUSHES), px, pz, rng.range(0.7, 1.1), rng, true);
+          else if (r < 0.112) this.addStone(px, pz, rng);
+          else if (r < 0.12) this.addTree('dead', rng.pick(DEAD), px, pz, rng);
         } else if (biome === 'shore') {
-          if (r < 0.02) this.addNode('dead', rng.pick(['nature/dead_large', 'nature/dead_medium', 'nature/dead_small']), px, pz, rng() * 6.3, rng.range(0.9, 1.3), rng);
-          else if (r < 0.06) this.addNode('pebble', rng.pick(['nature/pebble_a', 'nature/pebble_b']), px, pz, rng() * 6.3, rng.range(3.5, 5), rng);
-          else if (r < 0.07) this.addBoulder(px, pz, rng);
+          if (r < 0.015) this.addTree('dead', rng.pick(DEAD), px, pz, rng);
+          else if (r < 0.04) this.addStone(px, pz, rng);
+          else if (r < 0.05) this.addRock(px, pz, rng);
+          else if (r < 0.08) this.addNode('reed', rng.pick(NETTLES), px, pz, rng() * 6.3, 1, rng);
+          else if (r < 0.1) this.addNode('drift', rng.pick(DRIFT), px, pz, rng() * 6.3, rng.range(0.8, 1.1), rng);
         } else if (biome === 'ridge') {
-          if (r < 0.06) this.addBoulder(px, pz, rng);
-          else if (r < 0.1) this.addNode('dead', rng.pick(['nature/dead_large', 'nature/dead_medium']), px, pz, rng() * 6.3, rng.range(1, 1.4), rng);
-          else if (r < 0.13) this.addNode('cone', 'nature/tree_cone_a', px, pz, rng() * 6.3, rng.range(3.4, 4.6), rng);
-          else if (r < 0.17) this.addNode('pebble', rng.pick(['nature/pebble_a', 'nature/pebble_b']), px, pz, rng() * 6.3, rng.range(3.5, 5), rng);
+          if (r < 0.05) this.addRock(px, pz, rng);
+          else if (r < 0.08) this.addTree('dead', rng.pick(DEAD), px, pz, rng);
+          else if (r < 0.11) this.addTree('pine', rng.pick(['tree/pine_small', 'tree/pine_medium_b']), px, pz, rng);
+          else if (r < 0.15) this.addStone(px, pz, rng);
+          else if (r < 0.17) this.addDecor('tree/bush_c', px, pz, rng.range(0.6, 1), rng, true);
         }
       }
     }
 
     // Guaranteed starter materials around the landing site.
-    const ring = (type, keys, n, r0, r1, scale) => {
+    const ring = (fn, n, r0, r1) => {
       let placed = 0;
       for (let i = 0; i < 300 && placed < n; i++) {
         const a = rng.range(-Math.PI * 0.95, -Math.PI * 0.05);
         const r = rng.range(r0, r1);
         const x = sp.x + Math.cos(a) * r, z = sp.z + Math.sin(a) * r;
         if (T.heightAt(x, z) < 0.5 || T.slopeAt(x, z) > 0.5 || this.colliders.blocked(x, z, 1.5)) continue;
-        this.addNode(type, rng.pick(keys), x, z, rng() * 6.3, rng.range(...scale), rng);
-        placed++;
+        if (fn(x, z).hitsMax) placed++;
       }
     };
-    ring('dead', ['nature/dead_medium', 'nature/dead_small'], 4, 8, 20, [0.9, 1.2]);
-    ring('pebble', ['nature/pebble_a', 'nature/pebble_b'], 6, 6, 18, [3.5, 5]);
+    ring((x, z) => this.addTree('dead', rng.pick(DEAD), x, z, rng), 3, 9, 20);
+    ring((x, z) => this.addNode('drift', rng.pick(DRIFT), x, z, rng() * 6.3, rng.range(0.8, 1), rng), 4, 5, 16);
+    ring((x, z) => this.addStone(x, z, rng), 6, 5, 18);
+    ring((x, z) => this.addNode('reed', rng.pick(NETTLES), x, z, rng() * 6.3, 1, rng), 5, 6, 18);
 
     // Washed-up supply crates along the beach (refilled by the tide each morning).
     this.tideSpots = [];
@@ -228,41 +285,64 @@ export class World {
       if (z < 60 || this.colliders.blocked(x, z, 2) || T.slopeAt(x, z) > 0.4) continue;
       if (this.tideSpots.some((s) => Math.hypot(s.x - x, s.z - z) < 12)) continue;
       this.tideSpots.push({ x, z });
-      this.addNode('supplies', rng.pick(['props/supply_carrots', 'props/supply_potatoes', 'props/supply_tomatoes']), x, z, rng() * 6.3, 0.8, rng);
+      this.addNode('supplies', rng.pick(CRATES), x, z, rng() * 6.3, 1, rng);
     }
   }
 
-  addPine(x, z, rng) {
-    const size = rng();
-    const key = size < 0.45 ? 'nature/pine_large' : size < 0.8 ? 'nature/pine_medium' : 'nature/pine_small';
-    const node = this.addNode('pine', key, x, z, rng() * 6.3, rng.range(0.85, 1.25), rng, { tint: PINE_TINT });
-    if (key === 'nature/pine_large') { node.hitsMax += 1; node.per += 1; }
+  // Trees: full model near the player, a card further away (see Scatter).
+  addTree(type, key, x, z, rng) {
+    const scale = rng.range(0.8, 1.15);
+    const node = this.addNode(type, key, x, z, rng() * 6.3, scale, rng, { far: `${key}_far` });
+    if (key === 'tree/pine_large_a' || key === 'tree/pine_large_b' || key === 'tree/oak_large') { node.hitsMax += 1; node.hits = node.hitsMax; node.per += 1; }
     return node;
   }
 
-  addBoulder(x, z, rng) {
-    const big = rng() < 0.35;
-    const key = big ? rng.pick(['nature/boulders_a', 'nature/boulders_b']) : rng.pick(['nature/rock_c', 'nature/rock_d', 'nature/rock_e']);
-    const scale = big ? rng.range(1.6, 2.4) : rng.range(4.5, 6.5);
-    const node = this.addNode('boulder', key, x, z, rng() * 6.3, scale, rng);
+  addRock(x, z, rng, key = rng.pick(ROCKS)) {
+    const scale = key === 'rock/coast' ? rng.range(0.6, 1) : rng.range(0.7, 1.35);
+    const node = this.addNode('boulder', key, x, z, rng() * 6.3, scale, rng, { far: `${key}_far` });
     if (!node.handle) return node;
-    node.radius = big ? 1.5 * scale * 0.55 : 0.32 * scale * 0.5 + 0.4;
+    const sz = this.size(key);
+    node.radius = Math.max(sz.x, sz.z) * scale * 0.38;
     this.colliders.remove(node.collider);
     node.collider = this.colliders.addCircle(x, z, node.radius, node);
     return node;
+  }
+
+  // Loose stones, scaled to fist-to-head size whatever the scan's own scale.
+  addStone(x, z, rng) {
+    const key = rng.pick(STONES);
+    const sz = this.size(key);
+    return this.addNode('pebble', key, x, z, rng() * 6.3, rng.range(0.32, 0.5) / Math.max(sz.x, sz.z), rng);
+  }
+
+  // Pure decoration (bushes): no node, no collision.
+  addDecor(key, x, z, scale, rng, lod = false) {
+    if (this.colliders.blocked(x, z, 0.8)) return;
+    const y = this.terrain.heightAt(x, z);
+    this.scatter.add(key, placement(x, y - 0.1, z, rng() * 6.3, scale), lod ? { far: `${key}_far` } : { maxDist: 70 });
   }
 
   addNode(type, key, x, z, rot, scale, rng, opts = {}) {
     const def = HARVEST[type];
     const y = this.terrain.heightAt(x, z);
     if (!def.walkable && this.colliders.blocked(x, z, def.radius + 0.4)) return { hitsMax: 0, per: 0 };
-    const m = placement(x, y - (type === 'boulder' ? 0.15 : 0.05), z, rot, scale);
-    const handle = this.scatter.add(key, m, { tint: opts.tint, castShadow: type !== 'reed' && type !== 'pebble' });
+    // Plants are scaled to a target height in metres (scans come in odd units).
+    if (def.height) scale *= rng.range(...def.height) / this.size(key).y;
+    const sink = type === 'boulder' ? 0.25 * scale : type === 'drift' ? 0.08 : 0.05;
+    const m = placement(x, y - sink, z, rot, scale);
+    const small = type === 'pebble' || type === 'reed' || type === 'fern' || type === 'supplies' || type === 'drift';
+    const handle = this.scatter.add(key, m, {
+      far: opts.far,
+      castShadow: type !== 'pebble',
+      maxDist: small ? (type === 'supplies' ? 120 : 60) : 0,
+    });
     let stump = null;
     if (def.stump) {
-      const sk = key.includes('cone_b') ? 'nature/stump_b' : 'nature/stump_a';
-      const ss = key.startsWith('nature/pine') ? scale * 4.8 : scale;
-      stump = this.scatter.add(sk, placement(x, y - 0.05, z, rot, ss), {}, true);
+      const sk = rng() < 0.5 ? 'wood/stump_a' : 'wood/stump_b';
+      // Stump about as wide as the trunk: ~0.9 m for big trees.
+      const sw = this.size(sk);
+      const trunk = (key.includes('large') ? 1.0 : key.includes('small') ? 0.55 : 0.8) * scale;
+      stump = this.scatter.add(sk, placement(x, y - 0.05, z, rot, trunk / Math.max(sw.x, sw.z)), { pool: true }, true);
     }
     const node = {
       id: this.nodes.length,
@@ -270,8 +350,7 @@ export class World {
       handle, stump,
       hitsMax: def.hits, per: def.per, hits: def.hits,
       state: 'ready', regrowAt: 0,
-      radius: def.radius * (type === 'pine' || type === 'cone' ? Math.min(1.3, scale / (key.startsWith('nature/pine') ? 1 : 4.5)) : 1),
-      tint: opts.tint,
+      radius: def.radius * (def.fall ? Math.min(1.3, Math.max(0.7, scale)) : 1),
     };
     node.collider = def.walkable ? null : this.colliders.addCircle(x, z, node.radius, node);
     this.nodeGrid.insert(node, x - 0.1, z - 0.1, x + 0.1, z + 0.1);
@@ -283,7 +362,7 @@ export class World {
     return this.nodeGrid.query(x - r, z - r, x + r, z + r);
   }
 
-  // --- Sky, ocean, clouds -------------------------------------------------------
+  // --- Sky, ocean ------------------------------------------------------------------
   buildSky() {
     this.sunDir = new THREE.Vector3(-0.45, 0.8, 0.35).normalize();
     const df = this.terrain.distanceField();
@@ -291,24 +370,11 @@ export class World {
     this.root.add(this.ocean);
     this.sky = createSky();
     this.scene.add(this.sky);
-    const rng = makeRng('clouds');
-    for (let i = 0; i < 14; i++) {
-      const cl = cloneModel(this.assets, rng() < 0.5 ? 'nature/cloud_big' : 'nature/cloud_small', { castShadow: false, receiveShadow: false });
-      cl.scale.setScalar(rng.range(7, 12));
-      cl.position.set(rng.range(-300, 300), rng.range(70, 95), rng.range(-300, 300));
-      cl.rotation.y = rng() * Math.PI * 2;
-      cl.userData.speed = rng.range(1, 2.5);
-      this.root.add(cl);
-      this.clouds.push(cl);
-    }
   }
 
-  update(dt, t, camera, light = 1, sunDir = null) {
+  update(dt, t, camera, light = 1, sunDir = null, focus = camera.position) {
     this.ocean.update(t, light, sunDir);
     this.sky.position.copy(camera.position);
-    for (const c of this.clouds) {
-      c.position.x += c.userData.speed * dt;
-      if (c.position.x > 320) c.position.x = -320;
-    }
+    this.scatter.update(focus.x, focus.z, t);
   }
 }

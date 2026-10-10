@@ -32,7 +32,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, mobile ? 1.6 : 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.toneMappingExposure = 0.9;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = mobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 
@@ -40,7 +40,7 @@ const scene = new THREE.Scene();
 const VIEW = mobile ? 230 : 320; // fog end; chunks beyond it are culled
 scene.fog = new THREE.Fog('#e9f2ee', VIEW * 0.3, VIEW);
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.3, VIEW + 30);
-const hemi = new THREE.HemisphereLight(0xdff1ff, 0x7c8f5a, 1.35);
+const hemi = new THREE.HemisphereLight(0xdff1ff, 0x7c8f5a, 0.6);
 scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xfff1dc, 2.6);
 sun.castShadow = true;
@@ -64,8 +64,8 @@ function fail(err) {
 }
 
 const OBJECTIVES = [
-  { id: 'wood3', text: 'Saml træ: knæk grene af de døde træer på stranden', done: (g) => g.inv.count('wood') >= 3 || g.flags.axe },
-  { id: 'mats', text: 'Saml løse sten og siv ved vandkanten', done: (g) => (g.inv.count('stone') >= 2 && g.inv.count('fiber') >= 2) || g.flags.axe },
+  { id: 'wood3', text: 'Saml træ: drivtømmer på stranden og grene fra døde træer', done: (g) => g.inv.count('wood') >= 3 || g.flags.axe },
+  { id: 'mats', text: 'Saml løse sten og pluk nælder i græsset over stranden', done: (g) => (g.inv.count('stone') >= 2 && g.inv.count('fiber') >= 2) || g.flags.axe },
   { id: 'axe', text: 'Åbn Rygsæk og lav en stenøkse', done: (g) => g.inv.has('stone_axe') },
   { id: 'fell', text: 'Fæld et træ med øksen', done: (g) => g.flags.felled },
   { id: 'found', text: 'Tryk Byg og læg et fundament', done: (g) => g.building.pieces.some((p) => p.id === 'foundation') },
@@ -73,7 +73,7 @@ const OBJECTIVES = [
   { id: 'roof', text: 'Læg et tag over', done: (g) => g.building.pieces.some((p) => p.id === 'roof') },
   { id: 'fire', text: 'Byg et bål og en seng, så har du et hjem', done: (g) => g.building.pieces.some((p) => p.id === 'campfire') && g.building.pieces.some((p) => p.id === 'bed') },
   { id: 'pick', text: 'Lav en hakke og hak sten af de store klipper', done: (g) => g.inv.has('stone_pick') },
-  { id: 'explore', text: 'Udforsk øen: Kæmpetræet i midten og tårnet på højderyggen mod nord', done: () => false },
+  { id: 'explore', text: 'Udforsk øen: Kæmpetræet i midten og ruinen på højderyggen mod nord', done: () => false },
 ];
 
 async function start() {
@@ -81,7 +81,11 @@ async function start() {
   loadText.textContent = 'Bygger øen …';
   await new Promise((r) => setTimeout(r, 30));
 
-  const world = new World(scene, assets);
+  // Image-based light from a Poly Haven sky: soft, real-world ambient light and reflections.
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  scene.environment = pmrem.fromEquirectangular(assets['sky/day']).texture;
+  pmrem.dispose();
+  const world = new World(scene, assets, { renderer, mobile });
   loadFill.style.width = '90%';
   const player = new Player(scene, assets.player, world);
   const chips = new Chips(scene);
@@ -113,7 +117,8 @@ async function start() {
       if (save.time) { dayNight.phase = save.time.p; dayNight.day = save.time.d; }
       Object.assign(flags, save.flags);
       building.restore(save.build);
-      gather.restore(save.nodes, 0);
+      // Node ids only match the island they were saved on (felled trees, opened crates).
+      if (save.flora === world.floraVersion) gather.restore(save.nodes, 0);
       player.restore(save.player);
       home = save.home ?? null;
     } catch (err) {
@@ -132,7 +137,7 @@ async function start() {
   const persist = () => {
     writeSave({
       inv: inv.serialize(), surv: survival.serialize(), time: { p: +dayNight.phase.toFixed(4), d: dayNight.day },
-      flags, build: building.serialize(), nodes: gather.serialize(gameTime), player: player.serialize(), home,
+      flags, build: building.serialize(), nodes: gather.serialize(gameTime), flora: world.floraVersion, player: player.serialize(), home,
     });
     dirty = false;
   };
@@ -410,7 +415,7 @@ async function start() {
     building.update(dt, t);
     chips.update(dt, (x, z) => world.groundAt(x, z));
     cam.update(dt, player, look, input.takeZoom(), moveMag > 0.2, focus);
-    world.update(dt, t, camera, dayNight.light, dayNight.sunDir);
+    world.update(dt, t, camera, dayNight.light, dayNight.sunDir, player.pos);
 
     // Sun / shadows follow the player
     sun.position.copy(player.pos).addScaledVector(dayNight.sunDir, 70);

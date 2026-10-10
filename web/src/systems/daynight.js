@@ -6,7 +6,7 @@ export const DAY_LENGTH = 720; // 12 minutes per day
 
 const K = (c) => new THREE.Color(c);
 const SKY = {
-  day:   { top: K('#5fb2ea'), hor: K('#e9f2ee'), sun: K('#fff1dc'), hemiSky: K('#dff1ff'), hemiGround: K('#7c8f5a') },
+  day:   { top: K('#6f9fca'), hor: K('#dfe6e6'), sun: K('#fff0dc'), hemiSky: K('#dfeeff'), hemiGround: K('#6f7a55') },
   dusk:  { top: K('#4a6fa8'), hor: K('#f2b37a'), sun: K('#ffb070'), hemiSky: K('#f0c8a8'), hemiGround: K('#6d5f4a') },
   night: { top: K('#0d1830'), hor: K('#2a3b5c'), sun: K('#8fa8d8'), hemiSky: K('#5d74a8'), hemiGround: K('#2b3326') },
 };
@@ -67,10 +67,13 @@ export class DayNight {
     lerp3(hg, 'hemiGround');
 
     this.sun.color.copy(sun);
-    this.sun.intensity = 0.45 + 2.3 * dayT;
+    this.sun.intensity = 0.4 + 1.8 * dayT;
     this.hemi.color.copy(hs);
     this.hemi.groundColor.copy(hg);
-    this.hemi.intensity = 0.55 + 0.85 * dayT;
+    // Most daylight ambient comes from the sky environment map (scene.environment);
+    // the hemisphere light only lifts the night.
+    this.hemi.intensity = 0.35 + 0.25 * dayT;
+    this.scene.environmentIntensity = 0.08 + 0.67 * dayT;
     this.sky.material.uniforms.uTop.value.copy(top);
     this.sky.material.uniforms.uHorizon.value.copy(hor);
     this.scene.fog.color.copy(hor);

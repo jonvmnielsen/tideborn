@@ -1,20 +1,39 @@
-// Loads every model listed in public/assets/assets.lock.json (written by the
-// game-assets sync script), keyed by its short name, e.g. "nature/pine_large".
+// Loads every asset listed in public/assets/assets.lock.json (written by the
+// game-assets sync script), keyed by its short name, e.g. "tree/pine_large_a".
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
+// Models → gltf; texture sets (kind "texture") → { diff, nor, … } THREE.Textures, tiling;
+// sky light (kind "hdri") → equirectangular float texture.
 export async function loadAssets(onProgress) {
   const lock = await (await fetch('assets/assets.lock.json')).json();
   const entries = Object.entries(lock.assets);
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+  const texLoader = new THREE.TextureLoader();
   const out = {};
   let done = 0;
   await Promise.all(
     entries.map(async ([key, info]) => {
-      const gltf = await loader.loadAsync(`assets/${info.file}`);
-      gltf.scene.updateMatrixWorld(true);
-      out[key] = gltf;
+      if (info.kind === 'texture') {
+        const set = {};
+        for (const [map, file] of Object.entries(info.files)) {
+          const t = await texLoader.loadAsync(`assets/${file}`);
+          t.wrapS = t.wrapT = THREE.RepeatWrapping;
+          t.colorSpace = map === 'diff' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+          set[map] = t;
+        }
+        out[key] = set;
+      } else if (info.kind === 'hdri') {
+        const t = await new RGBELoader().loadAsync(`assets/${info.file}`);
+        t.mapping = THREE.EquirectangularReflectionMapping;
+        out[key] = t;
+      } else {
+        const gltf = await loader.loadAsync(`assets/${info.file}`);
+        gltf.scene.updateMatrixWorld(true);
+        out[key] = gltf;
+      }
       onProgress?.(++done / entries.length);
     }),
   );

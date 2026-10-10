@@ -1,25 +1,11 @@
 // The island heightfield: shore in the south, forest belt in the middle,
-// a terraced ridge in the north. Low-poly flat-shaded to sit with the KayKit art.
+// a terraced ridge in the north. Rendered smooth with the textured ground material.
 import * as THREE from 'three';
 import { makeNoise, smoothstep } from '../noise.js';
 
 export const SIZE = 520;   // meters, square, centered on 0
 export const CELL = 2.5;   // grid spacing
 export const SEA = 0;
-
-const C = {
-  sandWet: new THREE.Color('#cdb27a'),
-  sand: new THREE.Color('#ead39b'),
-  meadow: new THREE.Color('#9cbd4c'),
-  meadow2: new THREE.Color('#a9c556'),
-  forest: new THREE.Color('#6c9a3a'),
-  forest2: new THREE.Color('#5f8d36'),
-  scrub: new THREE.Color('#b5b46c'),
-  rock: new THREE.Color('#948d80'),
-  rockDark: new THREE.Color('#7d776c'),
-  rockPale: new THREE.Color('#b2ab9b'),
-  seabed: new THREE.Color('#c7b27e'),
-};
 
 export class Terrain {
   constructor(seed = 7) {
@@ -112,50 +98,50 @@ export class Terrain {
     return 'meadow';
   }
 
-  buildMesh() {
+  // Smooth indexed heightfield. Each vertex carries "splat" weights for the ground material
+  // (world/ground.js): x = sand, y = grass, z = forest floor, w = rock.
+  buildMesh(material) {
     const n = this.N + 1;
-    const pos = [], col = [];
-    const tri = new THREE.Triangle();
-    const nrm = new THREE.Vector3();
-    const color = new THREE.Color();
-    const A = new THREE.Vector3(), B = new THREE.Vector3(), Cc = new THREE.Vector3();
+    const pos = new Float32Array(n * n * 3);
+    const splat = new Float32Array(n * n * 4);
     const { noise } = this.noise;
-    const pushTri = (ax, az, bx, bz, cx, cz, ha, hb, hc) => {
-      if (ha < -6 && hb < -6 && hc < -6) return; // deep water is covered by the ocean
-      A.set(ax, ha, az); B.set(bx, hb, bz); Cc.set(cx, hc, cz);
-      tri.set(A, B, Cc).getNormal(nrm);
-      const mx = (ax + bx + cx) / 3, mz = (az + bz + cz) / 3, mh = (ha + hb + hc) / 3;
-      const slope = Math.acos(Math.min(1, Math.abs(nrm.y)));
-      const jitter = noise(mx * 0.35, mz * 0.35) * 0.5 + noise(mx * 2.1, mz * 2.1) * 0.5;
-      if (mh < -0.4) color.copy(C.seabed);
-      else if (mh < 0.9) color.copy(C.sandWet).lerp(C.sand, smoothstep(-0.4, 0.9, mh));
-      else if (mh < 2.4 && slope < 0.5) color.copy(C.sand).lerp(C.meadow, smoothstep(1.8, 2.4, mh));
-      else if (slope > 0.62) color.copy(this.northness(mz) > 0.3 ? C.rockPale : C.rock).lerp(C.rockDark, jitter * 0.5 + 0.25);
-      else if (this.northness(mz) > 0.45 && mh > 12) color.copy(C.scrub).lerp(C.rockPale, smoothstep(0.35, 0.6, slope));
-      else {
-        const f = smoothstep(0.45, 0.75, this.forestMask(mx, mz));
-        color.copy(jitter > 0 ? C.meadow : C.meadow2).lerp(jitter > 0 ? C.forest : C.forest2, f);
-        if (slope > 0.42) color.lerp(C.rock, smoothstep(0.42, 0.62, slope) * 0.7);
+    for (let j = 0; j < n; j++) {
+      for (let i = 0; i < n; i++) {
+        const k = j * n + i;
+        const x = this.min + i * CELL, z = this.min + j * CELL, h = this.h[k];
+        pos[k * 3] = x; pos[k * 3 + 1] = h; pos[k * 3 + 2] = z;
+        const hx = this.h[j * n + Math.min(n - 1, i + 1)] - this.h[j * n + Math.max(0, i - 1)];
+        const hz = this.h[Math.min(n - 1, j + 1) * n + i] - this.h[Math.max(0, j - 1) * n + i];
+        const slope = Math.atan(Math.hypot(hx, hz) / (2 * CELL));
+        const n1 = noise(x * 0.05, z * 0.05), n2 = noise(x * 0.23 + 5, z * 0.23 - 3);
+        const sand = 1 - smoothstep(1.3, 2.5, h + n1 * 0.8);
+        let rock = smoothstep(0.5, 0.78, slope + n2 * 0.08);
+        if (this.northness(z) > 0.3 && h > 12) rock = Math.max(rock, 0.3 + 0.35 * (n1 * 0.5 + 0.5));
+        const forest = smoothstep(0.45, 0.78, this.forestMask(x, z) + n2 * 0.08);
+        const r = rock * (1 - sand);
+        const f = forest * (1 - sand) * (1 - r);
+        const g = (1 - sand) * (1 - r) * (1 - forest);
+        const sum = sand + r + f + g || 1;
+        splat.set([sand / sum, g / sum, f / sum, r / sum], k * 4);
       }
-      color.offsetHSL(0, 0, jitter * 0.025);
-      pos.push(A.x, A.y, A.z, B.x, B.y, B.z, Cc.x, Cc.y, Cc.z);
-      for (let k = 0; k < 3; k++) col.push(color.r, color.g, color.b);
-    };
+    }
+    const idx = new Uint32Array(this.N * this.N * 6);
+    let o = 0;
     for (let j = 0; j < this.N; j++) {
       for (let i = 0; i < this.N; i++) {
-        const x0 = this.min + i * CELL, z0 = this.min + j * CELL, x1 = x0 + CELL, z1 = z0 + CELL;
-        const a = this.h[j * n + i], b = this.h[j * n + i + 1], c = this.h[(j + 1) * n + i], d = this.h[(j + 1) * n + i + 1];
-        pushTri(x0, z0, x0, z1, x1, z0, a, c, b);
-        pushTri(x1, z0, x0, z1, x1, z1, b, c, d);
+        const a = j * n + i, b = a + 1, c = a + n, d = c + 1;
+        // Same diagonal split as heightAt(): (a, c, b) and (b, c, d)
+        idx.set([a, c, b, b, c, d], o);
+        o += 6;
       }
     }
     const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setAttribute('splat', new THREE.BufferAttribute(splat, 4));
+    geo.setIndex(new THREE.BufferAttribute(idx, 1));
     geo.computeVertexNormals();
     geo.computeBoundingSphere();
-    const mat = new THREE.MeshStandardMaterial({ vertexColors: true, flatShading: true, roughness: 0.95, metalness: 0 });
-    const mesh = new THREE.Mesh(geo, mat);
+    const mesh = new THREE.Mesh(geo, material);
     mesh.receiveShadow = true;
     mesh.name = 'terrain';
     return mesh;

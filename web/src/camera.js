@@ -3,15 +3,6 @@
 import * as THREE from 'three';
 import { clamp, angleDelta } from './util.js';
 
-// [crown radius, height] per unit scale
-const CROWN = {
-  'nature/pine_large': [2.3, 7.5],
-  'nature/pine_medium': [1.6, 5.9],
-  'nature/pine_small': [1.15, 4.0],
-  'nature/tree_cone_a': [0.29, 1.2],
-  'nature/tree_cone_b': [0.35, 1.2],
-};
-
 export class OrbitCam {
   constructor(camera, world) {
     this.camera = camera;
@@ -32,14 +23,20 @@ export class OrbitCam {
   }
 
   // Is a point inside the crown of a standing tree? (keeps the camera out of foliage)
+  // Crowns are read from the tree models: the leafy part starts ~30 % up the tree.
   insideCanopy(x, y, z) {
-    for (const n of this.world.nodesNear(x, z, 4)) {
+    for (const n of this.world.nodesNear(x, z, 7)) {
       if (!n.def.fall || n.state !== 'ready' || n.type === 'dead') continue;
-      const dims = CROWN[n.key] ?? [0.3, 1.2];
-      const crownR = dims[0] * n.scale;
-      const height = dims[1] * n.scale;
-      if (y > n.y + height) continue;
-      if (Math.hypot(x - n.x, z - n.z) < crownR * (1 - Math.max(0, (y - n.y) / height) * 0.7)) return true;
+      const sz = this.world.size(n.key);
+      const height = sz.y * n.scale;
+      const base = n.y + height * 0.3;
+      if (y < base || y > n.y + height) continue;
+      const crownR = Math.max(sz.x, sz.z) * n.scale * 0.32;
+      if (Math.hypot(x - n.x, z - n.z) < crownR * (1 - ((y - base) / (height * 0.7)) * 0.6)) return true;
+    }
+    for (const c of this.world.canopies ?? []) {
+      const base = c.y + c.height * 0.25;
+      if (y > base && y < c.y + c.height && Math.hypot(x - c.x, z - c.z) < c.r) return true;
     }
     return false;
   }

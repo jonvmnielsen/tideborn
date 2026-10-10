@@ -130,23 +130,16 @@ export class Building {
     } else if (id === 'fence') {
       g.add(normalized(a, 'build/fence', { scale: 3.9, rotY: Math.PI / 2 }));
     } else if (id === 'campfire') {
-      for (let k = 0; k < 8; k++) {
-        const s = normalized(a, k % 2 ? 'nature/pebble_a' : 'nature/pebble_b', { scale: 3.2 });
-        const ang = (k / 8) * Math.PI * 2;
-        s.position.set(Math.cos(ang) * 0.7, 0, Math.sin(ang) * 0.7);
-        s.rotation.y = ang * 2.3;
-        g.add(s);
-      }
+      g.add(normalized(a, 'build/firepit', { scale: 1.05 }));
       for (let k = 0; k < 2; k++) {
-        const log = normalized(a, 'props/lumber', { scale: 1.6 });
-        log.rotation.y = k * 1.4 + 0.3;
-        log.position.y = 0.02 + k * 0.12;
-        g.add(log);
+        const b = normalized(a, 'wood/branches', { scale: 0.75, rotY: k * 1.7 + 0.4 });
+        b.position.y = 0.05 + k * 0.06;
+        g.add(b);
       }
     } else if (id === 'torch') {
       g.add(normalized(a, 'build/torch', { scale: 2 }));
     } else if (id === 'chest') {
-      g.add(normalized(a, 'build/chest', { scale: 0.85 }));
+      g.add(normalized(a, 'build/chest', { scale: 1.35 }));
     } else if (id === 'bed') {
       g.add(normalized(a, 'build/bed'));
     }

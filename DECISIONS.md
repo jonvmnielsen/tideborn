@@ -26,3 +26,14 @@ No animal or plant food models yet. Supply crates wash up on the beach and are r
 
 ## D-009 — Build mode moves a cursor, not the player (2026-10-10)
 Jon found placing pieces by walking the character around too fiddly. In build mode the left stick (WASD) moves a cursor and the camera orbits it; the player stays put and only walks after the cursor if it gets more than 11 m away. Pieces snap to the nearest valid spot around the cursor and prefer what the camera faces: next to existing foundations the empty neighbour in the view direction wins, and at a corner the wall edge you look at face-on wins. ▲/▼ pick the floor level (for foundations: raise/lower in 0.5 m steps, footings stretch to the ground, up to 4.5 m). Walls can stack on walls; fences join end to end or at right angles.
+
+## D-010 — Style B: scanned materials, generated trees (2026-10-10)
+Jon wants adult games and found the KayKit/Quaternius look childish; he chose direction B (detailed real surfaces on simple shapes), free assets only. Recorded in ART_DIRECTION §13a and game-assets D-009. In the web version:
+- **Ground**: smooth heightfield with a custom material (`world/ground.js`) blending four Poly Haven texture sets (sand, grass, forest floor, rock) by per-vertex weights from height, slope and biome; world-space projection, side projection on cliffs, height-based blend edges, two-scale sampling against tiling. Replaces the flat-shaded vertex colours of D-004.
+- **Light**: Poly Haven sky HDRI as image-based light (`scene.environment`), scaled by the day/night cycle; lower exposure and a less saturated sea.
+- **Trees** (ez-tree, generated) and **rocks** have two versions: full models for the nearest ones (≈45 m desktop / 30 m phone, capped) and cheap cards / simplified rocks beyond (`Scatter` LodSet). Stumps live in a pool that only draws shown stumps. Measured ~0.7 M triangles per frame on desktop and ~0.4 M on phone, shadows included.
+- **Landmarks**: a Poly Haven ship hull heeled over on the beach (sails removed), the giant oak, a stone fort half sunk into the ridge as the overlook ruin, mossy boulder crags.
+- **Gathering**: driftwood and dead trees for wood, nettles and ferns for fiber (replacing reeds), scanned stones, wooden crates for washed-up food. Campfire is a stone fire pit, chest a wooden chest.
+- Saves keep buildings and inventory; felled-tree state is only restored on the same flora layout (`floraVersion`).
+- Download is ~26 MB (was ~6 MB): 1024 px textures on big rocks and the ship, 256–512 px on small things.
+
