@@ -1,5 +1,6 @@
 // Tideborn — browser/mobile. Phase 1 "Camp": wash ashore, gather, craft tools,
 // build a home, survive day and night.
+import './nozoom.js';
 import * as THREE from 'three';
 import { loadAssets } from './assets.js';
 import { World } from './world/world.js';
