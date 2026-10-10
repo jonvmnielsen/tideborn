@@ -58,7 +58,7 @@ const lightPool = Array.from({ length: mobile ? 2 : 4 }, () => {
 
 function fail(err) {
   console.error(err);
-  loadText.textContent = 'Øen kunne ikke indlæses. Genindlæs siden for at prøve igen.';
+  loadText.textContent = `Øen kunne ikke indlæses. Genindlæs siden for at prøve igen. (${err?.message ?? err})`;
   loadText.classList.add('error');
 }
 
@@ -106,15 +106,24 @@ async function start() {
   // --- Load save ---------------------------------------------------------------
   const save = loadSave();
   if (save) {
-    for (const [id, n] of Object.entries(save.inv ?? {})) inv.add(id, n);
-    survival.restore(save.surv);
-    if (save.time) { dayNight.phase = save.time.p; dayNight.day = save.time.d; }
-    Object.assign(flags, save.flags);
-    building.restore(save.build);
-    gather.restore(save.nodes, 0);
-    player.restore(save.player);
-    home = save.home ?? null;
+    try {
+      for (const [id, n] of Object.entries(save.inv ?? {})) inv.add(id, n);
+      survival.restore(save.surv);
+      if (save.time) { dayNight.phase = save.time.p; dayNight.day = save.time.d; }
+      Object.assign(flags, save.flags);
+      building.restore(save.build);
+      gather.restore(save.nodes, 0);
+      player.restore(save.player);
+      home = save.home ?? null;
+    } catch (err) {
+      // A save that does not fit this version must never block the game: start fresh.
+      console.error('Save could not be restored', err);
+      clearSave();
+      location.replace(`${location.pathname}?reset`);
+      return;
+    }
   }
+
   if (camera.aspect < 0.8) { cam.dist = 12.5; cam.pitch = 0.5; }
   cam.snapBehind(player.facing);
   player.setTool(inv.hasTool('axe'));
