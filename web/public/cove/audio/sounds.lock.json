@@ -1,0 +1,25 @@
+{
+  "library": "jonvmnielsen/game-assets",
+  "libraryCommit": "8e0d412",
+  "synced": "2026-10-11T11:43:12.900Z",
+  "licenses": {
+    "sonniss-gdc": {
+      "name": "Sonniss #GameAudioGDC Bundle License",
+      "file": "licenses/sonniss-gdc-game-audio-license.pdf",
+      "verified": "2026-10-10",
+      "summary": "Royalty-free, unlimited projects, personal + commercial, may modify, no attribution required. May not sell the sounds as they come (only incorporated in a project), may not claim authorship of the original recordings, no AI training."
+    }
+  },
+  "sounds": {
+    "jse-forest/forest_day": {
+      "seconds": 45.04,
+      "bytes": 540779,
+      "license": "sonniss-gdc"
+    },
+    "ksl-countryside/wind_soft": {
+      "seconds": 45.04,
+      "bytes": 540779,
+      "license": "sonniss-gdc"
+    }
+  }
+}

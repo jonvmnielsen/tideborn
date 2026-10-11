@@ -1,6 +1,8 @@
 # Status
 
-_Last updated: 2026-10-10_ · Play: https://jonvmnielsen.github.io/tideborn/
+_Last updated: 2026-10-11_ · Play: https://jonvmnielsen.github.io/tideborn/
+
+**Now:** look test for the new direction (tropical, first person, Stranded Deep as target, D-012): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
 
 Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 

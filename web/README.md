@@ -5,6 +5,8 @@ Tideborn i browseren, bygget med three.js efter designet i `../Docs/`. Kører p�
 **Spil:** https://jonvmnielsen.github.io/tideborn/
 Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 
+**Stemningstest (ny retning, tropisk i førsteperson):** https://jonvmnielsen.github.io/tideborn/cove.html — knapperne øverst skifter tidspunkt; `?fps` viser billeder pr. sekund.
+
 ## Sådan spiller du
 
 | | Telefon | Computer |
@@ -36,6 +38,7 @@ npm install
 npm run dev        # lokal udvikling
 npm run build      # bygger til web/dist
 npm run sync-assets   # henter modellerne i assets.json fra ../../game-assets
+node ../../game-assets/tools/sync.mjs . assets.cove.json   # stemningstestens modeller → public/cove
 ```
 
 Hvert push til `main`, der ændrer `web/`, bygger og udgiver spillet automatisk via GitHub Actions.

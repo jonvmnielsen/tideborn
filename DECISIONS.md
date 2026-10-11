@@ -40,3 +40,12 @@ Jon wants adult games and found the KayKit/Quaternius look childish; he chose di
 ## D-011 — Player: Quaternius Modular Men "adventurer" (2026-10-10)
 The big-headed KayKit barbarian clashed with style B. Interim player until a style-B character exists: the adventurer from Quaternius Ultimate Modular Men (CC0, realistic proportions, beard and work clothes, ~8k triangles). Its clips are mapped by role in `player.js` (walk → Walk, chop → Sword_Slash, sleep → Death held at the end…), so another model can be dropped in. The stone axe is the Zombie Apocalypse Kit axe, placed in the right hand from the finger bones. The camera sits closer (8 m desktop, 9 m phone) for the smaller figure.
 
+## D-012 — Tropical start, first person, Stranded Deep as the target (2026-10-11)
+Jon found the style-B island still not good enough and named Stranded Deep as the look he wants. Decisions: the start area becomes a tropical, lush island (other biomes later), and the game goes **first person** (DESIGN_BRIEF and ART_DIRECTION amended, §13b). Before rebuilding the game, a separate look test proves the target in the browser: `web/cove.html` (`src/cove/`), with its own asset list `assets.cove.json` synced to `public/cove/` so the game's download is unchanged.
+- Sea (`cove/ocean.js`): MeshStandardMaterial + Gerstner waves; depth from the island heightfield (signed, so the swash and foam follow the real waterline); turquoise→blue by depth, transparency in the shallows, lacy shore and crest foam, toned-down sky reflection in the shallows, caustics on the sand below.
+- Sky (`cove/sky.js`): three's physical sky graded toward a clear tropical blue, drifting cloud layer, sun + image-based light from the same sky; four times of day.
+- Island (`cove/island.js`): a real island in deep water — crescent beach, lagoon, jungle hill, rocky headlands.
+- Flora (`cove/flora.js`): generated palms (our generator), ez-tree broadleaf trees tinted tropical, Poly Haven Smuggler's Cove rocks/cliff/plants, Dutch ship wreck, cannon, chest, crates, shells; wind sway on all plants; small plants are drawn only near the player; far tree cards matte (Lambert).
+- First person (`cove/fps.js`): mouse look with pointer lock / two-thumb touch, wading slows you, machete in hand.
+- Measured (headless): ~1–1.4 M triangles desktop on the beach (2 M deep in the jungle), ~0.3–0.5 M on phone settings. Download ~17 MB.
+

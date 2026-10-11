@@ -1,0 +1,367 @@
+{
+  "library": "jonvmnielsen/game-assets",
+  "libraryCommit": "8e0d412",
+  "synced": "2026-10-11T11:43:12.900Z",
+  "assets": {
+    "ground/sand": {
+      "id": "polyhaven-tropical-ground/aerial_beach_01",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/sand/diff.webp",
+        "nor": "ground/sand/nor.webp"
+      },
+      "bytes": 414492,
+      "license": "CC0-1.0"
+    },
+    "ground/grass": {
+      "id": "polyhaven-tropical-ground/leafy_grass",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/grass/diff.webp",
+        "nor": "ground/grass/nor.webp"
+      },
+      "bytes": 1171062,
+      "license": "CC0-1.0"
+    },
+    "ground/forest": {
+      "id": "polyhaven-terrain/brown_mud_leaves_01",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/forest/diff.webp",
+        "nor": "ground/forest/nor.webp"
+      },
+      "bytes": 1199572,
+      "license": "CC0-1.0"
+    },
+    "ground/rock": {
+      "id": "polyhaven-tropical-ground/aerial_rocks_02",
+      "kind": "texture",
+      "files": {
+        "diff": "ground/rock/diff.webp",
+        "nor": "ground/rock/nor.webp"
+      },
+      "bytes": 993420,
+      "license": "CC0-1.0"
+    },
+    "tree/palm_tall_a": {
+      "id": "ez-tree/palm_tall_a",
+      "file": "tree/palm_tall_a.glb",
+      "bytes": 249740,
+      "sha": "af2d806a3b7c",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_tall_a_far": {
+      "id": "ez-tree/palm_tall_a_far",
+      "file": "tree/palm_tall_a_far.glb",
+      "bytes": 13524,
+      "sha": "047b605190b3",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_tall_b": {
+      "id": "ez-tree/palm_tall_b",
+      "file": "tree/palm_tall_b.glb",
+      "bytes": 246728,
+      "sha": "611fc9cdfb0e",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_tall_b_far": {
+      "id": "ez-tree/palm_tall_b_far",
+      "file": "tree/palm_tall_b_far.glb",
+      "bytes": 14024,
+      "sha": "982d697e327c",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_bent": {
+      "id": "ez-tree/palm_bent",
+      "file": "tree/palm_bent.glb",
+      "bytes": 242756,
+      "sha": "b4c3c322835f",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_bent_far": {
+      "id": "ez-tree/palm_bent_far",
+      "file": "tree/palm_bent_far.glb",
+      "bytes": 14976,
+      "sha": "bce19a6a1a51",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_medium": {
+      "id": "ez-tree/palm_medium",
+      "file": "tree/palm_medium.glb",
+      "bytes": 241936,
+      "sha": "6d084c02f97a",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_medium_far": {
+      "id": "ez-tree/palm_medium_far",
+      "file": "tree/palm_medium_far.glb",
+      "bytes": 18388,
+      "sha": "a440da16c2ad",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_young": {
+      "id": "ez-tree/palm_young",
+      "file": "tree/palm_young.glb",
+      "bytes": 231720,
+      "sha": "2283778453bf",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/palm_young_far": {
+      "id": "ez-tree/palm_young_far",
+      "file": "tree/palm_young_far.glb",
+      "bytes": 20592,
+      "sha": "90851018a284",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/oak_large": {
+      "id": "ez-tree/oak_large",
+      "file": "tree/oak_large.glb",
+      "bytes": 485104,
+      "sha": "e9467a844be9",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/oak_large_far": {
+      "id": "ez-tree/oak_large_far",
+      "file": "tree/oak_large_far.glb",
+      "bytes": 47384,
+      "sha": "fdd1c7997f9f",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/ash_medium": {
+      "id": "ez-tree/ash_medium",
+      "file": "tree/ash_medium.glb",
+      "bytes": 418552,
+      "sha": "9cc1b7a44ab9",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/ash_medium_far": {
+      "id": "ez-tree/ash_medium_far",
+      "file": "tree/ash_medium_far.glb",
+      "bytes": 46884,
+      "sha": "c8f75dd671ef",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/bush_a": {
+      "id": "ez-tree/bush_a",
+      "file": "tree/bush_a.glb",
+      "bytes": 338832,
+      "sha": "cc670c593f65",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/bush_a_far": {
+      "id": "ez-tree/bush_a_far",
+      "file": "tree/bush_a_far.glb",
+      "bytes": 61912,
+      "sha": "127f7d72d765",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/bush_c": {
+      "id": "ez-tree/bush_c",
+      "file": "tree/bush_c.glb",
+      "bytes": 379136,
+      "sha": "5d4b5222e383",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "tree/bush_c_far": {
+      "id": "ez-tree/bush_c_far",
+      "file": "tree/bush_c_far.glb",
+      "bytes": 42660,
+      "sha": "3322ca226e21",
+      "license": "MIT",
+      "kind": "model"
+    },
+    "rock/shelf_a": {
+      "id": "polyhaven-tropical/coast_rocks_01",
+      "file": "rock/shelf_a.glb",
+      "bytes": 789656,
+      "sha": "661b5fd243c2",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/shelf_b": {
+      "id": "polyhaven-tropical/coast_rocks_03",
+      "file": "rock/shelf_b.glb",
+      "bytes": 879080,
+      "sha": "53d897984327",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/cliff": {
+      "id": "polyhaven-tropical/coastal_cliff_01",
+      "file": "rock/cliff.glb",
+      "bytes": 758256,
+      "sha": "b32412be2d30",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/land": {
+      "id": "polyhaven-tropical/coast_land_rocks_03",
+      "file": "rock/land.glb",
+      "bytes": 1039744,
+      "sha": "250e81b4c944",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/coast": {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "file": "rock/coast.glb",
+      "bytes": 1206852,
+      "sha": "9153867b2ab7",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/moss_a": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "file": "rock/moss_a.glb",
+      "bytes": 493088,
+      "sha": "b4c378d703b2",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/moss_a_far": {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "file": "rock/moss_a_far.glb",
+      "bytes": 30204,
+      "sha": "61bb5471a750",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/pebbles": {
+      "id": "polyhaven-tropical/sand_rocks_small_01",
+      "file": "rock/pebbles.glb",
+      "bytes": 177280,
+      "sha": "5ccfdd1006ba",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/pachira": {
+      "id": "polyhaven-tropical/pachira_aquatica_01",
+      "file": "plant/pachira.glb",
+      "bytes": 215324,
+      "sha": "c5710d3879ac",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/calathea": {
+      "id": "polyhaven-tropical/calathea_orbifolia_01",
+      "file": "plant/calathea.glb",
+      "bytes": 96816,
+      "sha": "53f9bd40296a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/anthurium": {
+      "id": "polyhaven-tropical/anthurium_botany_01",
+      "file": "plant/anthurium.glb",
+      "bytes": 100300,
+      "sha": "8200f8fc2108",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/fern_a": {
+      "id": "polyhaven-nature/fern_02_b",
+      "file": "plant/fern_a.glb",
+      "bytes": 74312,
+      "sha": "4d323237fa6b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/fern_b": {
+      "id": "polyhaven-nature/fern_02_c",
+      "file": "plant/fern_b.glb",
+      "bytes": 74112,
+      "sha": "87014c7d5199",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/shell": {
+      "id": "polyhaven-tropical/lambis_shell",
+      "file": "props/shell.glb",
+      "bytes": 73784,
+      "sha": "7dbe49710c36",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/machete": {
+      "id": "polyhaven-tropical/machete",
+      "file": "props/machete.glb",
+      "bytes": 171208,
+      "sha": "2a3fb311de10",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/cannon": {
+      "id": "polyhaven-tropical/cannon_01",
+      "file": "props/cannon.glb",
+      "bytes": 276224,
+      "sha": "e19ab7c50436",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "landmark/ship": {
+      "id": "polyhaven-props/dutch_ship_medium",
+      "file": "landmark/ship.glb",
+      "bytes": 2420464,
+      "sha": "f0229457d84e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/crate_a": {
+      "id": "polyhaven-props/wooden_crate_01",
+      "file": "props/crate_a.glb",
+      "bytes": 179944,
+      "sha": "9bddd1aa9009",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/crate_b": {
+      "id": "polyhaven-props/wooden_crate_02",
+      "file": "props/crate_b.glb",
+      "bytes": 170468,
+      "sha": "2fc6ef9a4b1c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/chest": {
+      "id": "polyhaven-props/treasure_chest",
+      "file": "props/chest.glb",
+      "bytes": 280200,
+      "sha": "ef34765e9168",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/drift_b": {
+      "id": "polyhaven-nature/dead_tree_trunk_02",
+      "file": "wood/drift_b.glb",
+      "bytes": 240104,
+      "sha": "c14c9e573dd6",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/drift_a": {
+      "id": "polyhaven-nature/dead_tree_trunk",
+      "file": "wood/drift_a.glb",
+      "bytes": 183796,
+      "sha": "f08befba2170",
+      "license": "CC0-1.0",
+      "kind": "model"
+    }
+  }
+}

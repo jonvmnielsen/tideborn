@@ -6,14 +6,21 @@
 import * as THREE from 'three';
 
 export const GROUND_LAYERS = ['ground/sand', 'ground/grass', 'ground/forest', 'ground/rock'];
-const TILE = new THREE.Vector4(5, 4.5, 5.5, 8);        // metres per texture repeat
-const ROUGH = new THREE.Vector4(0.92, 0.97, 0.95, 0.86);
+const DEFAULT_TILE = new THREE.Vector4(5, 4.5, 5.5, 8);        // metres per texture repeat
+const DEFAULT_ROUGH = new THREE.Vector4(0.92, 0.97, 0.95, 0.86);
 // Colour grading per layer so the scans sit together (the grass scan is a dry, pale field).
-const TINT = [new THREE.Color(0.92, 0.88, 0.8), new THREE.Color(0.48, 0.64, 0.3), new THREE.Color(0.85, 0.85, 0.78), new THREE.Color(0.92, 0.9, 0.86)];
+const DEFAULT_TINT = [new THREE.Color(0.92, 0.88, 0.8), new THREE.Color(0.48, 0.64, 0.3), new THREE.Color(0.85, 0.85, 0.78), new THREE.Color(0.92, 0.9, 0.86)];
 
-export function makeGroundMaterial(assets, renderer) {
+// opts: layers (4 texture-set keys), tint (4 colours), tile (Vector4 m), rough (Vector4),
+// caustics: animated sunlight patterns on the sea floor (shared uniform `uTime` on mat.userData).
+export function makeGroundMaterial(assets, renderer, opts = {}) {
+  const LAYERS = opts.layers ?? GROUND_LAYERS;
+  const TINT = opts.tint ?? DEFAULT_TINT;
+  const TILE = opts.tile ?? DEFAULT_TILE;
+  const ROUGH = opts.rough ?? DEFAULT_ROUGH;
+  const time = { value: 0 };
   const aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-  const tex = GROUND_LAYERS.map((k) => {
+  const tex = LAYERS.map((k) => {
     const set = assets[k];
     for (const t of Object.values(set)) t.anisotropy = aniso;
     return set;
@@ -28,6 +35,7 @@ export function makeGroundMaterial(assets, renderer) {
     shader.uniforms.uTile = { value: TILE };
     shader.uniforms.uRough = { value: ROUGH };
     TINT.forEach((c, i) => { shader.uniforms[`uTint${i}`] = { value: c }; });
+    shader.uniforms.uTime = time;
 
     shader.vertexShader = shader.vertexShader
       .replace('#include <common>', `#include <common>
@@ -45,6 +53,7 @@ vWNrm = normalize(mat3(modelMatrix) * objectNormal);`);
 uniform sampler2D tDiff0, tDiff1, tDiff2, tDiff3, tNor0, tNor1, tNor2, tNor3;
 uniform vec4 uTile, uRough;
 uniform vec3 uTint0, uTint1, uTint2, uTint3;
+uniform float uTime;
 varying vec4 vSplat;
 varying vec3 vWPos;
 varying vec3 vWNrm;
@@ -69,7 +78,18 @@ gW = gW * gW * gW * gW;
 gW /= dot(gW, vec4(1.0)) + 1e-6;
 vec3 gCol = gC0 * uTint0 * gW.x + gC1 * uTint1 * gW.y + gC2 * uTint2 * gW.z + gC3 * uTint3 * gW.w;
 // Wet sand darkens towards the waterline.
-gCol *= mix(0.6, 1.0, smoothstep(-0.4, 0.9, vWPos.y));
+gCol *= mix(vec3(0.7, 0.68, 0.62), vec3(1.0), smoothstep(-0.4, 0.9, vWPos.y));
+#ifdef CAUSTICS
+{
+  // Sunlight focused by the waves on the sea floor: two drifting cell patterns, min'ed.
+  float under = smoothstep(0.05, -0.6, vWPos.y) * smoothstep(-9.0, -2.0, vWPos.y);
+  vec2 q = vWPos.xz * 0.42;
+  float c1 = abs(sin(q.x + sin(q.y * 1.3 + uTime * 0.9) * 1.1 + uTime * 0.4) * sin(q.y + sin(q.x * 1.1 - uTime * 0.7) * 1.2 - uTime * 0.3));
+  float c2 = abs(sin(q.x * 1.7 - sin(q.y * 0.9 - uTime * 0.8) + uTime * 0.5) * sin(q.y * 1.5 + sin(q.x * 1.4 + uTime * 0.6)));
+  float ca = pow(1.0 - min(c1, c2), 9.0);
+  gCol *= (1.0 - 0.18 * under) + under * ca * 0.75;
+}
+#endif
 diffuseColor.rgb *= gCol;`)
       .replace('#include <roughnessmap_fragment>', `float roughnessFactor = dot(gW, uRough) * mix(0.7, 1.0, smoothstep(-0.3, 0.6, vWPos.y));`)
       .replace('#include <normal_fragment_maps>', `
@@ -85,6 +105,8 @@ diffuseColor.rgb *= gCol;`)
   normal = normalize((viewMatrix * vec4(wn, 0.0)).xyz);
 }`);
   };
-  mat.customProgramCacheKey = () => 'tideborn-ground-v2';
+  if (opts.caustics) mat.defines = { CAUSTICS: '' };
+  mat.customProgramCacheKey = () => `tideborn-ground-v3-${LAYERS.join(',')}-${!!opts.caustics}`;
+  mat.userData.time = time;
   return mat;
 }

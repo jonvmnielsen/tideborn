@@ -7,8 +7,8 @@ import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
 
 // Models → gltf; texture sets (kind "texture") → { diff, nor, … } THREE.Textures, tiling;
 // sky light (kind "hdri") → equirectangular float texture.
-export async function loadAssets(onProgress) {
-  const lock = await (await fetch('assets/assets.lock.json')).json();
+export async function loadAssets(onProgress, base = 'assets') {
+  const lock = await (await fetch(`${base}/assets.lock.json`)).json();
   const entries = Object.entries(lock.assets);
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   const texLoader = new THREE.TextureLoader();
@@ -19,18 +19,18 @@ export async function loadAssets(onProgress) {
       if (info.kind === 'texture') {
         const set = {};
         for (const [map, file] of Object.entries(info.files)) {
-          const t = await texLoader.loadAsync(`assets/${file}`);
+          const t = await texLoader.loadAsync(`${base}/${file}`);
           t.wrapS = t.wrapT = THREE.RepeatWrapping;
           t.colorSpace = map === 'diff' ? THREE.SRGBColorSpace : THREE.NoColorSpace;
           set[map] = t;
         }
         out[key] = set;
       } else if (info.kind === 'hdri') {
-        const t = await new RGBELoader().loadAsync(`assets/${info.file}`);
+        const t = await new RGBELoader().loadAsync(`${base}/${info.file}`);
         t.mapping = THREE.EquirectangularReflectionMapping;
         out[key] = t;
       } else {
-        const gltf = await loader.loadAsync(`assets/${info.file}`);
+        const gltf = await loader.loadAsync(`${base}/${info.file}`);
         gltf.scene.updateMatrixWorld(true);
         out[key] = gltf;
       }

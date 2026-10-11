@@ -34,7 +34,7 @@ class LodSet {
 
   build(parent, assets, cap) {
     const n = this.base.length;
-    this.cap = Math.min(cap, n);
+    this.cap = Math.min(this.opts.nearCap ?? cap, n);
     const make = (key, count, castShadow) => meshParts(assets[key].scene).map((p) => {
       const im = new THREE.InstancedMesh(p.geometry, p.material, count);
       im.castShadow = castShadow;
@@ -46,8 +46,9 @@ class LodSet {
     });
     this.near = make(this.key, this.cap, this.opts.castShadow ?? true);
     for (const p of this.near) p.im.count = 0;
-    this.far = make(this.farKey, n, this.opts.castShadow ?? true);
-    for (let i = 0; i < n; i++) this.write(this.far, i, this.cur[i]);
+    // Near-only sets (small plants): nothing is drawn beyond the radius.
+    this.far = this.farKey ? make(this.farKey, n, this.opts.castShadow ?? true) : [];
+    for (let i = 0; i < n && this.farKey; i++) this.write(this.far, i, this.cur[i]);
     this.nearOf = new Int32Array(n).fill(-1);
     this.owner = [];
     this.nearCount = 0;
@@ -185,9 +186,9 @@ export class Scatter {
       if (!hidden) pool.set(i, matrix);
       return { pool, i };
     }
-    if (opts.far) {
+    if (opts.far || opts.nearOnly) {
       let lod = this.lods.get(key);
-      if (!lod) this.lods.set(key, (lod = new LodSet(key, opts.far, opts)));
+      if (!lod) this.lods.set(key, (lod = new LodSet(key, opts.far ?? null, opts)));
       return { lod, i: lod.add(matrix, hidden) };
     }
     const e = new THREE.Vector3().setFromMatrixPosition(matrix);
@@ -230,7 +231,7 @@ export class Scatter {
   update(x, z, now) {
     if (Math.hypot(x - this.last.x, z - this.last.z) < 2.5 && now - this.last.t < 1) return;
     this.last = { x, z, t: now };
-    for (const lod of this.lods.values()) lod.update(x, z, this.nearRadius);
+    for (const lod of this.lods.values()) lod.update(x, z, lod.opts.nearRadius ?? this.nearRadius);
     for (const g of this.groups.values()) {
       if (!g.opts.maxDist) continue;
       const vis = Math.hypot(g.cx - x, g.cz - z) < g.opts.maxDist + CHUNK * 0.71;

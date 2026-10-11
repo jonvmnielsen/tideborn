@@ -130,7 +130,7 @@ Avoid clone Conan barbarian kits; keep island-evolved clothing logic (salt, thor
 ## 9. Character (player)
 
 - Readable survivor: practical layered kit that can **upgrade visually** with craft tiers (stitch, plate, fiber).  
-- Camera: **third-person locked** for building + creature/Follower read.  
+- Camera: **first person** (Jon, 2026-10-11). Hands/held tools carry the player's read; building and Followers must read from eye height.  
 - Hands/tools readable in first meters of craft loop.
 
 ---
@@ -176,7 +176,7 @@ From [Game Dev + 3D Assets](sand-workflow:game-dev-3d-assets):
 ## 13. Open art locks
 
 1. ~~Working title~~ → **Tideborn** locked (final marketing name later)  
-2. ~~Camera~~ → **third-person locked**  
+2. ~~Camera~~ → **first person** (2026-10-11, was third-person)  
 3. How mythic mutation glow is allowed to get  
 4. Binding post visual severity (gritty vs ritualized)  
 
@@ -189,6 +189,15 @@ Jon found the KayKit/Quaternius look too childish and chose **direction "B"** fo
 - In: textured ground blended by band, scanned rocks and driftwood, generated trees with far LODs, a real shipwreck hull, a sunken fort ruin as the overlook.
 - Still interim: the player character and the modular building kit (KayKit) until style-B replacements exist.
 - Blood and gore are allowed in Jon's games by default; how far Tideborn goes is still open (ties to §13.4).
+
+---
+
+## 13b. Amendment 2026-10-11 — tropical start, first person, realism target (Jon)
+
+Jon: the look to aim for is **Stranded Deep** — realistic, not stylized. The game starts in a **tropical, exotic, lush and living** area; other biomes (the cooler shore/forest/ridge bands of §4) come later as the player gets further. This replaces "not a generic tropical postcard" for the start area only: it should be a *living* tropical island, not a postcard — wind in the palms, turquoise shallows, jungle you push into. The camera is **first person** (replaces the third-person lock in §9/§13 and DESIGN_BRIEF).
+
+- Proof of look: `web/cove.html` — a tropical cove in first person (realistic sea with depth colour, shore foam and swash; physical sky; generated palms; Poly Haven Smuggler's Cove rocks, wreck and plants). Judged on phone and desktop before the game is rebuilt around it.
+- Free assets only (unchanged). Realistic people are still the gap; first person hides the player model.
 
 ---
 

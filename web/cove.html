@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0b4a72">
+  <title>Tideborn — Bugten</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #0b2433; color: #f3efe6; font: 15px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+    .card { position: fixed; inset: 0; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 60%, rgba(11, 74, 114, 0.55), rgba(5, 18, 26, 0.92)); }
+    .card[hidden] { display: none; }
+    .card-in { width: min(420px, calc(100% - 32px)); text-align: center; }
+    h1 { font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; font-size: 22px; margin: 0 0 6px; }
+    .sub { opacity: 0.75; margin: 0 0 18px; }
+    .bar { height: 4px; background: rgba(255, 255, 255, 0.15); border-radius: 2px; overflow: hidden; }
+    .bar > div { height: 100%; width: 0; background: #e9d9b0; transition: width 0.2s; }
+    button { font: inherit; color: inherit; border: 1px solid rgba(255, 255, 255, 0.35); background: rgba(10, 30, 40, 0.55); border-radius: 999px; padding: 10px 22px; cursor: pointer; touch-action: manipulation; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .go { font-size: 17px; padding: 14px 34px; background: rgba(233, 217, 176, 0.92); color: #10222c; border: 0; font-weight: 600; }
+    .keys { margin-top: 16px; font-size: 13px; opacity: 0.7; }
+    .times { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
+    .times button { padding: 6px 12px; font-size: 13px; }
+    .times button.on { background: rgba(233, 217, 176, 0.9); color: #10222c; border-color: transparent; }
+    #hint { position: fixed; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); font-size: 12px; opacity: 0.7; text-shadow: 0 1px 3px #000; white-space: nowrap; }
+    #hint[hidden] { display: none; }
+    #fps { position: fixed; right: 10px; bottom: 10px; font: 12px ui-monospace, monospace; text-shadow: 0 1px 2px #000; }
+    #fps[hidden] { display: none; }
+    #stick { position: fixed; width: 110px; height: 110px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); background: rgba(0, 0, 0, 0.15); pointer-events: none; }
+    #stick[hidden] { display: none; }
+    #knob { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.6); }
+    .cross { position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: rgba(255, 255, 255, 0.7); pointer-events: none; }
+  </style>
+</head>
+<body>
+  <canvas id="view" aria-label="Tropisk bugt"></canvas>
+  <div class="cross"></div>
+  <div class="times">
+    <button type="button" data-time="morgen">Morgen</button>
+    <button type="button" data-time="middag">Middag</button>
+    <button type="button" data-time="eftermiddag">Eftermiddag</button>
+    <button type="button" data-time="solnedgang">Solnedgang</button>
+  </div>
+  <div id="hint" hidden>WASD gå · Shift løb · mus kig · Esc slip musen</div>
+  <div id="fps" hidden></div>
+  <div id="stick" hidden><div id="knob"></div></div>
+
+  <div class="card" id="load">
+    <div class="card-in">
+      <h1>Tideborn</h1>
+      <p class="sub" id="loadText">Henter bugten …</p>
+      <div class="bar"><div id="fill"></div></div>
+    </div>
+  </div>
+  <div class="card" id="start" hidden>
+    <div class="card-in">
+      <h1>Bugten</h1>
+      <p class="sub">Stemningstest: tropisk strand i førsteperson</p>
+      <button class="go" type="button">Gå i land</button>
+      <p class="keys">Computer: WASD og mus · Telefon: venstre tommel går, højre kigger</p>
+    </div>
+  </div>
+  <script type="module" src="./src/cove/main.js"></script>
+</body>
+</html>

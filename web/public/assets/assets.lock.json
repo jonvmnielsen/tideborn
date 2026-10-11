@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "1fe49d1",
-  "synced": "2026-10-10T20:26:00.560Z",
+  "libraryCommit": "8e0d412",
+  "synced": "2026-10-11T11:43:16.771Z",
   "assets": {
     "player": {
       "id": "quaternius-modular-men/characters/adventurer",
@@ -89,8 +89,8 @@
     "tree/pine_large_a_far": {
       "id": "ez-tree/pine_large_a_far",
       "file": "tree/pine_large_a_far.glb",
-      "bytes": 32688,
-      "sha": "46ad10d8b587",
+      "bytes": 32592,
+      "sha": "178e9eeeb5a1",
       "license": "MIT",
       "kind": "model"
     },
@@ -105,8 +105,8 @@
     "tree/pine_large_b_far": {
       "id": "ez-tree/pine_large_b_far",
       "file": "tree/pine_large_b_far.glb",
-      "bytes": 29488,
-      "sha": "599f1608b276",
+      "bytes": 29568,
+      "sha": "b258c10b7072",
       "license": "MIT",
       "kind": "model"
     },
@@ -121,8 +121,8 @@
     "tree/pine_medium_a_far": {
       "id": "ez-tree/pine_medium_a_far",
       "file": "tree/pine_medium_a_far.glb",
-      "bytes": 31432,
-      "sha": "081c342aaea9",
+      "bytes": 31104,
+      "sha": "aa8692e510a5",
       "license": "MIT",
       "kind": "model"
     },
@@ -137,8 +137,8 @@
     "tree/pine_medium_b_far": {
       "id": "ez-tree/pine_medium_b_far",
       "file": "tree/pine_medium_b_far.glb",
-      "bytes": 30872,
-      "sha": "943315b9b8fa",
+      "bytes": 30816,
+      "sha": "f781e1c19e7f",
       "license": "MIT",
       "kind": "model"
     },
@@ -153,8 +153,8 @@
     "tree/pine_small_far": {
       "id": "ez-tree/pine_small_far",
       "file": "tree/pine_small_far.glb",
-      "bytes": 26184,
-      "sha": "5d148ee2c793",
+      "bytes": 26072,
+      "sha": "f8a4560d86c3",
       "license": "MIT",
       "kind": "model"
     },
@@ -169,8 +169,8 @@
     "tree/oak_medium_far": {
       "id": "ez-tree/oak_medium_far",
       "file": "tree/oak_medium_far.glb",
-      "bytes": 41436,
-      "sha": "062f5d8297f8",
+      "bytes": 41476,
+      "sha": "bf042cbd42c2",
       "license": "MIT",
       "kind": "model"
     },
@@ -185,8 +185,8 @@
     "tree/oak_large_far": {
       "id": "ez-tree/oak_large_far",
       "file": "tree/oak_large_far.glb",
-      "bytes": 47128,
-      "sha": "55e8ea6ec6b0",
+      "bytes": 47384,
+      "sha": "fdd1c7997f9f",
       "license": "MIT",
       "kind": "model"
     },
@@ -201,8 +201,8 @@
     "tree/ash_medium_far": {
       "id": "ez-tree/ash_medium_far",
       "file": "tree/ash_medium_far.glb",
-      "bytes": 46596,
-      "sha": "ffdda3c64e44",
+      "bytes": 46884,
+      "sha": "c8f75dd671ef",
       "license": "MIT",
       "kind": "model"
     },
@@ -217,8 +217,8 @@
     "tree/aspen_medium_far": {
       "id": "ez-tree/aspen_medium_far",
       "file": "tree/aspen_medium_far.glb",
-      "bytes": 27800,
-      "sha": "4cbb09a63494",
+      "bytes": 27520,
+      "sha": "f81ba7a5e9f8",
       "license": "MIT",
       "kind": "model"
     },
@@ -233,8 +233,8 @@
     "tree/dead_oak_far": {
       "id": "ez-tree/dead_oak_far",
       "file": "tree/dead_oak_far.glb",
-      "bytes": 31216,
-      "sha": "99ee791431d1",
+      "bytes": 31296,
+      "sha": "f5a0444578d5",
       "license": "MIT",
       "kind": "model"
     },
@@ -249,8 +249,8 @@
     "tree/dead_ash_far": {
       "id": "ez-tree/dead_ash_far",
       "file": "tree/dead_ash_far.glb",
-      "bytes": 26984,
-      "sha": "08107f277108",
+      "bytes": 27040,
+      "sha": "b2016a991522",
       "license": "MIT",
       "kind": "model"
     },
@@ -265,8 +265,8 @@
     "tree/bush_a_far": {
       "id": "ez-tree/bush_a_far",
       "file": "tree/bush_a_far.glb",
-      "bytes": 62568,
-      "sha": "41923ef728f0",
+      "bytes": 61912,
+      "sha": "127f7d72d765",
       "license": "MIT",
       "kind": "model"
     },
@@ -281,8 +281,8 @@
     "tree/bush_c_far": {
       "id": "ez-tree/bush_c_far",
       "file": "tree/bush_c_far.glb",
-      "bytes": 44724,
-      "sha": "75186abb7713",
+      "bytes": 42660,
+      "sha": "3322ca226e21",
       "license": "MIT",
       "kind": "model"
     },

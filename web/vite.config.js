@@ -6,6 +6,8 @@ export default defineConfig({
   build: {
     target: 'es2020',
     chunkSizeWarningLimit: 900,
+    // The game, plus the tropical cove look test (cove.html).
+    rollupOptions: { input: { main: 'index.html', cove: 'cove.html' } },
   },
   server: { host: true },
 });

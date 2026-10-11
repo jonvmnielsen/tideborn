@@ -1,0 +1,225 @@
+{
+  "out": "public/cove",
+  "audioOut": "public/cove/audio",
+  "assets": [
+    {
+      "id": "polyhaven-tropical-ground/aerial_beach_01",
+      "as": "ground/sand",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-tropical-ground/leafy_grass",
+      "as": "ground/grass",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-terrain/brown_mud_leaves_01",
+      "as": "ground/forest",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "polyhaven-tropical-ground/aerial_rocks_02",
+      "as": "ground/rock",
+      "maps": [
+        "diff",
+        "nor"
+      ]
+    },
+    {
+      "id": "ez-tree/palm_tall_a",
+      "as": "tree/palm_tall_a"
+    },
+    {
+      "id": "ez-tree/palm_tall_a_far",
+      "as": "tree/palm_tall_a_far"
+    },
+    {
+      "id": "ez-tree/palm_tall_b",
+      "as": "tree/palm_tall_b"
+    },
+    {
+      "id": "ez-tree/palm_tall_b_far",
+      "as": "tree/palm_tall_b_far"
+    },
+    {
+      "id": "ez-tree/palm_bent",
+      "as": "tree/palm_bent"
+    },
+    {
+      "id": "ez-tree/palm_bent_far",
+      "as": "tree/palm_bent_far"
+    },
+    {
+      "id": "ez-tree/palm_medium",
+      "as": "tree/palm_medium"
+    },
+    {
+      "id": "ez-tree/palm_medium_far",
+      "as": "tree/palm_medium_far"
+    },
+    {
+      "id": "ez-tree/palm_young",
+      "as": "tree/palm_young"
+    },
+    {
+      "id": "ez-tree/palm_young_far",
+      "as": "tree/palm_young_far"
+    },
+    {
+      "id": "ez-tree/oak_large",
+      "as": "tree/oak_large"
+    },
+    {
+      "id": "ez-tree/oak_large_far",
+      "as": "tree/oak_large_far"
+    },
+    {
+      "id": "ez-tree/ash_medium",
+      "as": "tree/ash_medium"
+    },
+    {
+      "id": "ez-tree/ash_medium_far",
+      "as": "tree/ash_medium_far"
+    },
+    {
+      "id": "ez-tree/bush_a",
+      "as": "tree/bush_a"
+    },
+    {
+      "id": "ez-tree/bush_a_far",
+      "as": "tree/bush_a_far"
+    },
+    {
+      "id": "ez-tree/bush_c",
+      "as": "tree/bush_c"
+    },
+    {
+      "id": "ez-tree/bush_c_far",
+      "as": "tree/bush_c_far"
+    },
+    {
+      "id": "polyhaven-tropical/coast_rocks_01",
+      "as": "rock/shelf_a"
+    },
+    {
+      "id": "polyhaven-tropical/coast_rocks_03",
+      "as": "rock/shelf_b"
+    },
+    {
+      "id": "polyhaven-tropical/coastal_cliff_01",
+      "as": "rock/cliff"
+    },
+    {
+      "id": "polyhaven-tropical/coast_land_rocks_03",
+      "as": "rock/land"
+    },
+    {
+      "id": "polyhaven-nature/coast_rocks_05",
+      "as": "rock/coast"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "as": "rock/moss_a"
+    },
+    {
+      "id": "polyhaven-nature/rock_moss_set_01_rock01",
+      "as": "rock/moss_a_far",
+      "simplify": 250,
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-tropical/sand_rocks_small_01",
+      "as": "rock/pebbles",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-tropical/pachira_aquatica_01",
+      "as": "plant/pachira",
+      "textureMax": 512,
+      "simplify": 1400
+    },
+    {
+      "id": "polyhaven-tropical/calathea_orbifolia_01",
+      "as": "plant/calathea",
+      "textureMax": 512,
+      "simplify": 1400
+    },
+    {
+      "id": "polyhaven-tropical/anthurium_botany_01",
+      "as": "plant/anthurium",
+      "textureMax": 512,
+      "simplify": 1400
+    },
+    {
+      "id": "polyhaven-nature/fern_02_b",
+      "as": "plant/fern_a",
+      "textureMax": 512,
+      "simplify": 1200
+    },
+    {
+      "id": "polyhaven-nature/fern_02_c",
+      "as": "plant/fern_b",
+      "textureMax": 512,
+      "simplify": 1200
+    },
+    {
+      "id": "polyhaven-tropical/lambis_shell",
+      "as": "props/shell",
+      "textureMax": 256
+    },
+    {
+      "id": "polyhaven-tropical/machete",
+      "as": "props/machete",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-tropical/cannon_01",
+      "as": "props/cannon",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/dutch_ship_medium",
+      "as": "landmark/ship"
+    },
+    {
+      "id": "polyhaven-props/wooden_crate_01",
+      "as": "props/crate_a",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/wooden_crate_02",
+      "as": "props/crate_b",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-props/treasure_chest",
+      "as": "props/chest",
+      "textureMax": 512
+    },
+    {
+      "id": "polyhaven-nature/dead_tree_trunk_02",
+      "as": "wood/drift_b",
+      "textureMax": 512,
+      "simplify": 2000
+    },
+    {
+      "id": "polyhaven-nature/dead_tree_trunk",
+      "as": "wood/drift_a",
+      "textureMax": 512,
+      "simplify": 1500
+    }
+  ],
+  "audio": [
+    "jse-forest/forest_day",
+    "ksl-countryside/wind_soft"
+  ]
+}

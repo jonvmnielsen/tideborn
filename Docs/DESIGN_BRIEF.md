@@ -226,7 +226,7 @@ Footsteps, craft success, build place/snap, tame feedback, creature VO, night am
 | Topic | v1 intent |
 |-------|-----------|
 | Platform | PC first |
-| Perspective | **Third-person locked** |
+| Perspective | **First person** (changed by Jon 2026-10-11; was third-person) |
 | Input | UE Enhanced Input |
 | Networking | None in slice; keep code assumptions documented for *possible* later multiplayer (no heroic abstraction tax) |
 | Performance | Budget for slice density; profile before expanding world |
@@ -268,7 +268,7 @@ Parent (this assistant) keeps architecture consistency and refuses scope that br
 
 1. ~~Working title~~ → **Tideborn** (locked; final marketing name later).  
 2. **Art tone** (grounded prehistoric, stylized, dark mythic, etc.).  
-3. ~~Camera~~ → **Third-person locked**.  
+3. ~~Camera~~ → **First person** (Jon, 2026-10-11 — replaces the earlier third-person lock).  
 4. Exact **mutation taxonomy** (stat vs cosmetic vs ability weights).
 4b. ~~Creature-world direction~~ → **Island Ecology (locked)**.
 4c. Follower tone details (escape/revolt rules, hire upkeep, faction list).  
