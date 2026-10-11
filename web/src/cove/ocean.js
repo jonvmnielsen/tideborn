@@ -155,7 +155,7 @@ totalEmissiveRadiance += uShallow * (0.05 + 0.1 * smoothstep(0.2, 0.6, vCrest)) 
   // Near grid with detail for waves; a coarse frame around it out to the horizon.
   const group = new THREE.Group();
   group.name = 'ocean';
-  const NEAR = 760, seg = mobile ? 160 : 270; // ~3–5 m facets
+  const NEAR = 760, seg = mobile ? 150 : 220; // ~3.5–5 m facets
   const near = new THREE.Mesh(new THREE.PlaneGeometry(NEAR, NEAR, seg, seg).rotateX(-Math.PI / 2), mat);
   near.position.set(0, 0, 120);
   near.receiveShadow = true;

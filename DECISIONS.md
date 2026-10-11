@@ -57,3 +57,14 @@ Jon wants to move away from realism: stylized is fine as long as it is made for 
 - **Light**: neutral tone mapping (ACES greyed the colours out), a warm sand-coloured hemisphere bounce, exposure that opens up at dawn and dusk, bloom (threshold above the lit scene, so mainly lava and sun glints).
 - **Smoke**: an instanced column of faceted puffs rising from the crater and drifting downwind.
 - Measured (headless): ~1.0–1.15 M triangles on the beach at desktop settings (~1.6 M deep in the jungle), ~0.35 M on phone. Far trees don't render into the shadow map (`farShadow: false`; they are outside the shadow box anyway).
+
+## D-014 — A living jungle: layered planting, ground cover, animals, sharper picture (2026-10-11)
+Jon: the island felt empty — it must be an exotic, lush, living jungle island — and the picture was too low-resolution.
+- **Sharper**: the bloom chain renders into a multisampled target (4× desktop, 2× phone) instead of a non-antialiased one; pixel ratio up to 2 on all devices; shadow maps 4096 desktop / 2048 phone.
+- **Layered jungle** (`cove/flora.js`): emergent giant trees and canopy trees with hanging lianas, palms, bamboo groves (noise patches), tree ferns, young palms, a dense understory (banana, elephant ear, monstera, heliconia, hibiscus), mossy fallen logs. Collision circles live in a 4 m grid (placement went from linear scans to constant time).
+- **Ground cover** (`cove/cover.js`): grass, ferns, bromeliads, small elephant ears and three kinds of flowers generated cell by cell from a seeded hash around the player (38 m desktop, 24 m phone), shrinking toward the edge; rebuilt when the player crosses an 8 m cell. The jungle floor gets leaf-litter and moss patches.
+- **Animals** (`cove/fauna.js`): macaw and blue-parrot flocks looping over the canopy, gulls circling the lagoon (with glides), butterflies around the player, crabs dashing sideways at the waterline, three kinds of reef fish schooling in the shallows. Wings flap and tails beat in the vertex shader; all instanced.
+- **Sound**: synthesized tropical bird calls (whistles, trills, squawks, gull cries, hoots) on top of surf and forest loops.
+- Only trees cast shadows now (the understory sits in their shade); the sea mesh uses ~3.5 m facets.
+- Measured (headless): desktop ~1.0 M triangles on the beach, ~1.6–1.7 M deep in the jungle; phone ~0.45 M beach, ~0.7 M jungle. Cove models 1.1 MB.
+

@@ -14,7 +14,7 @@ const smax = (a, b, k) => { const h = Math.max(k - Math.abs(a - b), 0) / k; retu
 
 const COL = {
   sand: new THREE.Color('#efbd5e'), wetSand: new THREE.Color('#bf8c45'), seabed: new THREE.Color('#e2bc72'),
-  grass: new THREE.Color('#8cae3e'), grassDry: new THREE.Color('#b3b24c'), jungle: new THREE.Color('#5b8c2c'), jungleDark: new THREE.Color('#4a7428'),
+  grass: new THREE.Color('#8cae3e'), grassDry: new THREE.Color('#b3b24c'), jungle: new THREE.Color('#5b8c2c'), jungleDark: new THREE.Color('#4a7428'), litter: new THREE.Color('#8a6a36'), mossFloor: new THREE.Color('#86ad3a'),
   rock: new THREE.Color('#8b8369'), rockDark: new THREE.Color('#615b4b'), moss: new THREE.Color('#7f913a'),
   ash: new THREE.Color('#6d635a'), basalt: new THREE.Color('#3e3936'), crust: new THREE.Color('#2a2422'), lava: new THREE.Color('#ff6a1e'),
 };
@@ -143,7 +143,10 @@ export class Island {
     c.copy(C.sand).lerp(C.wetSand, 1 - smoothstep(0.1, 0.7, h));
     if (h < -0.4) c.copy(C.seabed).lerp(C.wetSand, smoothstep(-0.4, -6, h) * 0.6);
     const grass = new THREE.Color().copy(C.grass).lerp(C.grassDry, smoothstep(0.2, 0.6, n2 + 0.3) * 0.5);
-    const jungle = new THREE.Color().copy(C.jungle).lerp(C.jungleDark, smoothstep(-0.2, 0.4, n1));
+    // Jungle floor: patches of leaf litter and bright moss between the greens.
+    const n3 = this.noise.noise(x * 0.11 + 13, z * 0.11 - 5);
+    const jungle = new THREE.Color().copy(C.jungle).lerp(C.jungleDark, smoothstep(-0.2, 0.4, n1))
+      .lerp(C.litter, smoothstep(0.0, 0.3, n3) * 0.8).lerp(C.mossFloor, smoothstep(0.05, 0.35, -n3) * 0.7);
     const g = new THREE.Color().copy(grass).lerp(jungle, smoothstep(38, 62, d + n2 * 10));
     c.lerp(g, 1 - sandish);
     // Rock on steep ground and the headlands: olive-grey with moss on the flatter faces.

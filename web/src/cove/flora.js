@@ -1,6 +1,8 @@
-// Plants, rocks and props for the cove, all from the faceted low-poly forge (D-013). Palms and
-// canopy trees swap to cheaper versions in the distance; small plants and grass are only drawn
-// near the player. Leaves sway in the wind via a small vertex-shader patch.
+// Plants, rocks and props for the cove, all from the faceted low-poly forge (D-013). The jungle
+// is layered: emergent giants and canopy trees with lianas, palms, bamboo and tree ferns,
+// a dense understory of big leaves and flowering shrubs, and ground cover (grass, ferns,
+// bromeliads, flowers) that is generated around the player. Trees swap to cheaper versions in
+// the distance. Leaves sway in the wind via a small vertex-shader patch.
 import * as THREE from 'three';
 import { Scatter, placement } from '../world/scatter.js';
 import { cloneModel, modelBox } from '../assets.js';
@@ -8,15 +10,18 @@ import { makeRng } from '../util.js';
 import { smoothstep } from '../noise.js';
 import { prepareModel } from './facets.js';
 import { VOLCANO } from './island.js';
+import { GroundCover } from './cover.js';
 
 const PALMS = ['tree/palm_tall_a', 'tree/palm_tall_b', 'tree/palm_bent', 'tree/palm_medium'];
-const CANOPY = ['tree/canopy_a', 'tree/canopy_b', 'tree/canopy_tall'];
-const TREES = [...PALMS, 'tree/palm_young', ...CANOPY];
-const UNDER = ['plant/banana_a', 'plant/banana_b', 'plant/ear_a', 'plant/ear_b', 'plant/monstera', 'plant/fern_a', 'plant/fern_b', 'plant/heliconia', 'plant/heliconia_orange'];
+const CANOPY = ['tree/canopy_a', 'tree/canopy_b', 'tree/canopy_tall', 'tree/canopy_vines'];
+const TREES = [...PALMS, 'tree/palm_young', ...CANOPY, 'tree/canopy_giant'];
+const UNDER = ['plant/banana_a', 'plant/banana_b', 'plant/ear_a', 'plant/ear_b', 'plant/monstera', 'plant/fern_a', 'plant/heliconia', 'plant/heliconia_orange'];
+const MID = ['plant/bamboo', 'plant/bamboo_small', 'plant/treefern_a', 'plant/treefern_b'];
+const COVER = ['cover/bromeliad_red', 'cover/bromeliad_pink', 'cover/flowers_yellow', 'cover/flowers_purple', 'cover/flowers_white', 'plant/fern_b'];
 const BUSHES = ['bush/a', 'bush/b', 'bush/hibiscus', 'bush/hibiscus_pink'];
 const GRASS = ['grass/a', 'grass/tall', 'grass/beach'];
 const ROCKS = ['rock/a', 'rock/b', 'rock/c', 'rock/small', 'rock/sand', 'rock/cliff_a', 'rock/cliff_b', 'rock/basalt_a', 'rock/basalt_b'];
-const PROPS = ['props/rowboat', 'props/barrel', 'props/crate', 'props/machete', 'wood/drift_a', 'wood/drift_b'];
+const PROPS = ['props/rowboat', 'props/barrel', 'props/crate', 'props/machete', 'wood/drift_a', 'wood/drift_b', 'wood/log_mossy'];
 
 export const wind = { value: 0 };
 
@@ -63,19 +68,54 @@ export class Flora {
     this.assets = assets;
     this.island = island;
     this.root = root;
-    this.colliders = []; // { x, z, r }
+    this.grid = new Map(); // collision circles { x, z, r } in 4 m cells
     this.scatter = new Scatter(root, assets, mobile ? { nearRadius: 40, nearCap: 50 } : { nearRadius: 70, nearCap: 120 });
-    for (const k of [...TREES, ...TREES.map((t) => `${t}_far`), ...UNDER, ...BUSHES, ...GRASS, ...ROCKS, ...PROPS]) prepareModel(assets[k].scene);
-    for (const k of [...TREES, ...TREES.map((t) => `${t}_far`), ...UNDER, ...BUSHES, ...GRASS]) windFor(assets, k);
+    const plants = [...TREES, ...TREES.map((t) => `${t}_far`), ...UNDER, ...MID, ...BUSHES, ...GRASS, ...COVER];
+    for (const k of [...plants, ...ROCKS, ...PROPS]) prepareModel(assets[k].scene);
+    for (const k of plants) windFor(assets, k);
     // Far versions sit outside the sun's shadow box anyway: no shadow pass for them.
     this.treeOpts = mobile ? { nearRadius: 45, nearCap: 55, farShadow: false } : { nearRadius: 55, nearCap: 70, farShadow: false };
-    this.plantOpts = { maxDist: mobile ? 34 : 60, castShadow: !mobile };
+    // Only trees cast shadows: the understory sits in their shade anyway (and halves the cost).
+    this.plantOpts = { maxDist: mobile ? 28 : 45, castShadow: false };
     this.grassOpts = { maxDist: mobile ? 22 : 38, castShadow: false };
     this.size = new Map();
     this.placeRocks(mobile);
     this.placeCamp();
     this.plant(mobile);
     this.scatter.build();
+    this.cover = this.makeCover(mobile);
+  }
+
+  addCollider(x, z, r) {
+    const k = `${Math.floor(x / 4)},${Math.floor(z / 4)}`;
+    let a = this.grid.get(k);
+    if (!a) this.grid.set(k, (a = []));
+    a.push({ x, z, r });
+  }
+
+  // Grass, ferns, bromeliads and flowers around the player (see cover.js).
+  makeCover(mobile) {
+    const I = this.island, V = VOLCANO;
+    const zone = (x, z) => {
+      const d = I.inland(x, z);
+      const bare = smoothstep(V.base * 0.6, V.base * 0.4, Math.hypot(x - V.x, z - V.z));
+      return { d, jungle: smoothstep(42, 60, d) * (1 - bare), open: smoothstep(20, 34, d) * (1 - smoothstep(46, 62, d)) * (1 - bare) };
+    };
+    const k = mobile ? 0.6 : 1;
+    const kinds = [
+      { key: 'grass/a', max: 0.4 * k, scale: [0.8, 1.5], density: (x, z) => { const q = zone(x, z); return (0.4 * q.open + 0.12 * q.jungle) * k; } },
+      { key: 'grass/tall', max: 0.14 * k, scale: [0.8, 1.4], density: (x, z) => { const q = zone(x, z); return (0.14 * q.open + 0.04 * q.jungle) * k; } },
+      { key: 'grass/beach', max: 0.12 * k, scale: [0.7, 1.3], density: (x, z) => { const d = I.inland(x, z); return 0.12 * smoothstep(5, 12, d) * (1 - smoothstep(26, 36, d)) * k; } },
+      { key: 'plant/fern_b', max: 0.13 * k, scale: [0.9, 1.7], density: (x, z) => 0.13 * zone(x, z).jungle * k, shadow: false },
+      { key: 'plant/fern_a', max: 0.05 * k, scale: [0.8, 1.3], density: (x, z) => 0.05 * zone(x, z).jungle * k, shadow: false },
+      { key: 'plant/ear_b', max: 0.03 * k, scale: [0.7, 1.2], density: (x, z) => 0.03 * zone(x, z).jungle * k },
+      { key: 'cover/bromeliad_red', max: 0.025 * k, scale: [0.8, 1.4], density: (x, z) => 0.025 * zone(x, z).jungle * k },
+      { key: 'cover/bromeliad_pink', max: 0.02 * k, scale: [0.8, 1.4], density: (x, z) => 0.02 * zone(x, z).jungle * k },
+      { key: 'cover/flowers_yellow', max: 0.035 * k, scale: [0.8, 1.3], density: (x, z) => { const q = zone(x, z); return (0.035 * q.open + 0.01 * q.jungle) * k; } },
+      { key: 'cover/flowers_purple', max: 0.03 * k, scale: [0.8, 1.3], density: (x, z) => { const q = zone(x, z); return (0.02 * q.open + 0.03 * q.jungle) * k; } },
+      { key: 'cover/flowers_white', max: 0.03 * k, scale: [0.8, 1.3], density: (x, z) => { const q = zone(x, z); return (0.03 * q.open + 0.015 * q.jungle) * k; } },
+    ];
+    return new GroundCover(this.root, this.assets, I, kinds, { radius: mobile ? 24 : 38, blocked: (x, z, r) => this.blocked(x, z, r) });
   }
 
   dims(key) {
@@ -85,7 +125,14 @@ export class Flora {
 
   ground(x, z) { return this.island.heightAt(x, z); }
 
-  blocked(x, z, r) { return this.colliders.some((c) => Math.hypot(c.x - x, c.z - z) < c.r + r); }
+  blocked(x, z, r) {
+    const i0 = Math.floor(x / 4), j0 = Math.floor(z / 4);
+    for (let j = j0 - 1; j <= j0 + 1; j++) for (let i = i0 - 1; i <= i0 + 1; i++) {
+      const a = this.grid.get(`${i},${j}`);
+      if (a) for (const c of a) if (Math.hypot(c.x - x, c.z - z) < c.r + r) return true;
+    }
+    return false;
+  }
 
   // Big static models: rays from above mark where they stand more than knee-high (blocked).
   footprint(obj, step = 2) {
@@ -95,7 +142,7 @@ export class Flora {
     for (let x = box.min.x; x <= box.max.x; x += step) for (let z = box.min.z; z <= box.max.z; z += step) {
       ray.set(new THREE.Vector3(x, box.max.y + 1, z), new THREE.Vector3(0, -1, 0));
       const hit = ray.intersectObject(obj, true)[0];
-      if (hit && hit.point.y > this.ground(x, z) + 0.9) this.colliders.push({ x, z, r: step * 0.7 });
+      if (hit && hit.point.y > this.ground(x, z) + 0.9) this.addCollider(x, z, step * 0.7);
     }
   }
 
@@ -105,7 +152,7 @@ export class Flora {
     o.rotation.set(rotX, rotY, rotZ);
     o.scale.setScalar(s);
     this.root.add(o);
-    if (collide) this.colliders.push({ x, z, r: collide });
+    if (collide) this.addCollider(x, z, Math.min(collide, 2.5));
     if (solid) this.footprint(o);
     return o;
   }
@@ -145,7 +192,8 @@ export class Flora {
     const I = this.island;
     const x = -46, z = I.shoreZ(x) - 3;
     this.put('props/rowboat', x, z, { rotY: 1.05, rotZ: 0.12, dy: 0.05, s: 1.15, collide: 1.6 });
-    this.colliders.push({ x: x + 1.2, z: z + 1.0, r: 1.2 }, { x: x - 1.2, z: z - 1.0, r: 1.2 });
+    this.addCollider(x + 1.2, z + 1.0, 1.2);
+    this.addCollider(x - 1.2, z - 1.0, 1.2);
     const bx = -36, bz = I.shoreZ(bx) - 8;
     this.put('props/barrel', bx, bz, { rotY: 0.4, collide: 0.45 });
     this.put('props/barrel', bx + 1.0, bz + 0.5, { rotY: 1.4, rotX: Math.PI / 2, dy: 0.32, collide: 0.5 });
@@ -159,7 +207,7 @@ export class Flora {
   plant(mobile) {
     const I = this.island;
     const rng = makeRng('cove-flora');
-    const step = mobile ? 3.4 : 2.5;
+    const step = mobile ? 3.2 : 2.4;
     const crown = new Map();
     for (const k of PALMS) {
       const c = this.dims(k).getCenter(new THREE.Vector3());
@@ -169,51 +217,77 @@ export class Flora {
     const leanToSea = (k) => crown.get(k) - (Math.PI / 2 + (rng() - 0.5) * 1.3);
     const tree = (k, x, y, z, rot, s, r = 0.35) => {
       this.scatter.add(k, placement(x, y, z, rot, s), { far: `${k}_far`, ...this.treeOpts });
-      this.colliders.push({ x, z, r });
+      this.addCollider(x, z, r);
     };
+    const put = (k, x, y, z, s, opts = this.plantOpts) => this.scatter.add(k, placement(x, y, z, rng() * 6.3, s), opts);
+    const { fbm } = I.noise;
     const V = VOLCANO;
+    // Emergent giants first (they need room), then everything else.
+    for (let i = 0; i < (mobile ? 14 : 22); i++) {
+      for (let tries = 0; tries < 30; tries++) {
+        const x = rng.range(-220, 220), z = rng.range(-300, 0);
+        const h = I.heightAt(x, z);
+        if (h < 3 || I.inland(x, z) < 70 || I.slopeAt(x, z) > 0.5 || Math.hypot(x - V.x, z - V.z) < V.base * 0.62 || this.blocked(x, z, 6)) continue;
+        tree('tree/canopy_giant', x, h - 0.4, z, rng() * 6.3, rng.range(0.85, 1.2), 1.4);
+        break;
+      }
+    }
+    const MID_MAX = mobile ? 55 : 75;
+    const midOpts = { maxDist: MID_MAX, castShadow: false };
     for (let z = -330; z < 140; z += step) for (let x = -300; x < 300; x += step) {
       const px = x + rng.range(0, step), pz = z + rng.range(0, step);
       const h = I.heightAt(px, pz);
       if (h < 0.35) continue;
       const d = I.inland(px, pz), slope = I.slopeAt(px, pz);
-      if (slope > 0.72 || this.blocked(px, pz, 0.8)) continue;
+      if (slope > 0.75 || this.blocked(px, pz, 0.7)) continue;
       // Vegetation thins out up the volcano.
-      const bare = smoothstep(V.base * 0.62, V.base * 0.4, Math.hypot(px - V.x, pz - V.z));
+      const bare = smoothstep(V.base * 0.6, V.base * 0.38, Math.hypot(px - V.x, pz - V.z));
       if (rng() < bare) continue;
       const r = rng();
-      if (d < 46) {
-        // Beach and its top: palms leaning out over the sand, beach grass, flowering shrubs.
-        const palmBand = smoothstep(7, 20, d) * (1 - smoothstep(40, 52, d));
-        if (r < 0.065 * palmBand) {
+      if (d < 44) {
+        // Beach and its top: palms leaning out over the sand, flowering shrubs and big leaves
+        // where the sand gives way to the jungle.
+        const palmBand = smoothstep(7, 18, d) * (1 - smoothstep(40, 50, d));
+        const edge = smoothstep(24, 40, d);
+        if (r < 0.08 * palmBand) {
           const k = rng.pick(PALMS);
-          tree(k, px, h - 0.1, pz, leanToSea(k), rng.range(0.85, 1.15));
-        } else if (r < 0.065 * palmBand + 0.03 * smoothstep(22, 40, d)) {
-          tree('tree/palm_young', px, h - 0.05, pz, rng() * 6.3, rng.range(0.8, 1.25), 0.25);
-        } else if (r < 0.2 && d > 6) {
-          this.scatter.add(d < 24 ? 'grass/beach' : rng.pick(GRASS), placement(px, h - 0.02, pz, rng() * 6.3, rng.range(0.8, 1.4)), this.grassOpts);
-        } else if (d > 26 && r > 0.9) {
-          this.scatter.add(rng.pick(r > 0.96 ? BUSHES : UNDER), placement(px, h - 0.05, pz, rng() * 6.3, rng.range(0.9, 1.4)), this.plantOpts);
+          tree(k, px, h - 0.1, pz, leanToSea(k), rng.range(0.85, 1.2));
+        } else if (r < 0.08 * palmBand + 0.04 * smoothstep(16, 36, d)) {
+          put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), { maxDist: MID_MAX });
+          this.addCollider(px, pz, 0.25);
+        } else if (r < 0.08 * palmBand + 0.04 + 0.12 * edge) {
+          put(rng.pick(r > 0.2 ? UNDER : BUSHES), px, h - 0.05, pz, rng.range(0.9, 1.4));
         }
         continue;
       }
-      // Jungle: palms and canopy trees over a dense understory.
-      const dens = (0.55 + 0.45 * smoothstep(46, 90, d)) * (1 - bare);
-      if (r < 0.055 * dens) {
-        const k = rng.pick(PALMS);
-        tree(k, px, h - 0.1, pz, rng() * 6.3, rng.range(0.9, 1.25));
-      } else if (r < 0.055 * dens + 0.035 * dens) {
-        tree(rng.pick(CANOPY), px, h - 0.2, pz, rng() * 6.3, rng.range(0.85, 1.25), 0.6);
-      } else if (r < 0.09 * dens + 0.06) {
-        this.scatter.add(rng.pick(BUSHES), placement(px, h - 0.1, pz, rng() * 6.3, rng.range(0.9, 1.7)), this.plantOpts);
-      } else if (r < 0.09 * dens + 0.06 + 0.2 * dens) {
+      // Jungle, layered. Bamboo grows in groves (noise), the rest is mixed.
+      const dens = (0.6 + 0.4 * smoothstep(44, 80, d)) * (1 - bare);
+      const grove = smoothstep(0.15, 0.4, fbm(px * 0.012 + 40, pz * 0.012, 2));
+      let t = 0;
+      if (r < (t += 0.045 * dens)) {
+        tree(rng.pick(CANOPY), px, h - 0.2, pz, rng() * 6.3, rng.range(0.85, 1.3), 0.6);
+      } else if (r < (t += 0.04 * dens)) {
+        tree(rng.pick(PALMS), px, h - 0.1, pz, rng() * 6.3, rng.range(0.9, 1.25));
+      } else if (r < (t += 0.06 * dens * grove)) {
+        put(rng() < 0.6 ? 'plant/bamboo' : 'plant/bamboo_small', px, h - 0.05, pz, rng.range(0.9, 1.3), midOpts);
+        this.addCollider(px, pz, 0.8);
+      } else if (r < (t += 0.035 * dens)) {
+        put(rng.pick(['plant/treefern_a', 'plant/treefern_b']), px, h - 0.05, pz, rng.range(0.9, 1.4), midOpts);
+        this.addCollider(px, pz, 0.25);
+      } else if (r < (t += 0.025 * dens)) {
+        put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), midOpts);
+        this.addCollider(px, pz, 0.25);
+      } else if (r < (t += 0.05 * dens)) {
+        put(rng.pick(BUSHES), px, h - 0.1, pz, rng.range(0.9, 1.8));
+      } else if (r < (t += 0.3 * dens)) {
         const k = rng.pick(UNDER);
-        this.scatter.add(k, placement(px, h - 0.05, pz, rng() * 6.3, rng.range(1.0, 1.6) * (k.includes('banana') ? 1.2 : 1.4)), this.plantOpts);
-      } else if (r < 0.09 * dens + 0.06 + 0.2 * dens + 0.15) {
-        this.scatter.add(rng.pick(GRASS.slice(0, 2)), placement(px, h - 0.02, pz, rng() * 6.3, rng.range(0.9, 1.5)), this.grassOpts);
-      } else if (r > 0.993) {
+        put(k, px, h - 0.05, pz, rng.range(1.0, 1.6) * (k.includes('banana') ? 1.25 : 1.45));
+      } else if (r < (t += 0.006)) {
+        this.scatter.add('wood/log_mossy', placement(px, h - 0.15, pz, rng() * 6.3, rng.range(0.8, 1.3)), { maxDist: MID_MAX });
+        this.addCollider(px, pz, 1.0);
+      } else if (r > 0.994) {
         this.scatter.add(rng.pick(['rock/a', 'rock/c']), placement(px, h - 0.3, pz, rng() * 6.3, rng.range(0.6, 1.2)), {});
-        this.colliders.push({ x: px, z: pz, r: 1.1 });
+        this.addCollider(px, pz, 1.1);
       }
     }
     // Driftwood along the high-tide line.
@@ -226,5 +300,6 @@ export class Flora {
   update(x, z, t) {
     wind.value = t;
     this.scatter.update(x, z, t);
+    this.cover.update(x, z);
   }
 }

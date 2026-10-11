@@ -9,6 +9,7 @@ import '../nozoom.js';
 import { loadAssets } from '../assets.js';
 import { Island, VOLCANO } from './island.js';
 import { makeFacetGround, Plume, prepareModel } from './facets.js';
+import { Fauna } from './fauna.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { Flora } from './flora.js';
@@ -24,8 +25,10 @@ const ui = {
   stick: document.getElementById('stick'), knob: document.getElementById('knob'),
 };
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.3 : 1.75));
+// The picture goes through the bloom chain, so the canvas's own antialiasing is not used:
+// the composer gets a multisampled target instead (sharp facet edges on phones too).
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 2 : 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 // Neutral tone mapping keeps the stylized colours saturated (ACES greys them out).
@@ -57,6 +60,7 @@ async function start() {
   scene.add(ocean);
   const sky = new CoveSky(scene, renderer, { mobile });
   const flora = new Flora(scene, assets, island, { mobile });
+  const fauna = new Fauna(scene, assets, island, { mobile });
 
   const depthAt = (x, z) => -island.heightAt(x, z);
   const fp = new FirstPerson(camera, canvas, { ground: (x, z) => island.heightAt(x, z), blocked: (x, z, r) => flora.blocked(x, z, r), depthAt });
@@ -86,7 +90,8 @@ async function start() {
   for (const b of document.querySelectorAll('[data-time]')) b.addEventListener('click', (e) => { e.stopPropagation(); setTime(b.dataset.time); });
 
   // Bloom makes the lava, sun glints and foam glow a little (the stylized look leans on it).
-  const composer = new EffectComposer(renderer);
+  const rt = new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: mobile ? 2 : 4 });
+  const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight).multiplyScalar(mobile ? 0.35 : 0.5), 0.5, 0.4, 1.6);
   composer.addPass(bloom);
@@ -126,13 +131,14 @@ async function start() {
     sky.update(t, p);
     flora.update(p.x, p.z, t);
     plume.update(t);
+    fauna.update(t, dt, p);
     if (useBloom) composer.render(); else renderer.render(scene, camera);
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, island, flora, sky, plume, setTime, go };
+  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 

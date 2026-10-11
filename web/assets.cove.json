@@ -189,6 +189,98 @@
     {
       "id": "forge-lowpoly/driftwood_short",
       "as": "wood/drift_b"
+    },
+    {
+      "id": "forge-lowpoly/canopy_giant",
+      "as": "tree/canopy_giant"
+    },
+    {
+      "id": "forge-lowpoly/canopy_giant_far",
+      "as": "tree/canopy_giant_far"
+    },
+    {
+      "id": "forge-lowpoly/canopy_vines",
+      "as": "tree/canopy_vines"
+    },
+    {
+      "id": "forge-lowpoly/canopy_vines_far",
+      "as": "tree/canopy_vines_far"
+    },
+    {
+      "id": "forge-lowpoly/bamboo",
+      "as": "plant/bamboo"
+    },
+    {
+      "id": "forge-lowpoly/bamboo_small",
+      "as": "plant/bamboo_small"
+    },
+    {
+      "id": "forge-lowpoly/treefern_a",
+      "as": "plant/treefern_a"
+    },
+    {
+      "id": "forge-lowpoly/treefern_b",
+      "as": "plant/treefern_b"
+    },
+    {
+      "id": "forge-lowpoly/bromeliad_red",
+      "as": "cover/bromeliad_red"
+    },
+    {
+      "id": "forge-lowpoly/bromeliad_pink",
+      "as": "cover/bromeliad_pink"
+    },
+    {
+      "id": "forge-lowpoly/flowers_yellow",
+      "as": "cover/flowers_yellow"
+    },
+    {
+      "id": "forge-lowpoly/flowers_purple",
+      "as": "cover/flowers_purple"
+    },
+    {
+      "id": "forge-lowpoly/flowers_white",
+      "as": "cover/flowers_white"
+    },
+    {
+      "id": "forge-lowpoly/log_mossy",
+      "as": "wood/log_mossy"
+    },
+    {
+      "id": "forge-lowpoly/macaw",
+      "as": "fauna/macaw"
+    },
+    {
+      "id": "forge-lowpoly/parrot_blue",
+      "as": "fauna/parrot_blue"
+    },
+    {
+      "id": "forge-lowpoly/gull",
+      "as": "fauna/gull"
+    },
+    {
+      "id": "forge-lowpoly/butterfly_blue",
+      "as": "fauna/butterfly_blue"
+    },
+    {
+      "id": "forge-lowpoly/butterfly_orange",
+      "as": "fauna/butterfly_orange"
+    },
+    {
+      "id": "forge-lowpoly/crab",
+      "as": "fauna/crab"
+    },
+    {
+      "id": "forge-lowpoly/fish_yellow",
+      "as": "fauna/fish_yellow"
+    },
+    {
+      "id": "forge-lowpoly/fish_blue",
+      "as": "fauna/fish_blue"
+    },
+    {
+      "id": "forge-lowpoly/fish_clown",
+      "as": "fauna/fish_clown"
     }
   ],
   "audio": [

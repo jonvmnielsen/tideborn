@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
   "libraryCommit": "c6bac9b",
-  "synced": "2026-10-11T15:33:42.273Z",
+  "synced": "2026-10-11T21:38:08.718Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -86,8 +86,8 @@
     "tree/canopy_a": {
       "id": "forge-lowpoly/canopy_a",
       "file": "tree/canopy_a.glb",
-      "bytes": 42076,
-      "sha": "4db4e26aff4e",
+      "bytes": 49596,
+      "sha": "01b6918b3395",
       "license": "CC0-1.0",
       "kind": "model"
     },
@@ -118,8 +118,8 @@
     "tree/canopy_tall": {
       "id": "forge-lowpoly/canopy_tall",
       "file": "tree/canopy_tall.glb",
-      "bytes": 50928,
-      "sha": "c8c1ebfae3a2",
+      "bytes": 67848,
+      "sha": "0d918bbd1e7d",
       "license": "CC0-1.0",
       "kind": "model"
     },
@@ -134,16 +134,16 @@
     "plant/banana_a": {
       "id": "forge-lowpoly/banana_a",
       "file": "plant/banana_a.glb",
-      "bytes": 28936,
-      "sha": "d87593854190",
+      "bytes": 24256,
+      "sha": "4f7b007bf37c",
       "license": "CC0-1.0",
       "kind": "model"
     },
     "plant/banana_b": {
       "id": "forge-lowpoly/banana_b",
       "file": "plant/banana_b.glb",
-      "bytes": 19396,
-      "sha": "ad08f77896dc",
+      "bytes": 16652,
+      "sha": "9f9fe767e70d",
       "license": "CC0-1.0",
       "kind": "model"
     },
@@ -376,6 +376,190 @@
       "file": "wood/drift_b.glb",
       "bytes": 6228,
       "sha": "7a84a3add907",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "tree/canopy_giant": {
+      "id": "forge-lowpoly/canopy_giant",
+      "file": "tree/canopy_giant.glb",
+      "bytes": 83496,
+      "sha": "0400832df71a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "tree/canopy_giant_far": {
+      "id": "forge-lowpoly/canopy_giant_far",
+      "file": "tree/canopy_giant_far.glb",
+      "bytes": 12320,
+      "sha": "e36efd96b5ef",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "tree/canopy_vines": {
+      "id": "forge-lowpoly/canopy_vines",
+      "file": "tree/canopy_vines.glb",
+      "bytes": 54604,
+      "sha": "3270a0de462c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "tree/canopy_vines_far": {
+      "id": "forge-lowpoly/canopy_vines_far",
+      "file": "tree/canopy_vines_far.glb",
+      "bytes": 9784,
+      "sha": "ec60fcecd66b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/bamboo": {
+      "id": "forge-lowpoly/bamboo",
+      "file": "plant/bamboo.glb",
+      "bytes": 41496,
+      "sha": "3a47136d89f5",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/bamboo_small": {
+      "id": "forge-lowpoly/bamboo_small",
+      "file": "plant/bamboo_small.glb",
+      "bytes": 21180,
+      "sha": "a6c7e681cf0e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/treefern_a": {
+      "id": "forge-lowpoly/treefern_a",
+      "file": "plant/treefern_a.glb",
+      "bytes": 13472,
+      "sha": "0af4578b26f4",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/treefern_b": {
+      "id": "forge-lowpoly/treefern_b",
+      "file": "plant/treefern_b.glb",
+      "bytes": 12400,
+      "sha": "46538164f7ec",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "cover/bromeliad_red": {
+      "id": "forge-lowpoly/bromeliad_red",
+      "file": "cover/bromeliad_red.glb",
+      "bytes": 11704,
+      "sha": "36fe7f78233e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "cover/bromeliad_pink": {
+      "id": "forge-lowpoly/bromeliad_pink",
+      "file": "cover/bromeliad_pink.glb",
+      "bytes": 11848,
+      "sha": "d0a6c23303bf",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "cover/flowers_yellow": {
+      "id": "forge-lowpoly/flowers_yellow",
+      "file": "cover/flowers_yellow.glb",
+      "bytes": 8880,
+      "sha": "0384995919df",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "cover/flowers_purple": {
+      "id": "forge-lowpoly/flowers_purple",
+      "file": "cover/flowers_purple.glb",
+      "bytes": 8992,
+      "sha": "c8a439480ba3",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "cover/flowers_white": {
+      "id": "forge-lowpoly/flowers_white",
+      "file": "cover/flowers_white.glb",
+      "bytes": 10856,
+      "sha": "65ffd7b31a8d",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/log_mossy": {
+      "id": "forge-lowpoly/log_mossy",
+      "file": "wood/log_mossy.glb",
+      "bytes": 6116,
+      "sha": "537bac57c0f7",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/macaw": {
+      "id": "forge-lowpoly/macaw",
+      "file": "fauna/macaw.glb",
+      "bytes": 9616,
+      "sha": "1334cc41774a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/parrot_blue": {
+      "id": "forge-lowpoly/parrot_blue",
+      "file": "fauna/parrot_blue.glb",
+      "bytes": 9524,
+      "sha": "5390f27e7171",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/gull": {
+      "id": "forge-lowpoly/gull",
+      "file": "fauna/gull.glb",
+      "bytes": 9892,
+      "sha": "689509e92ab8",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/butterfly_blue": {
+      "id": "forge-lowpoly/butterfly_blue",
+      "file": "fauna/butterfly_blue.glb",
+      "bytes": 4532,
+      "sha": "4c44f8464bbb",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/butterfly_orange": {
+      "id": "forge-lowpoly/butterfly_orange",
+      "file": "fauna/butterfly_orange.glb",
+      "bytes": 4540,
+      "sha": "bd3c924cf955",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/crab": {
+      "id": "forge-lowpoly/crab",
+      "file": "fauna/crab.glb",
+      "bytes": 7124,
+      "sha": "d013629efa80",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/fish_yellow": {
+      "id": "forge-lowpoly/fish_yellow",
+      "file": "fauna/fish_yellow.glb",
+      "bytes": 6764,
+      "sha": "8646a2c2d543",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/fish_blue": {
+      "id": "forge-lowpoly/fish_blue",
+      "file": "fauna/fish_blue.glb",
+      "bytes": 6836,
+      "sha": "b9557c5b604c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "fauna/fish_clown": {
+      "id": "forge-lowpoly/fish_clown",
+      "file": "fauna/fish_clown.glb",
+      "bytes": 6840,
+      "sha": "36c05cada63e",
       "license": "CC0-1.0",
       "kind": "model"
     }

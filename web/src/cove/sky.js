@@ -68,7 +68,7 @@ export class CoveSky {
 
     this.sun = new THREE.DirectionalLight(0xffffff, 3);
     this.sun.castShadow = true;
-    const sm = mobile ? 1024 : 2048;
+    const sm = mobile ? 2048 : 4096;
     this.sun.shadow.mapSize.set(sm, sm);
     const sb = mobile ? 30 : 45; // smaller box on phones: sharper shadows from the smaller map
     Object.assign(this.sun.shadow.camera, { left: -sb, right: sb, top: sb, bottom: -sb, near: 1, far: 260 });
