@@ -1,10 +1,14 @@
-// Tideborn look test: a tropical cove in first person. Judges the look (sea, light, palms,
-// jungle, rocks) on phone and desktop before the game is rebuilt around it.
+// Tideborn look test: a tropical volcano island in first person, stylized faceted low poly
+// (D-013). Judges the look on phone and desktop before the game is rebuilt around it.
 import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import '../nozoom.js';
 import { loadAssets } from '../assets.js';
-import { makeGroundMaterial } from '../world/ground.js';
-import { Island } from './island.js';
+import { Island, VOLCANO } from './island.js';
+import { makeFacetGround, Plume, prepareModel } from './facets.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { Flora } from './flora.js';
@@ -24,9 +28,11 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: !mobile, powerPref
 renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.3 : 1.75));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 0.56;
+// Neutral tone mapping keeps the stylized colours saturated (ACES greys them out).
+renderer.toneMapping = params.get('tm') === 'aces' ? THREE.ACESFilmicToneMapping : params.get('tm') === 'agx' ? THREE.AgXToneMapping : THREE.NeutralToneMapping;
+renderer.toneMappingExposure = params.has('exp') ? +params.get('exp') : 0.45;
 renderer.shadowMap.enabled = true;
+renderer.info.autoReset = false; // the bloom passes render several times per frame
 renderer.shadowMap.type = mobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
@@ -38,17 +44,14 @@ const TIMES = { morgen: [12, 95], middag: [62, 160], eftermiddag: [30, 230], sol
 
 async function start() {
   const assets = await loadAssets((p) => { ui.fill.style.width = `${Math.round(p * 85)}%`; }, 'cove');
-  ui.text.textContent = 'Bygger bugten …';
+  ui.text.textContent = 'Bygger øen …';
   await new Promise((r) => setTimeout(r, 30));
 
-  const island = new Island({ cell: mobile ? 3.2 : 1.9 });
-  const ground = makeGroundMaterial(assets, renderer, {
-    layers: ['ground/sand', 'ground/grass', 'ground/forest', 'ground/rock'],
-    tint: [new THREE.Color(1.32, 1.1, 0.78), new THREE.Color(0.55, 0.78, 0.36), new THREE.Color(0.78, 0.82, 0.62), new THREE.Color(0.9, 0.88, 0.84)],
-    tile: new THREE.Vector4(6, 4.5, 5.5, 9),
-    caustics: true,
-  });
+  const island = new Island({ cell: mobile ? 3.6 : 2.4 });
+  const ground = makeFacetGround();
   scene.add(island.buildMesh(ground));
+  const V = VOLCANO;
+  const plume = new Plume(scene, { x: V.x, y: V.peak - 12, z: V.z }, { mobile });
   const depth = island.depthTexture();
   const ocean = createOcean({ depth, mobile });
   scene.add(ocean);
@@ -63,12 +66,13 @@ async function start() {
     ui.stick.style.left = `${s.x0 - 55}px`; ui.stick.style.top = `${s.y0 - 55}px`;
     ui.knob.style.transform = `translate(${s.dx}px, ${s.dy}px)`;
   };
-  // Start on the beach, looking along the sand toward the wreck and the sea.
-  const sx = -20;
-  fp.place(sx, island.shoreZ(sx) - 16, 0.5);
-  // The machete in hand.
+  // Start on the beach by the rowboat, looking up the sand toward the jungle and the volcano.
+  const sx = -30;
+  fp.place(sx, island.shoreZ(sx) - 7, params.has('yaw') ? +params.get('yaw') : 0.35);
+  // The machete in hand (model points along +y: tip forward and a little up, edge down).
   const machete = assets['props/machete'].scene.clone(true);
-  machete.rotation.set(-1.05, 0.35, 0.55);
+  prepareModel(machete);
+  machete.rotation.set(-1.45, 0.1, 0.55);
   machete.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } });
   fp.hold(machete);
 
@@ -81,7 +85,16 @@ async function start() {
   setTime(time);
   for (const b of document.querySelectorAll('[data-time]')) b.addEventListener('click', (e) => { e.stopPropagation(); setTime(b.dataset.time); });
 
+  // Bloom makes the lava, sun glints and foam glow a little (the stylized look leans on it).
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight).multiplyScalar(mobile ? 0.35 : 0.5), 0.5, 0.4, 1.6);
+  composer.addPass(bloom);
+  composer.addPass(new OutputPass());
+  const useBloom = !params.has('nobloom');
+
   addEventListener('resize', () => {
+    composer.setSize(innerWidth, innerHeight);
     renderer.setSize(innerWidth, innerHeight);
     camera.aspect = innerWidth / innerHeight;
     camera.updateProjectionMatrix();
@@ -104,6 +117,7 @@ async function start() {
   let t = 0, frames = 0, acc = 0;
   const loop = () => {
     const dt = Math.min(0.05, clock.getDelta());
+    renderer.info.reset();
     t += dt;
     if (fp.enabled) fp.update(dt); else fp.update(0);
     const p = camera.position;
@@ -111,13 +125,14 @@ async function start() {
     ground.userData.time.value = t;
     sky.update(t, p);
     flora.update(p.x, p.z, t);
-    renderer.render(scene, camera);
-    frames++; acc += dt;
+    plume.update(t);
+    if (useBloom) composer.render(); else renderer.render(scene, camera);
+    frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { fps: 0, scene, camera, renderer, fp, island, flora, sky, setTime, go };
+  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, island, flora, sky, plume, setTime, go };
   loop();
 }
 

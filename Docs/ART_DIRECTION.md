@@ -201,6 +201,17 @@ Jon: the look to aim for is **Stranded Deep** — realistic, not stylized. The g
 
 ---
 
+## 13c. Amendment 2026-10-11 — stylized adult low poly, volcano island (Jon)
+
+Jon: move away from realism. **Cartoony is fine, but made for adults**: well-made figures with adult proportions and rich detail, not KayKit's round, childish look — "low poly can also be made with a high level of detail". The target image is the **stylized low-poly tropical volcano island** he sent (golden sand, olive/moss rock, turquoise water, palms, a volcano with glowing lava and smoke, a rowboat and barrels). This replaces the Stranded Deep realism target of §13b; tropical start and first person stay.
+
+- **Look:** hard facets, flat per-face colour with gentle gradients, no photo textures. Saturated but not candy: golden sand, olive and moss greens, warm brown wood, basalt grey, orange lava. Warm sun, soft bloom on lava and glints.
+- **Shapes:** adult proportions and believable construction (ringed palm trunks, torn banana leaves, banded barrels, planked boats). No bulbous, toy-like forms.
+- **Sources:** our own faceted generator (game-assets `forge-lowpoly`, D-012 there) for nature and props; characters from Quaternius' realistic-proportion kits (Modular Character Outfits + Universal Base Characters) until something better exists.
+- Proof of look: `web/cove.html` — the cove rebuilt as a volcano island in this style.
+
+---
+
 ## 14. Out of scope for this one-pager
 
 Full concept-art pack, final meshes, animation bible — those follow once this direction is locked.

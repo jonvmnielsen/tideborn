@@ -1,365 +1,381 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "8e0d412",
-  "synced": "2026-10-11T11:43:12.900Z",
+  "libraryCommit": "c6bac9b",
+  "synced": "2026-10-11T15:33:42.273Z",
   "assets": {
-    "ground/sand": {
-      "id": "polyhaven-tropical-ground/aerial_beach_01",
-      "kind": "texture",
-      "files": {
-        "diff": "ground/sand/diff.webp",
-        "nor": "ground/sand/nor.webp"
-      },
-      "bytes": 414492,
-      "license": "CC0-1.0"
-    },
-    "ground/grass": {
-      "id": "polyhaven-tropical-ground/leafy_grass",
-      "kind": "texture",
-      "files": {
-        "diff": "ground/grass/diff.webp",
-        "nor": "ground/grass/nor.webp"
-      },
-      "bytes": 1171062,
-      "license": "CC0-1.0"
-    },
-    "ground/forest": {
-      "id": "polyhaven-terrain/brown_mud_leaves_01",
-      "kind": "texture",
-      "files": {
-        "diff": "ground/forest/diff.webp",
-        "nor": "ground/forest/nor.webp"
-      },
-      "bytes": 1199572,
-      "license": "CC0-1.0"
-    },
-    "ground/rock": {
-      "id": "polyhaven-tropical-ground/aerial_rocks_02",
-      "kind": "texture",
-      "files": {
-        "diff": "ground/rock/diff.webp",
-        "nor": "ground/rock/nor.webp"
-      },
-      "bytes": 993420,
-      "license": "CC0-1.0"
-    },
     "tree/palm_tall_a": {
-      "id": "ez-tree/palm_tall_a",
+      "id": "forge-lowpoly/palm_tall_a",
       "file": "tree/palm_tall_a.glb",
-      "bytes": 249740,
-      "sha": "af2d806a3b7c",
-      "license": "MIT",
+      "bytes": 30140,
+      "sha": "38a38288c1ce",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_tall_a_far": {
-      "id": "ez-tree/palm_tall_a_far",
+      "id": "forge-lowpoly/palm_tall_a_far",
       "file": "tree/palm_tall_a_far.glb",
-      "bytes": 13524,
-      "sha": "047b605190b3",
-      "license": "MIT",
+      "bytes": 12092,
+      "sha": "8cd8813fac6b",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_tall_b": {
-      "id": "ez-tree/palm_tall_b",
+      "id": "forge-lowpoly/palm_tall_b",
       "file": "tree/palm_tall_b.glb",
-      "bytes": 246728,
-      "sha": "611fc9cdfb0e",
-      "license": "MIT",
+      "bytes": 31696,
+      "sha": "e2e1e72aa0b8",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_tall_b_far": {
-      "id": "ez-tree/palm_tall_b_far",
+      "id": "forge-lowpoly/palm_tall_b_far",
       "file": "tree/palm_tall_b_far.glb",
-      "bytes": 14024,
-      "sha": "982d697e327c",
-      "license": "MIT",
+      "bytes": 12572,
+      "sha": "b52a496ff94d",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_bent": {
-      "id": "ez-tree/palm_bent",
+      "id": "forge-lowpoly/palm_bent",
       "file": "tree/palm_bent.glb",
-      "bytes": 242756,
-      "sha": "b4c3c322835f",
-      "license": "MIT",
+      "bytes": 27980,
+      "sha": "cb9ed2184080",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_bent_far": {
-      "id": "ez-tree/palm_bent_far",
+      "id": "forge-lowpoly/palm_bent_far",
       "file": "tree/palm_bent_far.glb",
-      "bytes": 14976,
-      "sha": "bce19a6a1a51",
-      "license": "MIT",
+      "bytes": 11144,
+      "sha": "3d8de9528afd",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_medium": {
-      "id": "ez-tree/palm_medium",
+      "id": "forge-lowpoly/palm_medium",
       "file": "tree/palm_medium.glb",
-      "bytes": 241936,
-      "sha": "6d084c02f97a",
-      "license": "MIT",
+      "bytes": 25792,
+      "sha": "2c68573a289b",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_medium_far": {
-      "id": "ez-tree/palm_medium_far",
+      "id": "forge-lowpoly/palm_medium_far",
       "file": "tree/palm_medium_far.glb",
-      "bytes": 18388,
-      "sha": "a440da16c2ad",
-      "license": "MIT",
+      "bytes": 10308,
+      "sha": "ae434be581d9",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_young": {
-      "id": "ez-tree/palm_young",
+      "id": "forge-lowpoly/palm_young",
       "file": "tree/palm_young.glb",
-      "bytes": 231720,
-      "sha": "2283778453bf",
-      "license": "MIT",
+      "bytes": 17060,
+      "sha": "c00bc11ec2f9",
+      "license": "CC0-1.0",
       "kind": "model"
     },
     "tree/palm_young_far": {
-      "id": "ez-tree/palm_young_far",
+      "id": "forge-lowpoly/palm_young_far",
       "file": "tree/palm_young_far.glb",
-      "bytes": 20592,
-      "sha": "90851018a284",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/oak_large": {
-      "id": "ez-tree/oak_large",
-      "file": "tree/oak_large.glb",
-      "bytes": 485104,
-      "sha": "e9467a844be9",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/oak_large_far": {
-      "id": "ez-tree/oak_large_far",
-      "file": "tree/oak_large_far.glb",
-      "bytes": 47384,
-      "sha": "fdd1c7997f9f",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/ash_medium": {
-      "id": "ez-tree/ash_medium",
-      "file": "tree/ash_medium.glb",
-      "bytes": 418552,
-      "sha": "9cc1b7a44ab9",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/ash_medium_far": {
-      "id": "ez-tree/ash_medium_far",
-      "file": "tree/ash_medium_far.glb",
-      "bytes": 46884,
-      "sha": "c8f75dd671ef",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/bush_a": {
-      "id": "ez-tree/bush_a",
-      "file": "tree/bush_a.glb",
-      "bytes": 338832,
-      "sha": "cc670c593f65",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/bush_a_far": {
-      "id": "ez-tree/bush_a_far",
-      "file": "tree/bush_a_far.glb",
-      "bytes": 61912,
-      "sha": "127f7d72d765",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/bush_c": {
-      "id": "ez-tree/bush_c",
-      "file": "tree/bush_c.glb",
-      "bytes": 379136,
-      "sha": "5d4b5222e383",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "tree/bush_c_far": {
-      "id": "ez-tree/bush_c_far",
-      "file": "tree/bush_c_far.glb",
-      "bytes": 42660,
-      "sha": "3322ca226e21",
-      "license": "MIT",
-      "kind": "model"
-    },
-    "rock/shelf_a": {
-      "id": "polyhaven-tropical/coast_rocks_01",
-      "file": "rock/shelf_a.glb",
-      "bytes": 789656,
-      "sha": "661b5fd243c2",
+      "bytes": 9992,
+      "sha": "d792ec2774fd",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/shelf_b": {
-      "id": "polyhaven-tropical/coast_rocks_03",
-      "file": "rock/shelf_b.glb",
-      "bytes": 879080,
-      "sha": "53d897984327",
+    "tree/canopy_a": {
+      "id": "forge-lowpoly/canopy_a",
+      "file": "tree/canopy_a.glb",
+      "bytes": 42076,
+      "sha": "4db4e26aff4e",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/cliff": {
-      "id": "polyhaven-tropical/coastal_cliff_01",
-      "file": "rock/cliff.glb",
-      "bytes": 758256,
-      "sha": "b32412be2d30",
+    "tree/canopy_a_far": {
+      "id": "forge-lowpoly/canopy_a_far",
+      "file": "tree/canopy_a_far.glb",
+      "bytes": 9716,
+      "sha": "8df5e4c6a9c3",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/land": {
-      "id": "polyhaven-tropical/coast_land_rocks_03",
-      "file": "rock/land.glb",
-      "bytes": 1039744,
-      "sha": "250e81b4c944",
+    "tree/canopy_b": {
+      "id": "forge-lowpoly/canopy_b",
+      "file": "tree/canopy_b.glb",
+      "bytes": 33588,
+      "sha": "34f4a80af614",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/coast": {
-      "id": "polyhaven-nature/coast_rocks_05",
-      "file": "rock/coast.glb",
-      "bytes": 1206852,
-      "sha": "9153867b2ab7",
+    "tree/canopy_b_far": {
+      "id": "forge-lowpoly/canopy_b_far",
+      "file": "tree/canopy_b_far.glb",
+      "bytes": 8456,
+      "sha": "274bc84d4fe7",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/moss_a": {
-      "id": "polyhaven-nature/rock_moss_set_01_rock01",
-      "file": "rock/moss_a.glb",
-      "bytes": 493088,
-      "sha": "b4c378d703b2",
+    "tree/canopy_tall": {
+      "id": "forge-lowpoly/canopy_tall",
+      "file": "tree/canopy_tall.glb",
+      "bytes": 50928,
+      "sha": "c8c1ebfae3a2",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/moss_a_far": {
-      "id": "polyhaven-nature/rock_moss_set_01_rock01",
-      "file": "rock/moss_a_far.glb",
-      "bytes": 30204,
-      "sha": "61bb5471a750",
+    "tree/canopy_tall_far": {
+      "id": "forge-lowpoly/canopy_tall_far",
+      "file": "tree/canopy_tall_far.glb",
+      "bytes": 10768,
+      "sha": "0aa1fd227a8e",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "rock/pebbles": {
-      "id": "polyhaven-tropical/sand_rocks_small_01",
-      "file": "rock/pebbles.glb",
-      "bytes": 177280,
-      "sha": "5ccfdd1006ba",
+    "plant/banana_a": {
+      "id": "forge-lowpoly/banana_a",
+      "file": "plant/banana_a.glb",
+      "bytes": 28936,
+      "sha": "d87593854190",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "plant/pachira": {
-      "id": "polyhaven-tropical/pachira_aquatica_01",
-      "file": "plant/pachira.glb",
-      "bytes": 215324,
-      "sha": "c5710d3879ac",
+    "plant/banana_b": {
+      "id": "forge-lowpoly/banana_b",
+      "file": "plant/banana_b.glb",
+      "bytes": 19396,
+      "sha": "ad08f77896dc",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "plant/calathea": {
-      "id": "polyhaven-tropical/calathea_orbifolia_01",
-      "file": "plant/calathea.glb",
-      "bytes": 96816,
-      "sha": "53f9bd40296a",
+    "plant/ear_a": {
+      "id": "forge-lowpoly/elephant_ear_a",
+      "file": "plant/ear_a.glb",
+      "bytes": 13184,
+      "sha": "447e5128a900",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "plant/anthurium": {
-      "id": "polyhaven-tropical/anthurium_botany_01",
-      "file": "plant/anthurium.glb",
-      "bytes": 100300,
-      "sha": "8200f8fc2108",
+    "plant/ear_b": {
+      "id": "forge-lowpoly/elephant_ear_b",
+      "file": "plant/ear_b.glb",
+      "bytes": 10196,
+      "sha": "8e594bfae582",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/monstera": {
+      "id": "forge-lowpoly/monstera",
+      "file": "plant/monstera.glb",
+      "bytes": 14804,
+      "sha": "e2d5eb33ab19",
       "license": "CC0-1.0",
       "kind": "model"
     },
     "plant/fern_a": {
-      "id": "polyhaven-nature/fern_02_b",
+      "id": "forge-lowpoly/fern_a",
       "file": "plant/fern_a.glb",
-      "bytes": 74312,
-      "sha": "4d323237fa6b",
+      "bytes": 9376,
+      "sha": "ff15f0048844",
       "license": "CC0-1.0",
       "kind": "model"
     },
     "plant/fern_b": {
-      "id": "polyhaven-nature/fern_02_c",
+      "id": "forge-lowpoly/fern_b",
       "file": "plant/fern_b.glb",
-      "bytes": 74112,
-      "sha": "87014c7d5199",
+      "bytes": 7888,
+      "sha": "0c0855f65906",
       "license": "CC0-1.0",
       "kind": "model"
     },
-    "props/shell": {
-      "id": "polyhaven-tropical/lambis_shell",
-      "file": "props/shell.glb",
-      "bytes": 73784,
-      "sha": "7dbe49710c36",
+    "plant/heliconia": {
+      "id": "forge-lowpoly/heliconia",
+      "file": "plant/heliconia.glb",
+      "bytes": 12048,
+      "sha": "33045ea08639",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "plant/heliconia_orange": {
+      "id": "forge-lowpoly/heliconia_orange",
+      "file": "plant/heliconia_orange.glb",
+      "bytes": 13068,
+      "sha": "5e8585530909",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "grass/a": {
+      "id": "forge-lowpoly/grass_a",
+      "file": "grass/a.glb",
+      "bytes": 4216,
+      "sha": "1b42144caae3",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "grass/tall": {
+      "id": "forge-lowpoly/grass_tall",
+      "file": "grass/tall.glb",
+      "bytes": 4604,
+      "sha": "e946fd6d512b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "grass/beach": {
+      "id": "forge-lowpoly/grass_beach",
+      "file": "grass/beach.glb",
+      "bytes": 4028,
+      "sha": "fa2cdd240ea4",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "bush/a": {
+      "id": "forge-lowpoly/bush_a",
+      "file": "bush/a.glb",
+      "bytes": 18580,
+      "sha": "ec1d94363829",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "bush/b": {
+      "id": "forge-lowpoly/bush_b",
+      "file": "bush/b.glb",
+      "bytes": 15904,
+      "sha": "842b739bd959",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "bush/hibiscus": {
+      "id": "forge-lowpoly/bush_hibiscus",
+      "file": "bush/hibiscus.glb",
+      "bytes": 21632,
+      "sha": "cbabb073e6d7",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "bush/hibiscus_pink": {
+      "id": "forge-lowpoly/bush_hibiscus_pink",
+      "file": "bush/hibiscus_pink.glb",
+      "bytes": 18752,
+      "sha": "b2805aaa5cf9",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/a": {
+      "id": "forge-lowpoly/rock_a",
+      "file": "rock/a.glb",
+      "bytes": 5028,
+      "sha": "629ee0b306ae",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/b": {
+      "id": "forge-lowpoly/rock_b",
+      "file": "rock/b.glb",
+      "bytes": 7780,
+      "sha": "7e757c804b7a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/c": {
+      "id": "forge-lowpoly/rock_c",
+      "file": "rock/c.glb",
+      "bytes": 5008,
+      "sha": "23e3c923f0aa",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/small": {
+      "id": "forge-lowpoly/rock_small",
+      "file": "rock/small.glb",
+      "bytes": 4408,
+      "sha": "e3622a5c08e9",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/sand": {
+      "id": "forge-lowpoly/rock_sand",
+      "file": "rock/sand.glb",
+      "bytes": 7816,
+      "sha": "6b254dd23021",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/cliff_a": {
+      "id": "forge-lowpoly/cliff_a",
+      "file": "rock/cliff_a.glb",
+      "bytes": 10472,
+      "sha": "e95e1ecc7072",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/cliff_b": {
+      "id": "forge-lowpoly/cliff_b",
+      "file": "rock/cliff_b.glb",
+      "bytes": 7744,
+      "sha": "2c0ec60bb78d",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/basalt_a": {
+      "id": "forge-lowpoly/basalt_a",
+      "file": "rock/basalt_a.glb",
+      "bytes": 7676,
+      "sha": "9ec9276a8df1",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "rock/basalt_b": {
+      "id": "forge-lowpoly/basalt_b",
+      "file": "rock/basalt_b.glb",
+      "bytes": 10244,
+      "sha": "62549f993030",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/barrel": {
+      "id": "forge-lowpoly/barrel",
+      "file": "props/barrel.glb",
+      "bytes": 7676,
+      "sha": "41cf727876d5",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/crate": {
+      "id": "forge-lowpoly/crate",
+      "file": "props/crate.glb",
+      "bytes": 5804,
+      "sha": "070e7b5c5999",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/rowboat": {
+      "id": "forge-lowpoly/rowboat",
+      "file": "props/rowboat.glb",
+      "bytes": 12344,
+      "sha": "1dbd2c8248aa",
       "license": "CC0-1.0",
       "kind": "model"
     },
     "props/machete": {
-      "id": "polyhaven-tropical/machete",
+      "id": "forge-lowpoly/machete",
       "file": "props/machete.glb",
-      "bytes": 171208,
-      "sha": "2a3fb311de10",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "props/cannon": {
-      "id": "polyhaven-tropical/cannon_01",
-      "file": "props/cannon.glb",
-      "bytes": 276224,
-      "sha": "e19ab7c50436",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "landmark/ship": {
-      "id": "polyhaven-props/dutch_ship_medium",
-      "file": "landmark/ship.glb",
-      "bytes": 2420464,
-      "sha": "f0229457d84e",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "props/crate_a": {
-      "id": "polyhaven-props/wooden_crate_01",
-      "file": "props/crate_a.glb",
-      "bytes": 179944,
-      "sha": "9bddd1aa9009",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "props/crate_b": {
-      "id": "polyhaven-props/wooden_crate_02",
-      "file": "props/crate_b.glb",
-      "bytes": 170468,
-      "sha": "2fc6ef9a4b1c",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "props/chest": {
-      "id": "polyhaven-props/treasure_chest",
-      "file": "props/chest.glb",
-      "bytes": 280200,
-      "sha": "ef34765e9168",
-      "license": "CC0-1.0",
-      "kind": "model"
-    },
-    "wood/drift_b": {
-      "id": "polyhaven-nature/dead_tree_trunk_02",
-      "file": "wood/drift_b.glb",
-      "bytes": 240104,
-      "sha": "c14c9e573dd6",
+      "bytes": 8440,
+      "sha": "b26832f47a2d",
       "license": "CC0-1.0",
       "kind": "model"
     },
     "wood/drift_a": {
-      "id": "polyhaven-nature/dead_tree_trunk",
+      "id": "forge-lowpoly/driftwood",
       "file": "wood/drift_a.glb",
-      "bytes": 183796,
-      "sha": "f08befba2170",
+      "bytes": 6128,
+      "sha": "4d7f08e66aa1",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "wood/drift_b": {
+      "id": "forge-lowpoly/driftwood_short",
+      "file": "wood/drift_b.glb",
+      "bytes": 6228,
+      "sha": "7a84a3add907",
       "license": "CC0-1.0",
       "kind": "model"
     }

@@ -49,3 +49,11 @@ Jon found the style-B island still not good enough and named Stranded Deep as th
 - First person (`cove/fps.js`): mouse look with pointer lock / two-thumb touch, wading slows you, machete in hand.
 - Measured (headless): ~1–1.4 M triangles desktop on the beach (2 M deep in the jungle), ~0.3–0.5 M on phone settings. Download ~17 MB.
 
+## D-013 — Stylized faceted low poly, volcano island (2026-10-11)
+Jon wants to move away from realism: stylized is fine as long as it is made for adults (ART_DIRECTION §13c), with the low-poly tropical volcano island image as the target. The cove look test is rebuilt in that style; first person and the tropical start (D-012) stay.
+- **Models**: our own faceted generator in game-assets (`forge-lowpoly`, its D-012): palms, rainforest canopy trees, banana, elephant ear, monstera, fern, heliconia, grass, bushes with hibiscus, rocks, cliffs, basalt, barrel, crate, rowboat, machete, driftwood. 150–1400 triangles each, vertex colours, no textures; palms and canopy trees have far versions. The cove's models went from ~15 MB to 0.7 MB.
+- **Island** (`cove/island.js`): a volcano (150 m, crater with a lava lake, gullied flanks, six lava runs) behind the jungle. The ground is one mesh of hard facets with one colour per triangle (sand, grass, jungle, olive rock with moss, ash, basalt, lava); triangles under deep water are skipped. Lava glows through an emissive vertex attribute (`cove/facets.js`).
+- **Sea**: same Gerstner sea with stylized colours, flat per-triangle normals near the camera (smooth far away) and crisper, graphic foam; ~3 m facets.
+- **Light**: neutral tone mapping (ACES greyed the colours out), a warm sand-coloured hemisphere bounce, exposure that opens up at dawn and dusk, bloom (threshold above the lit scene, so mainly lava and sun glints).
+- **Smoke**: an instanced column of faceted puffs rising from the crater and drifting downwind.
+- Measured (headless): ~1.0–1.15 M triangles on the beach at desktop settings (~1.6 M deep in the jungle), ~0.35 M on phone. Far trees don't render into the shadow map (`farShadow: false`; they are outside the shadow box anyway).

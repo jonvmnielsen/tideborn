@@ -47,7 +47,7 @@ class LodSet {
     this.near = make(this.key, this.cap, this.opts.castShadow ?? true);
     for (const p of this.near) p.im.count = 0;
     // Near-only sets (small plants): nothing is drawn beyond the radius.
-    this.far = this.farKey ? make(this.farKey, n, this.opts.castShadow ?? true) : [];
+    this.far = this.farKey ? make(this.farKey, n, this.opts.farShadow ?? this.opts.castShadow ?? true) : [];
     for (let i = 0; i < n && this.farKey; i++) this.write(this.far, i, this.cur[i]);
     this.nearOf = new Int32Array(n).fill(-1);
     this.owner = [];

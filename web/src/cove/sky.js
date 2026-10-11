@@ -70,10 +70,16 @@ export class CoveSky {
     this.sun.castShadow = true;
     const sm = mobile ? 1024 : 2048;
     this.sun.shadow.mapSize.set(sm, sm);
-    Object.assign(this.sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 260 });
+    const sb = mobile ? 30 : 45; // smaller box on phones: sharper shadows from the smaller map
+    Object.assign(this.sun.shadow.camera, { left: -sb, right: sb, top: sb, bottom: -sb, near: 1, far: 260 });
     this.sun.shadow.bias = -0.0004;
     this.sun.shadow.normalBias = 0.04;
     scene.add(this.sun, this.sun.target);
+    // Warm bounce from the sand below, cool sky above: keeps the stylized colours from going
+    // olive under the blue sky light alone.
+    this.hemi = new THREE.HemisphereLight(0xbcd6ff, 0xd8a25a, 0.6);
+    scene.add(this.hemi);
+    this.exposure = renderer.toneMappingExposure;
 
     this.sunDir = new THREE.Vector3();
     this.pmrem = new THREE.PMREMGenerator(renderer);
@@ -96,7 +102,7 @@ export class CoveSky {
     const low = THREE.MathUtils.smoothstep(elevation, 2, 25);
     const sunCol = new THREE.Color().setRGB(1, 0.62 + 0.33 * low, 0.38 + 0.52 * low);
     this.sun.color.copy(sunCol);
-    this.sun.intensity = 0.6 + 4.6 * THREE.MathUtils.smoothstep(elevation, -2, 30);
+    this.sun.intensity = 1.4 + 3.8 * THREE.MathUtils.smoothstep(elevation, -2, 30);
     const cu = this.clouds.material.uniforms;
     cu.uSunDir.value.copy(this.sunDir);
     cu.uSunCol.value.copy(sunCol).multiplyScalar(0.95 + 0.1 * low);
@@ -104,7 +110,11 @@ export class CoveSky {
     if (this.envRT) this.envRT.dispose();
     this.envRT = this.pmrem.fromScene(this.envScene, 0, 0.1, 1000);
     this.scene.environment = this.envRT.texture;
-    this.scene.environmentIntensity = 0.55 + 0.2 * low;
+    this.scene.environmentIntensity = 0.32 + 0.18 * low;
+    this.hemi.intensity = 0.5 + 0.5 * low;
+    this.hemi.color.setRGB(0.55 + 0.2 * low, 0.65 + 0.2 * low, 0.85 + 0.15 * low);
+    // Low sun: open the exposure up (like the eye adapting) so dawn and dusk stay readable.
+    this.renderer.toneMappingExposure = this.exposure * (1 + 0.9 * (1 - low));
     if (this.scene.fog) this.scene.fog.color.setRGB(0.6 + 0.25 * (1 - low), 0.72 - 0.06 * (1 - low), 0.86 - 0.2 * (1 - low));
   }
 

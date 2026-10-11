@@ -53,9 +53,9 @@ export function createOcean({ depth, mobile = false }) {
     uMaxDepth: { value: depth.maxDepth },
     uLandMax: { value: depth.landMax ?? 0 },
     tDetail: { value: detailNormalTexture() },
-    uShallow: { value: new THREE.Color('#2fd3c6') },
-    uMid: { value: new THREE.Color('#0e9db8') },
-    uDeep: { value: new THREE.Color('#0b4a72') },
+    uShallow: { value: new THREE.Color('#22d0c4') },
+    uMid: { value: new THREE.Color('#12aecb') },
+    uDeep: { value: new THREE.Color('#0d5f9c') },
     uFoam: { value: new THREE.Color('#f4f8f6') },
     uCam: { value: new THREE.Vector3() },
   };
@@ -119,23 +119,27 @@ float fn = dA.a * 0.6 + dB.a * 0.4;
 vec3 wcol = mix(uShallow, uMid, smoothstep(0.4, 4.5, wd));
 wcol = mix(wcol, uDeep, smoothstep(5.0, 16.0, wd));
 // Foam: a lacy line at the water's edge, and on steep crests.
-float shore = (1.0 - smoothstep(0.02, 0.1 + 0.16 * fn, wd)) * smoothstep(-0.02, 0.03, wd);
-float crestFoam = smoothstep(0.42, 0.7, vCrest + fn * 0.25) * smoothstep(1.5, 4.0, wd) * 0.6;
-float foam = clamp(max(shore * smoothstep(0.25, 0.65, fn + shore * 0.4), crestFoam * smoothstep(0.55, 0.8, fn)), 0.0, 1.0);
+float shore = (1.0 - smoothstep(0.03, 0.16 + 0.22 * fn, wd)) * smoothstep(-0.02, 0.03, wd);
+float crestFoam = smoothstep(0.5, 0.8, vCrest + fn * 0.2) * smoothstep(1.5, 4.0, wd) * 0.6 * (1.0 - smoothstep(40.0, 120.0, camDist));
+float foam = clamp(max(step(0.45, shore * (fn + shore * 0.5)), step(0.5, crestFoam * fn * 1.6)), 0.0, 1.0);
 diffuseColor.rgb = mix(wcol, uFoam, foam);
 diffuseColor.a = mix(mix(0.55, 1.0, smoothstep(0.0, 4.5, wd)), 0.9, foam) * smoothstep(-0.01, 0.06, wd);
 diffuseColor.a = max(diffuseColor.a, smoothstep(40.0, 160.0, camDist));`)
       .replace('#include <roughnessmap_fragment>', `float roughnessFactor = mix(0.04 + 0.05 * smoothstep(60.0, 400.0, camDist), 0.7, foam);`)
       .replace('#include <normal_fragment_maps>', `
 {
-  vec3 a = dA.xyz * 2.0 - 1.0, b = dB.xyz * 2.0 - 1.0;
-  vec3 nt = normalize(vec3(a.xy + b.xy, a.z * b.z));
-  nt.xy *= mix(0.55, 0.15, smoothstep(30.0, 300.0, camDist));
-  nt = normalize(nt);
+  // Low-poly sea (D-013): each wave triangle gets one flat normal near the camera; far away
+  // the smooth wave normal takes over so the facets don't shimmer. A little detail ripple
+  // stays so sun glints still sparkle.
   vec3 gN = normalize((vec4(normal, 0.0) * viewMatrix).xyz); // view → world
-  vec3 T = normalize(vec3(1.0, 0.0, 0.0) - gN * gN.x);
-  vec3 B = cross(T, gN);
-  vec3 wn = normalize(T * nt.x + B * nt.y + gN * nt.z);
+  vec3 fN = normalize(cross(dFdx(vWP), dFdy(vWP)));
+  if (fN.y < 0.0) fN = -fN;
+  vec3 base = normalize(mix(fN, gN, smoothstep(60.0, 160.0, camDist)));
+  vec3 a = dA.xyz * 2.0 - 1.0, b = dB.xyz * 2.0 - 1.0;
+  vec3 nt = normalize(vec3((a.xy + b.xy) * mix(0.12, 0.05, smoothstep(30.0, 300.0, camDist)), 1.0));
+  vec3 T = normalize(vec3(1.0, 0.0, 0.0) - base * base.x);
+  vec3 B = cross(T, base);
+  vec3 wn = normalize(T * nt.x + B * nt.y + base * nt.z);
   normal = normalize((viewMatrix * vec4(wn, 0.0)).xyz);
 }`)
       .replace('vec3 outgoingLight = totalDiffuse + totalSpecular + totalEmissiveRadiance;', `
@@ -146,12 +150,12 @@ vec3 outgoingLight = totalDiffuse + reflectedLight.directSpecular + reflectedLig
 // Light scattered inside the water: turquoise glow in the shallows and in wave crests.
 totalEmissiveRadiance += uShallow * (0.05 + 0.1 * smoothstep(0.2, 0.6, vCrest)) * (1.0 - foam) * (1.0 - smoothstep(2.0, 10.0, wd));`);
   };
-  mat.customProgramCacheKey = () => 'tideborn-ocean-v3';
+  mat.customProgramCacheKey = () => 'tideborn-ocean-v4';
 
   // Near grid with detail for waves; a coarse frame around it out to the horizon.
   const group = new THREE.Group();
   group.name = 'ocean';
-  const NEAR = 760, seg = mobile ? 190 : 380;
+  const NEAR = 760, seg = mobile ? 160 : 270; // ~3–5 m facets
   const near = new THREE.Mesh(new THREE.PlaneGeometry(NEAR, NEAR, seg, seg).rotateX(-Math.PI / 2), mat);
   near.position.set(0, 0, 120);
   near.receiveShadow = true;
