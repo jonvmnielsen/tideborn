@@ -424,6 +424,22 @@
         "Fixing_Kneeling",
         "Idle_Talking_Loop"
       ]
+    },
+    {
+      "id": "forge-lowpoly/fp_fist",
+      "as": "arm/fist"
+    },
+    {
+      "id": "forge-lowpoly/fp_hand",
+      "as": "arm/hand"
+    },
+    {
+      "id": "forge-lowpoly/fp_forearm",
+      "as": "arm/forearm"
+    },
+    {
+      "id": "forge-lowpoly/fp_upperarm",
+      "as": "arm/upperarm"
     }
   ],
   "audio": [

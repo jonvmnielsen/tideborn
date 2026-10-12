@@ -1,14 +1,15 @@
-// First-person arms: the player's own arms (Quaternius Modular Character Outfits, peasant
-// sleeves, same 65-bone rig as the Universal Animation Library) holding the machete. Only the
-// arms mesh is drawn. Poses are keyframed in camera space — where the machete is and which way
-// its blade and edge point — and the arms follow by two-bone IK, with the fingers closed around
-// the grip. Animations: idle (breathing, walk bob), swing (wind-up, cut, recover; `onHit` fires
-// at the moment of the cut) and pickup (the left hand reaches down and forward).
+// First-person arms (D-017): rigid faceted pieces from the asset forge — a fist closed around
+// the tool's handle, an open left hand, forearms with rolled-up sleeves and upper arms. Nothing
+// deforms. Poses are keyframed in camera space — where the tool's handle is and which way its
+// blade and edge point; the fist rides on the handle and the arm follows by two-bone IK from a
+// fixed shoulder. Animations: idle (breathing, walk sway), swing (wind-up, sweep, recover;
+// `onHit` fires mid-sweep) and pickup (the left hand reaches down and forward).
 import * as THREE from 'three';
-import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { prepareModel } from './facets.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
 const MACHETE_GRIP = V(-0.004, 0.075, 0); // handle centre in the machete model
+const WRIST = V(0.1, 0, -0.03); // the fist's wrist, relative to the grip point (fist model)
 
 // A pose: grip point, blade direction (machete +y) and edge direction, all in camera space.
 function pose(grip, up, edge, left = null) {
@@ -20,7 +21,7 @@ function pose(grip, up, edge, left = null) {
 }
 
 // Idle: the machete held upright in front, edge forward, hand low on the right.
-const IDLE = pose(V(0.16, -0.25, -0.42), V(0.08, 1, -0.22), V(-0.25, 0, -1));
+const IDLE = pose(V(0.16, -0.21, -0.42), V(0.08, 1, -0.22), V(-0.25, 0, -1));
 const LEFT_REST = V(-0.3, -0.8, -0.05);
 // A wide, flat sweep from right to left: cuts everything in an arc in front of you.
 const SWING = [
@@ -39,63 +40,34 @@ const ease = (t) => t * t * (3 - 2 * t);
 export class Hands {
   constructor(camera, assets, { machete }) {
     this.camera = camera;
-    this.rig = cloneSkinned(assets['char/peasant'].scene);
-    this.rig.traverse((o) => {
-      if (!o.isMesh) return;
-      o.visible = /Arms/.test(o.name);
-      o.frustumCulled = false;
-      o.castShadow = false;
-      o.receiveShadow = true;
-    });
-    const bone = (n) => this.rig.getObjectByName(n);
-    this.R = { upper: bone('upperarm_r'), lower: bone('lowerarm_r'), hand: bone('hand_r'), side: 'r' };
-    this.L = { upper: bone('upperarm_l'), lower: bone('lowerarm_l'), hand: bone('hand_l'), side: 'l' };
-    for (const arm of [this.R, this.L]) {
-      arm.fingers = ['index', 'middle', 'ring', 'pinky'].map((f) => [1, 2, 3].map((i) => bone(`${f}_0${i}_${arm.side}`)));
-      arm.thumb = [1, 2, 3].map((i) => bone(`thumb_0${i}_${arm.side}`));
-      arm.lenA = arm.lower.position.length();
-      arm.lenB = arm.hand.position.length();
-    }
-    // Rest rotations, restored every frame before solving (no drift).
-    this.rest = new Map();
-    this.rig.traverse((o) => { if (o.isBone) this.rest.set(o, o.quaternion.clone()); });
-
-    // Turn the body to face the camera's forward (−z), then move it so the right shoulder sits
-    // just below and beside the eye.
-    camera.add(this.rig);
-    this.rig.updateMatrixWorld(true);
-    const inCam = (o) => camera.worldToLocal(o.getWorldPosition(V(0, 0, 0)));
-    const right = inCam(this.R.hand).sub(inCam(this.L.hand)).setY(0).normalize();
-    const fwd = V(0, 1, 0).cross(right);
-    this.rig.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(fwd, V(0, 0, -1)));
-    this.rig.updateMatrixWorld(true);
-    this.rig.position.add(V(0.17, -0.27, 0.02).sub(inCam(this.R.upper)));
-    this.rig.updateMatrixWorld(true);
-
-    // Which way the hand's knuckle line runs (index → pinky) in hand-bone space.
-    for (const arm of [this.R, this.L]) {
-      const hp = arm.hand.getWorldPosition(V(0, 0, 0));
-      const inv = arm.hand.getWorldQuaternion(new THREE.Quaternion()).invert();
-      const loc = (b) => b.getWorldPosition(V(0, 0, 0)).sub(hp).applyQuaternion(inv);
-      arm.sideL = loc(arm.fingers[3][0]).sub(loc(arm.fingers[0][0])).setY(0).normalize();
-    }
-
-    this.machete = machete;
-    this.grip = machete.userData.grip ?? MACHETE_GRIP;
-    camera.add(machete);
+    const piece = (key) => {
+      const o = assets[key].scene.clone(true);
+      prepareModel(o);
+      o.traverse((m) => { if (m.isMesh) { m.castShadow = false; m.frustumCulled = false; } });
+      return o;
+    };
+    // Arm segments are modelled along +y (from the joint nearest the hand).
+    this.R = { upper: piece('arm/upperarm'), fore: piece('arm/forearm'), shoulder: V(0.17, -0.3, 0.06), pole: V(0.6, -0.7, 0.2) };
+    this.L = { upper: piece('arm/upperarm'), fore: piece('arm/forearm'), shoulder: V(-0.17, -0.3, 0.06), pole: V(-0.6, -0.7, 0.2), hand: piece('arm/hand') };
+    for (const a of [this.R, this.L]) { a.lenA = 0.27; a.lenB = 0.25; camera.add(a.upper, a.fore); }
+    camera.add(this.L.hand);
+    this.fist = piece('arm/fist');
+    this.machete = null;
+    this.setTool(machete);
     this.state = { name: 'idle', t: 0 };
     this.onHit = null;
     this.onPick = null;
-    this.bob = 0;
-    this.moving = 0;
   }
 
   // Swap what's in the right hand (object with userData.grip = handle point in its own space).
+  // The fist sits on the handle, so it moves with the tool.
   setTool(obj) {
     if (this.machete === obj) return;
     this.machete?.removeFromParent();
     this.machete = obj;
     this.grip = obj.userData.grip ?? MACHETE_GRIP;
+    this.fist.position.copy(this.grip);
+    obj.add(this.fist);
     this.camera.add(obj);
   }
 
@@ -144,82 +116,41 @@ export class Hands {
     p.grip.y += Math.abs(Math.sin(bob)) * 0.018 * walk + Math.sin(now * 1.6) * 0.004;
     p.grip.z += Math.sin(now * 1.1) * 0.003;
 
+    // The tool (with the fist on its handle).
     this.machete.position.copy(p.grip).sub(this.grip.clone().applyQuaternion(p.q));
     this.machete.quaternion.copy(p.q);
-
-    for (const [b, q] of this.rest) b.quaternion.copy(q);
-    this.rig.updateMatrixWorld(true);
-    const cam = this.camera;
-    const toWorld = (v) => cam.localToWorld(v.clone());
-    const dirWorld = (v) => v.clone().transformDirection(cam.matrixWorld);
-    // Right hand around the handle: fingers point toward the edge, knuckles along the handle.
-    const up = dirWorld(V(0, 1, 0).applyQuaternion(p.q));
-    const F = dirWorld(V(-1, 0, 0).applyQuaternion(p.q));
-    const S = up.clone().negate();
-    const N = V(0, 0, 0).crossVectors(F, S).normalize(); // palm normal (right hand)
-    const gripW = toWorld(p.grip);
-    const wrist = gripW.clone().addScaledVector(F, -0.075).addScaledVector(N, -0.03);
-    this.solve(this.R, wrist, toWorld(V(0.55, -0.75, 0.25)));
-    this.orientHand(this.R, F, S);
-    this.curl(this.R, F, N, [1.25, 1.35, 0.9], 0.6);
-    // Left hand: relaxed at the side, or reaching for something.
-    const lF = dirWorld(V(0.1, -0.55, -0.8).normalize());
-    const lS = dirWorld(V(-1, 0, 0));
-    this.solve(this.L, toWorld(p.left), toWorld(V(-0.7, -0.6, 0.2)));
-    this.orientHand(this.L, lF, lS);
-    this.curl(this.L, lF, V(0, 0, 0).crossVectors(lS, lF).normalize(), [0.35, 0.4, 0.3], 0.2);
+    // Right arm: from the shoulder to the wrist of the fist.
+    const wristR = this.grip.clone().add(WRIST).applyQuaternion(p.q).add(this.machete.position);
+    this.arm(this.R, this.R.shoulder.clone().multiply(V(sx, 1, 1)), wristR);
+    // Left arm: relaxed out of view, or reaching; the open hand points forward and down.
+    const lsh = this.L.shoulder.clone().multiply(V(sx, 1, 1));
+    this.arm(this.L, lsh, p.left);
+    // Open hand model: fingers +y, palm facing −z. Fingers forward-down, palm facing down.
+    const F = V(0.12, -0.5, -0.85).normalize(), palm = V(0, -0.9, 0.4);
+    const Z = palm.negate().addScaledVector(F, -palm.dot(F)).normalize();
+    this.L.hand.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(V(0, 0, 0).crossVectors(F, Z), F, Z));
+    this.L.hand.position.copy(p.left);
   }
 
-  // Two-bone IK: elbow on the side of `pole`.
-  solve(arm, target, pole) {
-    const a = arm.upper.getWorldPosition(V(0, 0, 0));
-    const d = THREE.MathUtils.clamp(target.distanceTo(a), 0.05, arm.lenA + arm.lenB - 0.002);
-    const dir = target.clone().sub(a).normalize();
-    const cosA = THREE.MathUtils.clamp((arm.lenA ** 2 + d * d - arm.lenB ** 2) / (2 * arm.lenA * d), -1, 1);
-    const pd = pole.clone().sub(a);
+  // Two-bone IK in camera space, then lay the rigid segments along shoulder→elbow→wrist.
+  arm(a, shoulder, wrist) {
+    const d = THREE.MathUtils.clamp(wrist.distanceTo(shoulder), 0.05, a.lenA + a.lenB - 0.002);
+    const dir = wrist.clone().sub(shoulder).normalize();
+    const cosA = THREE.MathUtils.clamp((a.lenA ** 2 + d * d - a.lenB ** 2) / (2 * a.lenA * d), -1, 1);
+    const pd = a.pole.clone();
     pd.addScaledVector(dir, -pd.dot(dir)).normalize();
-    const elbow = a.clone().addScaledVector(dir, cosA * arm.lenA).addScaledVector(pd, Math.sqrt(1 - cosA * cosA) * arm.lenA);
-    this.aim(arm.upper, arm.lower, elbow);
-    this.aim(arm.lower, arm.hand, a.clone().addScaledVector(dir, d));
+    const elbow = shoulder.clone().addScaledVector(dir, cosA * a.lenA).addScaledVector(pd, Math.sqrt(1 - cosA * cosA) * a.lenA);
+    const reach = shoulder.clone().addScaledVector(dir, d);
+    this.lay(a.upper, elbow, shoulder, a.lenA);
+    this.lay(a.fore, reach, elbow, a.lenB);
   }
 
-  // Rotate `bone` so that its child `child` lies toward `target` (world).
-  aim(bone, child, target) {
-    const bp = bone.getWorldPosition(V(0, 0, 0));
-    const from = child.getWorldPosition(V(0, 0, 0)).sub(bp).normalize();
-    const to = target.clone().sub(bp).normalize();
-    const q = new THREE.Quaternion().setFromUnitVectors(from, to);
-    this.setWorldQ(bone, q.multiply(bone.getWorldQuaternion(new THREE.Quaternion())));
-  }
-
-  setWorldQ(bone, qw) {
-    const parent = bone.parent.getWorldQuaternion(new THREE.Quaternion());
-    bone.quaternion.copy(parent.invert().multiply(qw));
-    bone.updateMatrixWorld(true);
-  }
-
-  // Hand frame: bone +y = fingers (F), the knuckle line (index → pinky) = S.
-  orientHand(arm, F, S) {
-    const Sl = arm.sideL, Yl = V(0, 1, 0), Zl = V(0, 0, 0).crossVectors(Sl, Yl);
-    const Sw = S.clone().addScaledVector(F, -S.dot(F)).normalize(), Zw = V(0, 0, 0).crossVectors(Sw, F);
-    const local = new THREE.Matrix4().makeBasis(Sl, Yl, Zl);
-    const world = new THREE.Matrix4().makeBasis(Sw, F, Zw);
-    const q = new THREE.Quaternion().setFromRotationMatrix(world.multiply(local.transpose()));
-    this.setWorldQ(arm.hand, q);
-  }
-
-  // Close the fingers toward the palm (rotate about F × N), each joint by its own angle.
-  curl(arm, F, N, angles, thumb) {
-    const axis = V(0, 0, 0).crossVectors(F, N).normalize().multiplyScalar(this.curlSign ?? -1);
-    for (const chain of arm.fingers) chain.forEach((b, i) => {
-      if (!b) return;
-      const q = new THREE.Quaternion().setFromAxisAngle(axis, angles[i]);
-      this.setWorldQ(b, q.multiply(b.getWorldQuaternion(new THREE.Quaternion())));
-    });
-    arm.thumb.forEach((b, i) => {
-      if (!b || i === 0) return;
-      const q = new THREE.Quaternion().setFromAxisAngle(axis, thumb);
-      this.setWorldQ(b, q.multiply(b.getWorldQuaternion(new THREE.Quaternion())));
-    });
+  // Put a +y-modelled segment at `from`, pointing at `to`, stretched to length `len` (model ~len).
+  lay(obj, from, to, len) {
+    const dir = to.clone().sub(from);
+    const L = dir.length();
+    obj.position.copy(from);
+    obj.quaternion.setFromUnitVectors(V(0, 1, 0), dir.normalize());
+    obj.scale.set(1, L / len, 1);
   }
 }

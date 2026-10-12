@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "b500c19",
-  "synced": "2026-10-12T07:02:37.547Z",
+  "libraryCommit": "c9c2691",
+  "synced": "2026-10-12T13:18:14.125Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -841,6 +841,38 @@
         "Fixing_Kneeling",
         "Idle_Talking_Loop"
       ]
+    },
+    "arm/fist": {
+      "id": "forge-lowpoly/fp_fist",
+      "file": "arm/fist.glb",
+      "bytes": 8556,
+      "sha": "500c6e2d8e40",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "arm/hand": {
+      "id": "forge-lowpoly/fp_hand",
+      "file": "arm/hand.glb",
+      "bytes": 5856,
+      "sha": "38ae79dcae1f",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "arm/forearm": {
+      "id": "forge-lowpoly/fp_forearm",
+      "file": "arm/forearm.glb",
+      "bytes": 4580,
+      "sha": "98096b8f300e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "arm/upperarm": {
+      "id": "forge-lowpoly/fp_upperarm",
+      "file": "arm/upperarm.glb",
+      "bytes": 3728,
+      "sha": "b234ef8f04cc",
+      "license": "CC0-1.0",
+      "kind": "model"
     }
   }
 }
