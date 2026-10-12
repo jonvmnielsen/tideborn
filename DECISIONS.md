@@ -68,3 +68,11 @@ Jon: the island felt empty — it must be an exotic, lush, living jungle island 
 - Only trees cast shadows now (the understory sits in their shade); the sea mesh uses ~3.5 m facets.
 - Measured (headless): desktop ~1.0 M triangles on the beach, ~1.6–1.7 M deep in the jungle; phone ~0.45 M beach, ~0.7 M jungle. Cove models 1.1 MB.
 
+## D-015 — First-person arms and gathering in the look test (2026-10-12)
+Jon: a machete floating on its own doesn't work — a hand must hold it, with real animations later — and gathering should come in now.
+- **Arms** (`cove/hands.js`): the player's own arms from Quaternius Modular Character Outfits (peasant sleeves; only the arms mesh is drawn; same 65-bone rig as the Universal Animation Library, so authored clips can replace the procedural poses later). Poses are keyframed in camera space as "where the machete is and which way blade and edge point"; the arms follow by two-bone IK, the right hand is turned so the knuckles run along the handle and the fingers close around it, the left hand hangs out of view or reaches. Animations: idle (breathing, walk sway), swing (wind-up, cut, recover — the hit lands mid-cut), pick-up (left hand reaches down and forward). On narrow screens the hands move toward the middle.
+- **Gathering** (`cove/gather.js`): the nearest gatherable thing in front within reach (2–2.3 m) is the target; a ring crosshair, its name and a progress bar show what a click does. Palms (5 cuts), young palms, bamboo and tree ferns fall over away from you (palms drop coconuts); banana plants, bushes and big leaves are cut; ground cover (grass, ferns, bromeliads, flowers) is cut when you look down at it; stones, driftwood and coconuts are picked up; the camp's crates and barrels open once. Canopy trees are too big for the machete (needs an axe later). Items: wood, palm leaves, fibre, bamboo, stone, coconuts, bananas, rope — shown in an inventory strip with icons rendered from their models, plus "+2 Træ" toasts.
+- Controls: desktop left click = cut / pick up, E = pick up; phone: one action button (Hug / Saml / Åbn).
+- Sounds: Kenney (CC0) cut, slice, swish, wood impacts, pick-up, crate and grass footsteps; Sonniss tree fall.
+- Not saved yet; nothing regrows yet.
+

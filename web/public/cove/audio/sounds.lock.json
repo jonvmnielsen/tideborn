@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "c6bac9b",
-  "synced": "2026-10-11T21:38:08.718Z",
+  "libraryCommit": "1f59a8c",
+  "synced": "2026-10-12T05:04:14.138Z",
   "licenses": {
     "sonniss-gdc": {
       "name": "Sonniss #GameAudioGDC Bundle License",
@@ -19,6 +19,11 @@
     "ksl-countryside/wind_soft": {
       "seconds": 45.04,
       "bytes": 540779,
+      "license": "sonniss-gdc"
+    },
+    "mw-lumberjack/tree_crack_fall": {
+      "seconds": 4.6,
+      "bytes": 55529,
       "license": "sonniss-gdc"
     }
   }

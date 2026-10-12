@@ -281,10 +281,103 @@
     {
       "id": "forge-lowpoly/fish_clown",
       "as": "fauna/fish_clown"
+    },
+    {
+      "id": "quaternius-outfits-fantasy/characters/male_peasant",
+      "as": "char/peasant"
+    },
+    {
+      "id": "forge-lowpoly/coconut",
+      "as": "item/coconut"
+    },
+    {
+      "id": "forge-lowpoly/bananas",
+      "as": "item/bananas"
+    },
+    {
+      "id": "forge-lowpoly/palm_leaf",
+      "as": "item/palm_leaf"
+    },
+    {
+      "id": "forge-lowpoly/fiber",
+      "as": "item/fiber"
+    },
+    {
+      "id": "forge-lowpoly/rope",
+      "as": "item/rope"
+    },
+    {
+      "id": "forge-lowpoly/bamboo_poles",
+      "as": "item/bamboo_poles"
+    },
+    {
+      "id": "forge-lowpoly/rock_small",
+      "as": "item/stone"
+    },
+    {
+      "id": "forge-lowpoly/driftwood_short",
+      "as": "item/wood"
+    },
+    {
+      "id": "kenney-rpg-audio/chop",
+      "as": "sfx/chop"
+    },
+    {
+      "id": "kenney-rpg-audio/knifeslice",
+      "as": "sfx/slice"
+    },
+    {
+      "id": "kenney-rpg-audio/knifeslice2",
+      "as": "sfx/slice2"
+    },
+    {
+      "id": "kenney-rpg-audio/drawknife1",
+      "as": "sfx/swish"
+    },
+    {
+      "id": "kenney-rpg-audio/drawknife2",
+      "as": "sfx/swish2"
+    },
+    {
+      "id": "kenney-rpg-audio/cloth1",
+      "as": "sfx/pickup"
+    },
+    {
+      "id": "kenney-rpg-audio/handlesmallleather",
+      "as": "sfx/pickup2"
+    },
+    {
+      "id": "kenney-impact-sounds/impactwood_medium_000",
+      "as": "sfx/wood1"
+    },
+    {
+      "id": "kenney-impact-sounds/impactwood_medium_001",
+      "as": "sfx/wood2"
+    },
+    {
+      "id": "kenney-impact-sounds/impactwood_heavy_000",
+      "as": "sfx/wood_heavy"
+    },
+    {
+      "id": "kenney-impact-sounds/footstep_grass_000",
+      "as": "sfx/step1"
+    },
+    {
+      "id": "kenney-impact-sounds/footstep_grass_001",
+      "as": "sfx/step2"
+    },
+    {
+      "id": "kenney-impact-sounds/footstep_grass_002",
+      "as": "sfx/step3"
+    },
+    {
+      "id": "kenney-rpg-audio/dooropen_1",
+      "as": "sfx/crate"
     }
   ],
   "audio": [
     "jse-forest/forest_day",
-    "ksl-countryside/wind_soft"
+    "ksl-countryside/wind_soft",
+    "mw-lumberjack/tree_crack_fall"
   ]
 }

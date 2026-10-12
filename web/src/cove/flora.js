@@ -25,6 +25,24 @@ const PROPS = ['props/rowboat', 'props/barrel', 'props/crate', 'props/machete', 
 
 export const wind = { value: 0 };
 
+// What kind of gatherable thing a model is (see gather.js); null = scenery.
+export function kindOf(k) {
+  if (k.startsWith('tree/palm_young')) return 'palm_young';
+  if (k.startsWith('tree/palm')) return 'palm';
+  if (k.startsWith('tree/canopy')) return 'canopy';
+  if (k.includes('bamboo')) return 'bamboo';
+  if (k.includes('banana')) return 'banana';
+  if (k.includes('treefern')) return 'treefern';
+  if (k.startsWith('bush/')) return 'bush';
+  if (k.startsWith('plant/')) return 'leafy';
+  if (k === 'rock/small') return 'stone';
+  if (k.startsWith('wood/drift')) return 'drift';
+  if (k === 'props/crate') return 'crate';
+  if (k === 'props/barrel') return 'barrel';
+  if (k === 'item/coconut') return 'coconut';
+  return null;
+}
+
 // Sway grows with height above `from` (m, model space); leaves also flutter.
 function addWind(material, { amp = 0.25, from = 1, span = 10, flutter = 0 }) {
   if (material.userData.wind) return;
@@ -69,6 +87,7 @@ export class Flora {
     this.island = island;
     this.root = root;
     this.grid = new Map(); // collision circles { x, z, r } in 4 m cells
+    this.nodes = new Map(); // gatherable things, see register()
     this.scatter = new Scatter(root, assets, mobile ? { nearRadius: 40, nearCap: 50 } : { nearRadius: 70, nearCap: 120 });
     const plants = [...TREES, ...TREES.map((t) => `${t}_far`), ...UNDER, ...MID, ...BUSHES, ...GRASS, ...COVER];
     for (const k of [...plants, ...ROCKS, ...PROPS]) prepareModel(assets[k].scene);
@@ -90,7 +109,36 @@ export class Flora {
     const k = `${Math.floor(x / 4)},${Math.floor(z / 4)}`;
     let a = this.grid.get(k);
     if (!a) this.grid.set(k, (a = []));
-    a.push({ x, z, r });
+    const c = { x, z, r };
+    a.push(c);
+    return c;
+  }
+
+  removeCollider(c) {
+    const a = this.grid.get(`${Math.floor(c.x / 4)},${Math.floor(c.z / 4)}`);
+    const i = a ? a.indexOf(c) : -1;
+    if (i >= 0) a.splice(i, 1);
+  }
+
+  // Things the player can cut or pick up (gather.js), in 4 m cells.
+  register(key, x, y, z, ref, col = null) {
+    const kind = kindOf(key);
+    if (!kind) return;
+    const n = { kind, key, x, y, z, ...ref, col, hits: 0 };
+    const k = `${Math.floor(x / 4)},${Math.floor(z / 4)}`;
+    let a = this.nodes.get(k);
+    if (!a) this.nodes.set(k, (a = []));
+    a.push(n);
+    return n;
+  }
+
+  nodesNear(x, z) {
+    const out = [], i0 = Math.floor(x / 4), j0 = Math.floor(z / 4);
+    for (let j = j0 - 1; j <= j0 + 1; j++) for (let i = i0 - 1; i <= i0 + 1; i++) {
+      const a = this.nodes.get(`${i},${j}`);
+      if (a) for (const n of a) if (!n.gone) out.push(n);
+    }
+    return out;
   }
 
   // Grass, ferns, bromeliads and flowers around the player (see cover.js).
@@ -152,8 +200,9 @@ export class Flora {
     o.rotation.set(rotX, rotY, rotZ);
     o.scale.setScalar(s);
     this.root.add(o);
-    if (collide) this.addCollider(x, z, Math.min(collide, 2.5));
+    const col = collide ? this.addCollider(x, z, Math.min(collide, 2.5)) : null;
     if (solid) this.footprint(o);
+    this.register(key, x, o.position.y, z, { obj: o }, col);
     return o;
   }
 
@@ -175,7 +224,8 @@ export class Flora {
     }
     for (let i = 0; i < 24; i++) {
       const x = rng.range(-125, 125), z = I.shoreZ(x) - rng.range(2, 30);
-      this.scatter.add('rock/small', placement(x, I.heightAt(x, z) - 0.08, z, rng() * 6.3, rng.range(0.7, 1.4)), { maxDist: 70 });
+      const y = I.heightAt(x, z) - 0.08;
+      this.register('rock/small', x, y, z, { handle: this.scatter.add('rock/small', placement(x, y, z, rng() * 6.3, rng.range(0.7, 1.4)), { maxDist: 70 }) });
     }
     // Basalt fields on the volcano's flanks.
     const V = VOLCANO;
@@ -216,10 +266,14 @@ export class Flora {
     // Rotation about y that turns a palm's crown toward +z (the sea), with some spread.
     const leanToSea = (k) => crown.get(k) - (Math.PI / 2 + (rng() - 0.5) * 1.3);
     const tree = (k, x, y, z, rot, s, r = 0.35) => {
-      this.scatter.add(k, placement(x, y, z, rot, s), { far: `${k}_far`, ...this.treeOpts });
-      this.addCollider(x, z, r);
+      const handle = this.scatter.add(k, placement(x, y, z, rot, s), { far: `${k}_far`, ...this.treeOpts });
+      this.register(k, x, y, z, { handle, scale: s }, this.addCollider(x, z, r));
     };
-    const put = (k, x, y, z, s, opts = this.plantOpts) => this.scatter.add(k, placement(x, y, z, rng() * 6.3, s), opts);
+    const put = (k, x, y, z, s, opts = this.plantOpts, r = 0) => {
+      const handle = this.scatter.add(k, placement(x, y, z, rng() * 6.3, s), opts);
+      this.register(k, x, y, z, { handle, scale: s }, r ? this.addCollider(x, z, r) : null);
+      return handle;
+    };
     const { fbm } = I.noise;
     const V = VOLCANO;
     // Emergent giants first (they need room), then everything else.
@@ -253,8 +307,7 @@ export class Flora {
           const k = rng.pick(PALMS);
           tree(k, px, h - 0.1, pz, leanToSea(k), rng.range(0.85, 1.2));
         } else if (r < 0.08 * palmBand + 0.04 * smoothstep(16, 36, d)) {
-          put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), { maxDist: MID_MAX });
-          this.addCollider(px, pz, 0.25);
+          put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), { maxDist: MID_MAX }, 0.25);
         } else if (r < 0.08 * palmBand + 0.04 + 0.12 * edge) {
           put(rng.pick(r > 0.2 ? UNDER : BUSHES), px, h - 0.05, pz, rng.range(0.9, 1.4));
         }
@@ -269,14 +322,11 @@ export class Flora {
       } else if (r < (t += 0.04 * dens)) {
         tree(rng.pick(PALMS), px, h - 0.1, pz, rng() * 6.3, rng.range(0.9, 1.25));
       } else if (r < (t += 0.06 * dens * grove)) {
-        put(rng() < 0.6 ? 'plant/bamboo' : 'plant/bamboo_small', px, h - 0.05, pz, rng.range(0.9, 1.3), midOpts);
-        this.addCollider(px, pz, 0.8);
+        put(rng() < 0.6 ? 'plant/bamboo' : 'plant/bamboo_small', px, h - 0.05, pz, rng.range(0.9, 1.3), midOpts, 0.8);
       } else if (r < (t += 0.035 * dens)) {
-        put(rng.pick(['plant/treefern_a', 'plant/treefern_b']), px, h - 0.05, pz, rng.range(0.9, 1.4), midOpts);
-        this.addCollider(px, pz, 0.25);
+        put(rng.pick(['plant/treefern_a', 'plant/treefern_b']), px, h - 0.05, pz, rng.range(0.9, 1.4), midOpts, 0.25);
       } else if (r < (t += 0.025 * dens)) {
-        put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), midOpts);
-        this.addCollider(px, pz, 0.25);
+        put('tree/palm_young', px, h - 0.05, pz, rng.range(0.8, 1.3), midOpts, 0.25);
       } else if (r < (t += 0.05 * dens)) {
         put(rng.pick(BUSHES), px, h - 0.1, pz, rng.range(0.9, 1.8));
       } else if (r < (t += 0.3 * dens)) {

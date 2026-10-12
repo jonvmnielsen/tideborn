@@ -20,6 +20,7 @@ export class GroundCover {
     this.radius = radius;
     this.blocked = blocked;
     this.cells = new Map();
+    this.removed = new Set(); // plants cut by the player: `${cell}:${index}`
     this.cur = null;
     this.m = new THREE.Matrix4();
     this.q = new THREE.Quaternion();
@@ -59,7 +60,8 @@ export class GroundCover {
         const dens = k.density(x, z, h, I.slopeAt(x, z));
         if (roll * (k.max ?? 0.3) > dens) continue;
         if (this.blocked(x, z, 0.2)) continue;
-        list.push({ ki, x, y: h - (k.sink ?? 0.03), z, rot, scale: k.scale[0] + (k.scale[1] - k.scale[0]) * sc });
+        const pl = { ki, key: k.key, x, y: h - (k.sink ?? 0.03), z, rot, scale: k.scale[0] + (k.scale[1] - k.scale[0]) * sc, id: `${id}:${ki}:${t}` };
+        if (!this.removed.has(pl.id)) list.push(pl);
       }
     });
     this.cells.set(id, list);
@@ -67,6 +69,7 @@ export class GroundCover {
   }
 
   update(px, pz) {
+    this.at = [px, pz];
     const ci = Math.floor(px / CELL), cj = Math.floor(pz / CELL);
     const key = `${ci},${cj}`;
     if (key === this.cur) return;
@@ -92,6 +95,25 @@ export class GroundCover {
     }
     // Keep the cache from growing without bound on a long walk.
     if (this.cells.size > 2000) this.cells.clear();
+  }
+
+  // Plants within r of (x, z), for the machete.
+  near(x, z, r) {
+    const out = [];
+    const i0 = Math.floor(x / CELL), j0 = Math.floor(z / CELL);
+    for (let j = j0 - 1; j <= j0 + 1; j++) for (let i = i0 - 1; i <= i0 + 1; i++) {
+      for (const pl of this.cell(i, j)) if (Math.hypot(pl.x - x, pl.z - z) < r) out.push(pl);
+    }
+    return out;
+  }
+
+  remove(pl) {
+    this.removed.add(pl.id);
+    const list = this.cells.get(pl.id.split(':')[0]);
+    if (list) list.splice(list.indexOf(pl), 1);
+    const [px, pz] = this.at ?? [pl.x, pl.z];
+    this.cur = null;
+    this.update(px, pz);
   }
 
   get triangles() {

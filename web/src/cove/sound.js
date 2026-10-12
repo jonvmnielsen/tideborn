@@ -2,16 +2,45 @@
 // forest-day and soft-wind loops (Sonniss GDC, via game-assets) kept low under it, and
 // synthesized tropical birds — whistles, trills, parrot squawks and gull cries — at random.
 let started = false;
+let ctx = null, master = null;
+const sfxUrls = {}, sfxBufs = {};
+
+// Short effect clips (assets of kind "audio", keys "sfx/…"), decoded once sound has started.
+export function initSfx(assets) {
+  for (const [k, v] of Object.entries(assets)) if (k.startsWith('sfx/') && v.url) sfxUrls[k.slice(4)] = v.url;
+}
+
+async function buffer(name) {
+  if (!sfxBufs[name]) sfxBufs[name] = fetch(sfxUrls[name]).then((r) => r.arrayBuffer()).then((d) => ctx.decodeAudioData(d)).catch(() => null);
+  return sfxBufs[name];
+}
+
+// Play a clip: name without "sfx/", or a list to pick one from at random.
+export async function sfx(name, { vol = 0.6, rate = 1, jitter = 0.08 } = {}) {
+  if (!ctx) return;
+  if (Array.isArray(name)) name = name[Math.floor(Math.random() * name.length)];
+  if (!sfxUrls[name]) return;
+  const b = await buffer(name);
+  if (!b) return;
+  const src = ctx.createBufferSource();
+  src.buffer = b;
+  src.playbackRate.value = rate * (1 + (Math.random() - 0.5) * jitter * 2);
+  const g = ctx.createGain();
+  g.gain.value = vol;
+  src.connect(g).connect(master);
+  src.start();
+}
 
 export async function startSound(base) {
   if (started) return;
   started = true;
   const AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
-  const ctx = new AC();
-  const master = ctx.createGain();
+  ctx = new AC();
+  master = ctx.createGain();
   master.gain.value = 0.8;
   master.connect(ctx.destination);
+  for (const n of Object.keys(sfxUrls)) buffer(n);
 
   // Surf: brown noise → low-pass, with a slow swell envelope and a hiss on each wave.
   const len = ctx.sampleRate * 4;

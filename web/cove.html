@@ -29,19 +29,41 @@
     #stick { position: fixed; width: 110px; height: 110px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); background: rgba(0, 0, 0, 0.15); pointer-events: none; }
     #stick[hidden] { display: none; }
     #knob { position: absolute; left: 35px; top: 35px; width: 40px; height: 40px; border-radius: 50%; background: rgba(255, 255, 255, 0.6); }
-    .cross { position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: rgba(255, 255, 255, 0.7); pointer-events: none; }
+    .cross { position: fixed; left: 50%; top: 50%; width: 4px; height: 4px; margin: -2px; border-radius: 50%; background: rgba(255, 255, 255, 0.75); box-shadow: 0 0 2px rgba(0, 0, 0, 0.6); pointer-events: none; transition: all 0.12s; }
+    .cross.on { width: 18px; height: 18px; margin: -9px; background: transparent; border: 2px solid rgba(255, 245, 220, 0.9); }
+    .prompt { position: fixed; left: 50%; top: calc(50% + 26px); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 4px; pointer-events: none; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
+    .prompt[hidden] { display: none; }
+    .prompt-text { font-size: 15px; font-weight: 600; }
+    .prompt-key { font-size: 11px; opacity: 0.75; letter-spacing: 0.06em; text-transform: uppercase; }
+    .prompt-key:empty { display: none; }
+    .prompt-bar { width: 64px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, 0.35); overflow: hidden; }
+    .prompt-bar[hidden] { display: none; }
+    .prompt-bar i { display: block; height: 100%; background: #e9d9b0; transition: width 0.15s; }
+    .inv { position: fixed; left: 50%; bottom: max(36px, calc(env(safe-area-inset-bottom) + 24px)); transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; max-width: calc(100% - 32px); flex-wrap: wrap; justify-content: center; }
+    .inv[hidden] { display: none; }
+    .slot { position: relative; width: 58px; height: 58px; border-radius: 10px; background: rgba(10, 28, 36, 0.55); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    .slot img { position: absolute; inset: 4px; width: 50px; height: 50px; }
+    .slot b { position: absolute; right: 5px; bottom: 2px; font-size: 13px; text-shadow: 0 1px 2px #000; }
+    .slot span { display: none; }
+    .toasts { position: fixed; right: max(14px, env(safe-area-inset-right)); top: 64px; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; pointer-events: none; }
+    .toast { display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 6px; border-radius: 999px; background: rgba(10, 28, 36, 0.62); font-size: 14px; font-weight: 600; transition: opacity 0.5s, transform 0.5s; animation: tin 0.25s ease-out; }
+    .toast img { width: 28px; height: 28px; }
+    .toast.warn { padding-left: 12px; color: #ffd9a8; }
+    .toast.out { opacity: 0; transform: translateX(20px); }
+    @keyframes tin { from { opacity: 0; transform: translateX(20px); } }
+    .act-btn { position: fixed; right: max(22px, env(safe-area-inset-right)); bottom: max(200px, calc(env(safe-area-inset-bottom) + 190px)); width: 78px; height: 78px; padding: 0; border-radius: 50%; font-size: 16px; font-weight: 700; background: rgba(233, 217, 176, 0.85); color: #10222c; border: 0; }
+    .act-btn:active { transform: scale(0.94); }
   </style>
 </head>
 <body>
   <canvas id="view" aria-label="Tropisk bugt"></canvas>
-  <div class="cross"></div>
   <div class="times">
     <button type="button" data-time="morgen">Morgen</button>
     <button type="button" data-time="middag">Middag</button>
     <button type="button" data-time="eftermiddag">Eftermiddag</button>
     <button type="button" data-time="solnedgang">Solnedgang</button>
   </div>
-  <div id="hint" hidden>WASD gå · Shift løb · mus kig · Esc slip musen</div>
+  <div id="hint" hidden>WASD gå · Shift løb · mus kig · klik hug · E saml op · Esc slip musen</div>
   <div id="fps" hidden></div>
   <div id="stick" hidden><div id="knob"></div></div>
 
@@ -57,7 +79,7 @@
       <h1>Bugten</h1>
       <p class="sub">Stemningstest: tropisk strand i førsteperson</p>
       <button class="go" type="button">Gå i land</button>
-      <p class="keys">Computer: WASD og mus · Telefon: venstre tommel går, højre kigger</p>
+      <p class="keys">Computer: WASD og mus, klik for at hugge, E for at samle op · Telefon: venstre tommel går, højre kigger, knappen hugger og samler</p>
     </div>
   </div>
   <script type="module" src="./src/cove/main.js"></script>

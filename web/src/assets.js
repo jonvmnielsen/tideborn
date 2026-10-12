@@ -25,6 +25,9 @@ export async function loadAssets(onProgress, base = 'assets') {
           set[map] = t;
         }
         out[key] = set;
+      } else if (info.kind === 'audio') {
+        // Sound clips are decoded on demand by the game's audio code.
+        out[key] = { url: `${base}/${info.file}` };
       } else if (info.kind === 'hdri') {
         const t = await new RGBELoader().loadAsync(`${base}/${info.file}`);
         t.mapping = THREE.EquirectangularReflectionMapping;

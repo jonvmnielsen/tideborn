@@ -2,7 +2,7 @@
 
 _Last updated: 2026-10-11_ · Play: https://jonvmnielsen.github.io/tideborn/
 
-**Now:** look test for the new direction (tropical volcano island, stylized adult low poly, first person, living jungle with animals — D-012–D-014): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
+**Now:** look test for the new direction (tropical volcano island, stylized adult low poly, first person, living jungle with animals, arms holding the machete and gathering — D-012–D-015): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
 
 Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 

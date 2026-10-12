@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "c6bac9b",
-  "synced": "2026-10-11T21:38:08.718Z",
+  "libraryCommit": "1f59a8c",
+  "synced": "2026-10-12T05:04:14.138Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -562,6 +562,190 @@
       "sha": "36c05cada63e",
       "license": "CC0-1.0",
       "kind": "model"
+    },
+    "char/peasant": {
+      "id": "quaternius-outfits-fantasy/characters/male_peasant",
+      "file": "char/peasant.glb",
+      "bytes": 674872,
+      "sha": "243955c9c797",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/coconut": {
+      "id": "forge-lowpoly/coconut",
+      "file": "item/coconut.glb",
+      "bytes": 5080,
+      "sha": "cbe59be5d67f",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/bananas": {
+      "id": "forge-lowpoly/bananas",
+      "file": "item/bananas.glb",
+      "bytes": 14172,
+      "sha": "bd9c18ad3b6e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/palm_leaf": {
+      "id": "forge-lowpoly/palm_leaf",
+      "file": "item/palm_leaf.glb",
+      "bytes": 2828,
+      "sha": "77e5f53962f0",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/fiber": {
+      "id": "forge-lowpoly/fiber",
+      "file": "item/fiber.glb",
+      "bytes": 4496,
+      "sha": "fceb6dee4c61",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/rope": {
+      "id": "forge-lowpoly/rope",
+      "file": "item/rope.glb",
+      "bytes": 27244,
+      "sha": "c2f6cfd347b2",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/bamboo_poles": {
+      "id": "forge-lowpoly/bamboo_poles",
+      "file": "item/bamboo_poles.glb",
+      "bytes": 4996,
+      "sha": "f26042495220",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/stone": {
+      "id": "forge-lowpoly/rock_small",
+      "file": "item/stone.glb",
+      "bytes": 4408,
+      "sha": "e3622a5c08e9",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/wood": {
+      "id": "forge-lowpoly/driftwood_short",
+      "file": "item/wood.glb",
+      "bytes": 6228,
+      "sha": "7a84a3add907",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "sfx/chop": {
+      "id": "kenney-rpg-audio/chop",
+      "file": "sfx/chop.ogg",
+      "bytes": 9370,
+      "sha": "2fbd2cd9407b",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/slice": {
+      "id": "kenney-rpg-audio/knifeslice",
+      "file": "sfx/slice.ogg",
+      "bytes": 15532,
+      "sha": "a33feb2af2f4",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/slice2": {
+      "id": "kenney-rpg-audio/knifeslice2",
+      "file": "sfx/slice2.ogg",
+      "bytes": 15099,
+      "sha": "236a5f24debe",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/swish": {
+      "id": "kenney-rpg-audio/drawknife1",
+      "file": "sfx/swish.ogg",
+      "bytes": 11134,
+      "sha": "10c89c843033",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/swish2": {
+      "id": "kenney-rpg-audio/drawknife2",
+      "file": "sfx/swish2.ogg",
+      "bytes": 12395,
+      "sha": "502a1d933242",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/pickup": {
+      "id": "kenney-rpg-audio/cloth1",
+      "file": "sfx/pickup.ogg",
+      "bytes": 16508,
+      "sha": "8175b60e772f",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/pickup2": {
+      "id": "kenney-rpg-audio/handlesmallleather",
+      "file": "sfx/pickup2.ogg",
+      "bytes": 10492,
+      "sha": "6e09c9300cd9",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/wood1": {
+      "id": "kenney-impact-sounds/impactwood_medium_000",
+      "file": "sfx/wood1.ogg",
+      "bytes": 6575,
+      "sha": "894be07d2029",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/wood2": {
+      "id": "kenney-impact-sounds/impactwood_medium_001",
+      "file": "sfx/wood2.ogg",
+      "bytes": 6555,
+      "sha": "cddbb1b87ab7",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/wood_heavy": {
+      "id": "kenney-impact-sounds/impactwood_heavy_000",
+      "file": "sfx/wood_heavy.ogg",
+      "bytes": 6233,
+      "sha": "fd6cbe0bb73c",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/step1": {
+      "id": "kenney-impact-sounds/footstep_grass_000",
+      "file": "sfx/step1.ogg",
+      "bytes": 8290,
+      "sha": "c087600e0cf8",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/step2": {
+      "id": "kenney-impact-sounds/footstep_grass_001",
+      "file": "sfx/step2.ogg",
+      "bytes": 8313,
+      "sha": "2a5515acedf7",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/step3": {
+      "id": "kenney-impact-sounds/footstep_grass_002",
+      "file": "sfx/step3.ogg",
+      "bytes": 8278,
+      "sha": "955c4d601170",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/crate": {
+      "id": "kenney-rpg-audio/dooropen_1",
+      "file": "sfx/crate.ogg",
+      "bytes": 22848,
+      "sha": "ad436e0e5255",
+      "license": "CC0-1.0",
+      "kind": "audio"
     }
   }
 }

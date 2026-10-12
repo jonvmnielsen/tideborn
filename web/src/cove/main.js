@@ -10,11 +10,13 @@ import { loadAssets } from '../assets.js';
 import { Island, VOLCANO } from './island.js';
 import { makeFacetGround, Plume, prepareModel } from './facets.js';
 import { Fauna } from './fauna.js';
+import { Hands } from './hands.js';
+import { Gather } from './gather.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { Flora } from './flora.js';
 import { FirstPerson } from './fps.js';
-import { startSound } from './sound.js';
+import { startSound, initSfx, sfx } from './sound.js';
 
 const params = new URLSearchParams(location.search);
 const mobile = matchMedia('(pointer: coarse)').matches || params.has('mobile');
@@ -73,12 +75,17 @@ async function start() {
   // Start on the beach by the rowboat, looking up the sand toward the jungle and the volcano.
   const sx = -30;
   fp.place(sx, island.shoreZ(sx) - 7, params.has('yaw') ? +params.get('yaw') : 0.35);
-  // The machete in hand (model points along +y: tip forward and a little up, edge down).
+  // The player's arms, holding the machete (hands.js).
   const machete = assets['props/machete'].scene.clone(true);
   prepareModel(machete);
-  machete.rotation.set(-1.45, 0.1, 0.55);
   machete.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } });
-  fp.hold(machete);
+  const hands = new Hands(camera, assets, { machete });
+  initSfx(assets);
+  initSfx({ 'sfx/treefall': { url: 'cove/audio/mw-lumberjack/tree_crack_fall.mp3' } });
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, ui: {} });
+  // Desktop: left click (with the mouse captured) cuts or picks up; E picks up.
+  canvas.addEventListener('mousedown', (e) => { if (e.button === 0 && document.pointerLockElement === canvas) gather.act(); });
+  addEventListener('keydown', (e) => { if (e.code === 'KeyE' && fp.enabled) gather.interact(); });
 
   let time = params.get('t') in TIMES ? params.get('t') : 'eftermiddag';
   const setTime = (name) => {
@@ -119,12 +126,19 @@ async function start() {
   canvas.addEventListener('click', () => { if (!mobile && fp.enabled) canvas.requestPointerLock?.(); });
 
   const clock = new THREE.Clock();
-  let t = 0, frames = 0, acc = 0;
+  let t = 0, frames = 0, acc = 0, lastStep = 0;
   const loop = () => {
     const dt = Math.min(0.05, clock.getDelta());
     renderer.info.reset();
     t += dt;
     if (fp.enabled) fp.update(dt); else fp.update(0);
+    camera.updateMatrixWorld();
+    hands.update(dt, { speed: fp.speed, bob: fp.bob });
+    gather.update(dt);
+    // Footsteps on every other bob peak.
+    const step = Math.floor(fp.bob / Math.PI);
+    if (step !== lastStep && fp.speed > 0.5) sfx(['step1', 'step2', 'step3'], { vol: 0.12 + 0.06 * Math.min(1, fp.speed / 5) });
+    lastStep = step;
     const p = camera.position;
     ocean.userData.update(t, p);
     ground.userData.time.value = t;
@@ -138,7 +152,7 @@ async function start() {
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 
