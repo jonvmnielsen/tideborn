@@ -8,6 +8,7 @@ import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 const HIT_AT = { knife_hit_01: 0.32, knife_hit_02: 0.34 };
 const PICK_AT = 0.36;
+const _q = new THREE.Quaternion(), _x = new THREE.Vector3(1, 0, 0), _y = new THREE.Vector3(0, 1, 0);
 
 export class Hands {
   constructor(camera, assets, { machete }) {
@@ -39,9 +40,22 @@ export class Hands {
       this.actions.set(name, a);
     }
     this.mixer.addEventListener('finished', (e) => { if (e.action === this.oneShot) this.toIdle(); });
-    this.socket = new THREE.Group(); // tool mount in the hand (tuned so the grip sits in the fist)
+    // Tool mount: the centre of the hole the closed fingers make (measured from the finger joints
+    // of the knife_idle pose). The handle runs across the fist, along the knuckle line, with the
+    // blade coming out above the thumb and index finger (hand +z); tool +y → hand +z.
+    this.socket = new THREE.Group();
     this.hand.add(this.socket);
-    this.socket.position.set(0, 0.075, 0.012);
+    this.socket.position.set(-0.012, 0.085, 0);
+    this.socket.quaternion.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI / 2);
+    // The knife clips hold a short knife flat across the body. A machete is held upright in front
+    // of you, so after each animation frame the forearm is turned (supination, around its own
+    // long axis) and the wrist cocked a little — the fist and the grip stay as animated.
+    this.forearm = this.hand.parent;
+    this.twist = { roll: 0.9, bend: -0.4 };
+    // Turn about the handle (it is round, so free in the fist): edge forward, spine to the eye.
+    this.turn = Math.PI - 0.5;
+    this.rollAxis = this.hand.position.clone().normalize();
+    this.base = [this.forearm.quaternion.clone(), this.hand.quaternion.clone()];
     this.machete = null;
     this.current = null;
     this.setTool(machete);
@@ -72,8 +86,8 @@ export class Hands {
     if (this.machete === obj) return;
     this.machete?.removeFromParent();
     this.machete = obj;
-    obj.position.copy(obj.userData.grip ?? new THREE.Vector3()).negate();
-    obj.quaternion.identity();
+    obj.quaternion.setFromAxisAngle(_y, this.turn);
+    obj.position.copy(obj.userData.grip ?? new THREE.Vector3()).applyQuaternion(obj.quaternion).negate();
     obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
     this.socket.add(obj);
     if (this.current) { this.oneShot = this.play('knife_draw', 0.1); this.state = { name: 'draw', t: 0 }; }
@@ -101,9 +115,25 @@ export class Hands {
     this.freeze = true;
     this.play(name, 0);
     this.current.time = t;
+    this.unadjust();
     this.mixer.update(0);
+    this.adjust();
     this.fit();
     this.state = { name: 'pose', t };
+  }
+
+  // The mixer only writes bones whose animated value changed, so undo our turn first.
+  unadjust() {
+    this.forearm.quaternion.copy(this.base[0]);
+    this.hand.quaternion.copy(this.base[1]);
+  }
+
+  adjust() {
+    this.base[0].copy(this.forearm.quaternion);
+    this.base[1].copy(this.hand.quaternion);
+    const { roll, bend } = this.twist;
+    if (roll) this.forearm.quaternion.multiply(_q.setFromAxisAngle(this.rollAxis, roll));
+    if (bend) this.hand.quaternion.multiply(_q.setFromAxisAngle(_x, bend));
   }
 
   // The rig is authored in glTF space looking along +z with +y up, its "camera" bone at the
@@ -120,7 +150,9 @@ export class Hands {
     const st = this.state;
     const step = this.freeze ? 0 : dt;
     st.t += step;
+    this.unadjust();
     this.mixer.update(step);
+    this.adjust();
     this.fit();
     if (st.name === 'swing' && !st.hit && st.t > HIT_AT[st.clip]) { st.hit = true; this.onHit?.(); }
     if (st.name === 'pickup' && !st.hit && st.t > PICK_AT) { st.hit = true; this.onPick?.(); }
@@ -128,7 +160,7 @@ export class Hands {
     const walk = Math.min(1, speed / 3), now = performance.now() / 1000;
     const narrow = THREE.MathUtils.clamp(1.5 - this.camera.aspect, 0, 1);
     // The rig was framed for a wider view: lift it so the hand and tool sit in our picture.
-    this.holder.position.set(Math.cos(bob) * 0.012 * walk - narrow * 0.19, 0.075 + narrow * 0.02 - Math.abs(Math.sin(bob)) * 0.016 * walk + Math.sin(now * 1.6) * 0.003, -0.01 + narrow * 0.03);
+    this.holder.position.set(Math.cos(bob) * 0.012 * walk - narrow * 0.19, 0.17 + narrow * 0.02 - Math.abs(Math.sin(bob)) * 0.016 * walk + Math.sin(now * 1.6) * 0.003, -0.08 + narrow * 0.03);
     this.holder.rotation.set(0, 0, Math.cos(bob) * 0.012 * walk);
   }
 }
