@@ -39,6 +39,39 @@
     .prompt-bar { width: 64px; height: 4px; border-radius: 2px; background: rgba(0, 0, 0, 0.35); overflow: hidden; }
     .prompt-bar[hidden] { display: none; }
     .prompt-bar i { display: block; height: 100%; background: #e9d9b0; transition: width 0.15s; }
+    .hud { position: fixed; top: max(56px, calc(env(safe-area-inset-top) + 48px)); right: max(12px, env(safe-area-inset-right)); display: flex; gap: 8px; }
+    .hud-btn { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; font-size: 13px; font-weight: 600; }
+    .hud-btn img { width: 34px; height: 34px; }
+    .hud-btn.tool { padding: 4px; }
+    .hud-btn.full { border-color: #f0b070; color: #ffd9a8; }
+    .bagpanel { position: fixed; inset: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); max-width: 860px; margin: auto; max-height: 640px; overflow: auto; padding: 18px 20px; border-radius: 16px; background: rgba(14, 30, 36, 0.92); border: 1px solid rgba(255, 255, 255, 0.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); touch-action: pan-y; user-select: none; }
+    .bagpanel[hidden] { display: none; }
+    .bp-head { display: flex; align-items: center; justify-content: space-between; }
+    .bp-head h2 { margin: 0; font-size: 18px; letter-spacing: 0.12em; text-transform: uppercase; font-weight: 600; }
+    .bp-load { margin: 10px 0 14px; font-size: 13px; opacity: 0.85; }
+    .bp-meter { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.12); overflow: hidden; margin-bottom: 6px; }
+    .bp-meter i { display: block; height: 100%; background: linear-gradient(90deg, #a8c060, #e9d9b0 70%, #f0a060); }
+    .bp-cols { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+    @media (max-width: 640px) { .bp-cols { grid-template-columns: 1fr; } }
+    .bp-cols h3 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.6; font-weight: 600; }
+    .bp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+    .bp-item { position: relative; padding: 6px 6px 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); text-align: center; font-size: 12px; }
+    .bp-item.held { outline: 2px solid rgba(233, 217, 176, 0.8); }
+    .bp-item img { width: 56px; height: 56px; display: block; margin: 0 auto; }
+    .bp-item b { position: absolute; top: 6px; right: 8px; font-size: 14px; }
+    .bp-acts { display: flex; gap: 4px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
+    .bp-acts button, .bp-rec button, .bp-close, .bp-reset { padding: 4px 10px; font-size: 12px; }
+    .bp-recipes { display: flex; flex-direction: column; gap: 8px; }
+    .bp-rec { display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; padding: 8px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); font-size: 13px; }
+    .bp-rec.no { opacity: 0.6; }
+    .bp-rec > img { width: 52px; height: 52px; }
+    .bp-rec small { display: block; opacity: 0.7; font-size: 12px; }
+    .bp-cost { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; font-size: 12px; }
+    .bp-cost span { display: flex; align-items: center; gap: 2px; color: #f0b090; }
+    .bp-cost span.ok { color: #c8e090; }
+    .bp-cost img { width: 22px; height: 22px; }
+    .bp-rec button[disabled] { opacity: 0.4; cursor: default; }
+    .bp-foot { margin: 14px 0 0; font-size: 12px; opacity: 0.65; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .inv { position: fixed; left: 50%; bottom: max(36px, calc(env(safe-area-inset-bottom) + 24px)); transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; max-width: calc(100% - 32px); flex-wrap: wrap; justify-content: center; }
     .inv[hidden] { display: none; }
     .slot { position: relative; width: 58px; height: 58px; border-radius: 10px; background: rgba(10, 28, 36, 0.55); border: 1px solid rgba(255, 255, 255, 0.18); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
@@ -51,7 +84,7 @@
     .toast.warn { padding-left: 12px; color: #ffd9a8; }
     .toast.out { opacity: 0; transform: translateX(20px); }
     @keyframes tin { from { opacity: 0; transform: translateX(20px); } }
-    .act-btn { position: fixed; right: max(22px, env(safe-area-inset-right)); bottom: max(200px, calc(env(safe-area-inset-bottom) + 190px)); width: 78px; height: 78px; padding: 0; border-radius: 50%; font-size: 16px; font-weight: 700; background: rgba(233, 217, 176, 0.85); color: #10222c; border: 0; }
+    .act-btn { position: fixed; right: max(8px, env(safe-area-inset-right)); bottom: 40%; width: 68px; height: 68px; padding: 0; border-radius: 50%; font-size: 16px; font-weight: 700; background: rgba(233, 217, 176, 0.85); color: #10222c; border: 0; }
     .act-btn:active { transform: scale(0.94); }
   </style>
 </head>
@@ -63,7 +96,7 @@
     <button type="button" data-time="eftermiddag">Eftermiddag</button>
     <button type="button" data-time="solnedgang">Solnedgang</button>
   </div>
-  <div id="hint" hidden>WASD gå · Shift løb · mus kig · klik hug · E saml op · Esc slip musen</div>
+  <div id="hint" hidden>WASD gå · Shift løb · mus kig · klik hug · E saml op · Tab rygsæk · Q skift værktøj · Esc slip musen</div>
   <div id="fps" hidden></div>
   <div id="stick" hidden><div id="knob"></div></div>
 

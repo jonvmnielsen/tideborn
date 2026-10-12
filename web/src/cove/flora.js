@@ -40,6 +40,8 @@ export function kindOf(k) {
   if (k === 'props/crate') return 'crate';
   if (k === 'props/barrel') return 'barrel';
   if (k === 'item/coconut') return 'coconut';
+  if (k === 'pile') return 'pile';
+  if (k === 'build/lean_to') return 'shelter';
   return null;
 }
 
@@ -88,6 +90,8 @@ export class Flora {
     this.root = root;
     this.grid = new Map(); // collision circles { x, z, r } in 4 m cells
     this.nodes = new Map(); // gatherable things, see register()
+    this.byId = new Map();
+    this.nodeCount = 0;
     this.scatter = new Scatter(root, assets, mobile ? { nearRadius: 40, nearCap: 50 } : { nearRadius: 70, nearCap: 120 });
     const plants = [...TREES, ...TREES.map((t) => `${t}_far`), ...UNDER, ...MID, ...BUSHES, ...GRASS, ...COVER];
     for (const k of [...plants, ...ROCKS, ...PROPS]) prepareModel(assets[k].scene);
@@ -114,6 +118,13 @@ export class Flora {
     return c;
   }
 
+  restoreCollider(c) {
+    const k = `${Math.floor(c.x / 4)},${Math.floor(c.z / 4)}`;
+    let a = this.grid.get(k);
+    if (!a) this.grid.set(k, (a = []));
+    if (!a.includes(c)) a.push(c);
+  }
+
   removeCollider(c) {
     const a = this.grid.get(`${Math.floor(c.x / 4)},${Math.floor(c.z / 4)}`);
     const i = a ? a.indexOf(c) : -1;
@@ -124,7 +135,9 @@ export class Flora {
   register(key, x, y, z, ref, col = null) {
     const kind = kindOf(key);
     if (!kind) return;
-    const n = { kind, key, x, y, z, ...ref, col, hits: 0 };
+    // Ids follow placement order (seeded, so stable between visits) — saves refer to them.
+    const n = { id: ref.id ?? this.nodeCount++, kind, key, x, y, z, ...ref, col, hits: 0 };
+    this.byId.set(n.id, n);
     const k = `${Math.floor(x / 4)},${Math.floor(z / 4)}`;
     let a = this.nodes.get(k);
     if (!a) this.nodes.set(k, (a = []));

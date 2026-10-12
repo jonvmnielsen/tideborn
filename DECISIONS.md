@@ -76,3 +76,15 @@ Jon: a machete floating on its own doesn't work — a hand must hold it, with re
 - Sounds: Kenney (CC0) cut, slice, swish, wood impacts, pick-up, crate and grass footsteps; Sonniss tree fall.
 - Not saved yet; nothing regrows yet.
 
+## D-016 — Carrying, bags, crafting, sweeping cuts, saving; castaways with faces (2026-10-12)
+Jon: the machete must be held upright in front; finds belong in a backpack, not on screen; carrying needs a natural limit, and bags of different kinds should be made and found; a swing should cut everything in a radius and angle, not one aimed thing; the sky haze blurred the horizon.
+- **Machete upright** in front (edge forward), the hand fully in view; on narrow screens the hands sit nearer the middle.
+- **Sweeping cuts** (`gather.js`): a swing hits everything within 2.6 m and ±70° in front — a swathe of grass, several bushes, the palm beside you. Things you pick up (stones, driftwood, coconuts, piles, crates) still need you to look at them.
+- **Carrying** (`inventory.js`): every item has a weight; without a bag you carry 8 kg. Palm-leaf pouch (+6 kg) and bamboo basket (+14 kg) are made; a canvas backpack (+24 kg) is found in one of the washed-up crates. What doesn't fit is left in a pile on the ground to come back for.
+- **Bag panel** (Tab / I, or the bag button with the load, top right): contents with icons, drop, hold a tool, and recipes — rope (fibre), stone axe (stone, wood, rope), the two bags, a lean-to kit. Nothing is shown on screen otherwise except short "+2 Træ" notes.
+- **Stone axe**: fells the rainforest trees (8 cuts, giants 14) and cuts palms faster; Q (or the tool button) switches tool.
+- **Lean-to**: made from bamboo, palm leaves and rope, then placed in front of you.
+- **Regrowth and saving**: cut plants come back (grass after ~2½ min, palms ~15 min); inventory, what's cut, piles, opened crates and built shelters are saved in the browser (`localStorage`), "Start forfra" in the bag panel clears it.
+- **Clearer air**: bloom only on really bright things (lava, glints), lighter fog, a cleaner blue horizon.
+- **Castaways** (`npc.js`): two fellow survivors at the camp, assembled from Quaternius parts on one rig — outfit (peasant / ranger), the head of the Universal Base Characters body (only head and neck triangles kept, the outfit covers the rest), beard, hair, eyebrows (grey in the free pack, tinted here) — animated with Universal Animation Library clips: one walks the beach and talks, one kneels by the boat.
+

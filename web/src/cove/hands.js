@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
-const GRIP = V(-0.004, 0.075, 0); // handle centre in the machete model
+const MACHETE_GRIP = V(-0.004, 0.075, 0); // handle centre in the machete model
 
 // A pose: grip point, blade direction (machete +y) and edge direction, all in camera space.
 function pose(grip, up, edge, left = null) {
@@ -19,17 +19,19 @@ function pose(grip, up, edge, left = null) {
   return { grip, q, left };
 }
 
-const IDLE = pose(V(0.2, -0.25, -0.4), V(-0.2, 0.55, -0.8), V(-0.15, -0.8, -0.45));
+// Idle: the machete held upright in front, edge forward, hand low on the right.
+const IDLE = pose(V(0.16, -0.25, -0.42), V(0.08, 1, -0.22), V(-0.25, 0, -1));
 const LEFT_REST = V(-0.3, -0.8, -0.05);
+// A wide, flat sweep from right to left: cuts everything in an arc in front of you.
 const SWING = [
   [0, IDLE],
-  [0.15, pose(V(0.27, -0.06, -0.36), V(0.35, 0.9, 0.2), V(-0.3, 0.1, -0.95))],
-  [0.29, pose(V(-0.08, -0.4, -0.5), V(-0.75, -0.25, -0.6), V(-0.45, -0.75, 0.1))],
+  [0.15, pose(V(0.28, -0.12, -0.32), V(0.55, 0.75, 0.35), V(-0.35, 0.05, -1))],
+  [0.29, pose(V(-0.14, -0.34, -0.46), V(-0.8, -0.05, -0.6), V(-0.55, -0.15, 0.8))],
   [0.58, IDLE],
 ];
 const PICKUP = [
   [0, { ...IDLE, left: LEFT_REST }],
-  [0.26, { ...pose(V(0.24, -0.36, -0.36), V(-0.1, 0.5, -0.85), V(-0.1, -0.85, -0.45)), left: V(-0.06, -0.19, -0.5) }],
+  [0.26, { ...pose(V(0.22, -0.36, -0.38), V(0.15, 1, -0.1), V(-0.2, 0, -1)), left: V(-0.06, -0.19, -0.5) }],
   [0.62, { ...IDLE, left: LEFT_REST }],
 ];
 const ease = (t) => t * t * (3 - 2 * t);
@@ -79,12 +81,22 @@ export class Hands {
     }
 
     this.machete = machete;
+    this.grip = machete.userData.grip ?? MACHETE_GRIP;
     camera.add(machete);
     this.state = { name: 'idle', t: 0 };
     this.onHit = null;
     this.onPick = null;
     this.bob = 0;
     this.moving = 0;
+  }
+
+  // Swap what's in the right hand (object with userData.grip = handle point in its own space).
+  setTool(obj) {
+    if (this.machete === obj) return;
+    this.machete?.removeFromParent();
+    this.machete = obj;
+    this.grip = obj.userData.grip ?? MACHETE_GRIP;
+    this.camera.add(obj);
   }
 
   get busy() { return this.state.name !== 'idle'; }
@@ -121,8 +133,9 @@ export class Hands {
       p = { grip: IDLE.grip.clone(), q: IDLE.q.clone(), left: LEFT_REST.clone() };
     }
     // Narrow (portrait) screens: bring the hands in toward the middle so they stay in view.
-    const sx = THREE.MathUtils.clamp(this.camera.aspect / 1.5, 0.5, 1);
+    const sx = THREE.MathUtils.clamp(this.camera.aspect / 1.5, 0.35, 1);
     p.grip.x *= sx;
+    p.grip.z *= 1 + (1 - sx) * 0.25;
     p.left.x *= sx;
     // Breathing and walking sway on top of every pose.
     const now = performance.now() / 1000;
@@ -131,7 +144,7 @@ export class Hands {
     p.grip.y += Math.abs(Math.sin(bob)) * 0.018 * walk + Math.sin(now * 1.6) * 0.004;
     p.grip.z += Math.sin(now * 1.1) * 0.003;
 
-    this.machete.position.copy(p.grip).sub(GRIP.clone().applyQuaternion(p.q));
+    this.machete.position.copy(p.grip).sub(this.grip.clone().applyQuaternion(p.q));
     this.machete.quaternion.copy(p.q);
 
     for (const [b, q] of this.rest) b.quaternion.copy(q);

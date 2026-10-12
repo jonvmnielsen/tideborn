@@ -12,6 +12,7 @@ import { makeFacetGround, Plume, prepareModel } from './facets.js';
 import { Fauna } from './fauna.js';
 import { Hands } from './hands.js';
 import { Gather } from './gather.js';
+import { Castaways } from './npc.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { Flora } from './flora.js';
@@ -41,7 +42,7 @@ renderer.info.autoReset = false; // the bloom passes render several times per fr
 renderer.shadowMap.type = mobile ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.FogExp2(0xb4cbdc, mobile ? 0.0024 : 0.0013);
+scene.fog = new THREE.FogExp2(0xb4cbdc, mobile ? 0.0014 : 0.0009);
 const camera = new THREE.PerspectiveCamera(mobile ? 72 : 68, innerWidth / innerHeight, 0.08, 20000);
 scene.add(camera);
 
@@ -63,6 +64,7 @@ async function start() {
   const sky = new CoveSky(scene, renderer, { mobile });
   const flora = new Flora(scene, assets, island, { mobile });
   const fauna = new Fauna(scene, assets, island, { mobile });
+  const castaways = new Castaways(scene, assets, island, flora.camp);
 
   const depthAt = (x, z) => -island.heightAt(x, z);
   const fp = new FirstPerson(camera, canvas, { ground: (x, z) => island.heightAt(x, z), blocked: (x, z, r) => flora.blocked(x, z, r), depthAt });
@@ -75,17 +77,33 @@ async function start() {
   // Start on the beach by the rowboat, looking up the sand toward the jungle and the volcano.
   const sx = -30;
   fp.place(sx, island.shoreZ(sx) - 7, params.has('yaw') ? +params.get('yaw') : 0.35);
-  // The player's arms, holding the machete (hands.js).
-  const machete = assets['props/machete'].scene.clone(true);
-  prepareModel(machete);
-  machete.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } });
-  const hands = new Hands(camera, assets, { machete });
+  // The player's arms (hands.js) and the tools they can hold. userData.grip = the handle point.
+  const tool = (key, grip, turn = 0) => {
+    const m = assets[key].scene.clone(true);
+    prepareModel(m);
+    m.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } });
+    const g = new THREE.Group();
+    m.rotation.y = turn; // the axe head faces +x in its model; turn it so the edge leads
+    g.add(m);
+    g.userData.grip = grip;
+    return g;
+  };
+  const tools = { machete: tool('props/machete', new THREE.Vector3(-0.004, 0.075, 0)), stone_axe: tool('props/stone_axe', new THREE.Vector3(0, 0.14, 0), Math.PI) };
+  const hands = new Hands(camera, assets, { machete: tools.machete });
   initSfx(assets);
   initSfx({ 'sfx/treefall': { url: 'cove/audio/mw-lumberjack/tree_crack_fall.mp3' } });
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, ui: {} });
-  // Desktop: left click (with the mouse captured) cuts or picks up; E picks up.
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools });
+  gather.ui.onToggle = (open) => { fp.enabled = !open && ui.start.hidden; };
+  // Desktop: left click (with the mouse captured) cuts or picks up; E picks up; Tab / I opens
+  // the bag; Q switches tool; Esc stops building.
   canvas.addEventListener('mousedown', (e) => { if (e.button === 0 && document.pointerLockElement === canvas) gather.act(); });
-  addEventListener('keydown', (e) => { if (e.code === 'KeyE' && fp.enabled) gather.interact(); });
+  addEventListener('keydown', (e) => {
+    if (e.code === 'Tab' || e.code === 'KeyI') { e.preventDefault(); gather.ui.toggle(); if (!gather.ui.open && !mobile) canvas.requestPointerLock?.(); }
+    if (!fp.enabled) return;
+    if (e.code === 'KeyE') gather.interact();
+    if (e.code === 'KeyQ' || e.code === 'Digit1' || e.code === 'Digit2') gather.cycleTool();
+    if (e.code === 'Escape' && gather.placing) { gather.placing.ghost.removeFromParent(); gather.placing = null; }
+  });
 
   let time = params.get('t') in TIMES ? params.get('t') : 'eftermiddag';
   const setTime = (name) => {
@@ -100,7 +118,7 @@ async function start() {
   const rt = new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: mobile ? 2 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
-  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight).multiplyScalar(mobile ? 0.35 : 0.5), 0.5, 0.4, 1.6);
+  const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight).multiplyScalar(mobile ? 0.35 : 0.5), 0.35, 0.3, 3.0); // only lava and hard glints are bright enough to bloom
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
   const useBloom = !params.has('nobloom');
@@ -117,7 +135,7 @@ async function start() {
   ui.start.hidden = false;
   const go = () => {
     ui.start.hidden = true;
-    ui.hint.hidden = false;
+    ui.hint.hidden = mobile; // the keyboard hint means nothing on a phone
     fp.enabled = true;
     if (!mobile) canvas.requestPointerLock?.();
     startSound('cove/audio');
@@ -146,13 +164,14 @@ async function start() {
     flora.update(p.x, p.z, t);
     plume.update(t);
     fauna.update(t, dt, p);
+    castaways.update(dt);
     if (useBloom) composer.render(); else renderer.render(scene, camera);
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 

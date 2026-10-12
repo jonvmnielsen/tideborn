@@ -373,6 +373,57 @@
     {
       "id": "kenney-rpg-audio/dooropen_1",
       "as": "sfx/crate"
+    },
+    {
+      "id": "forge-lowpoly/stone_axe",
+      "as": "props/stone_axe"
+    },
+    {
+      "id": "forge-lowpoly/bag_leaf",
+      "as": "item/bag_leaf"
+    },
+    {
+      "id": "forge-lowpoly/bag_basket",
+      "as": "item/bag_basket"
+    },
+    {
+      "id": "forge-lowpoly/bag_canvas",
+      "as": "item/bag_canvas"
+    },
+    {
+      "id": "forge-lowpoly/lean_to",
+      "as": "build/lean_to"
+    },
+    {
+      "id": "quaternius-base-characters/characters/superhero_male_fullbody",
+      "as": "char/body_male"
+    },
+    {
+      "id": "quaternius-base-characters/characters/hair_beard",
+      "as": "char/hair_beard"
+    },
+    {
+      "id": "quaternius-base-characters/characters/hair_simpleparted",
+      "as": "char/hair_parted"
+    },
+    {
+      "id": "quaternius-base-characters/characters/eyebrows_regular",
+      "as": "char/eyebrows"
+    },
+    {
+      "id": "quaternius-outfits-fantasy/characters/male_ranger",
+      "as": "char/ranger"
+    },
+    {
+      "id": "quaternius-ual1/ual1_standard",
+      "as": "char/anims",
+      "animations": [
+        "Idle_Loop",
+        "Walk_Loop",
+        "Sitting_Idle_Loop",
+        "Fixing_Kneeling",
+        "Idle_Talking_Loop"
+      ]
     }
   ],
   "audio": [

@@ -116,6 +116,23 @@ export class GroundCover {
     this.update(px, pz);
   }
 
+  // Several plants cut at once (already marked in `removed`): take them out, redraw once.
+  drop(pls) {
+    for (const pl of pls) {
+      const list = this.cells.get(pl.id.split(':')[0]);
+      const i = list ? list.indexOf(pl) : -1;
+      if (i >= 0) list.splice(i, 1);
+    }
+    this.refresh(false);
+  }
+
+  // Redraw; `regen` also rebuilds the cached cells (after plants grew back).
+  refresh(regen = true) {
+    if (regen) this.cells.clear();
+    this.cur = null;
+    if (this.at) this.update(...this.at);
+  }
+
   get triangles() {
     let t = 0;
     for (const k of this.kinds) for (const mp of k.meshes) t += mp.im.count * ((mp.im.geometry.index?.count ?? mp.im.geometry.attributes.position.count) / 3);

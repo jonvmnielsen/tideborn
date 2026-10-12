@@ -18,7 +18,7 @@ export function makeFacetGround() {
 {
   // Lava: slow pulses running downhill, hotter in the middle of a run.
   float pulse = 0.75 + 0.25 * sin(uTime * 1.6 - length(vLavaP - vec2(30.0, -215.0)) * 0.12);
-  totalEmissiveRadiance += vec3(1.0, 0.36, 0.08) * vLava * vLava * 3.2 * pulse;
+  totalEmissiveRadiance += vec3(1.0, 0.36, 0.08) * vLava * vLava * 6.0 * pulse;
 }`);
   };
   mat.customProgramCacheKey = () => 'tideborn-ground-facets-v1';

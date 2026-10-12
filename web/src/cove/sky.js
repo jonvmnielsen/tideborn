@@ -36,6 +36,8 @@ function gradeSky(sky) {
   vec3 graded = mix(vec3(skyLum), retColor, 1.9);
   float up = clamp(normalize(vWorldPosition - cameraPosition).y, 0.0, 1.0);
   graded *= mix(vec3(1.0), vec3(0.72, 0.86, 1.08), smoothstep(0.02, 0.6, up));
+  // Keep the horizon a clear pale blue instead of a white glare band.
+  graded *= mix(vec3(0.8, 0.9, 1.02), vec3(1.0), smoothstep(0.0, 0.18, up));
   gl_FragColor = vec4(max(graded, 0.0), 1.0);`);
   m.needsUpdate = true;
 }
@@ -49,9 +51,9 @@ export class CoveSky {
     gradeSky(this.sky);
     scene.add(this.sky);
     const u = this.sky.material.uniforms;
-    u.turbidity.value = 1.6;
+    u.turbidity.value = 1.3;
     u.rayleigh.value = 3.0;
-    u.mieCoefficient.value = 0.0025;
+    u.mieCoefficient.value = 0.0015;
     u.mieDirectionalG.value = 0.82;
 
     this.clouds = new THREE.Mesh(
