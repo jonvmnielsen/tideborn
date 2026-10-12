@@ -440,6 +440,10 @@
     {
       "id": "forge-lowpoly/fp_upperarm",
       "as": "arm/upperarm"
+    },
+    {
+      "id": "psx-fp-arms/fp/arms_rig",
+      "as": "arm/psx"
     }
   ],
   "audio": [

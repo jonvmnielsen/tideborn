@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "c9c2691",
-  "synced": "2026-10-12T13:18:14.125Z",
+  "libraryCommit": "8458f71",
+  "synced": "2026-10-12T15:08:15.126Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -871,6 +871,14 @@
       "file": "arm/upperarm.glb",
       "bytes": 3728,
       "sha": "b234ef8f04cc",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "arm/psx": {
+      "id": "psx-fp-arms/fp/arms_rig",
+      "file": "arm/psx.glb",
+      "bytes": 594456,
+      "sha": "61a22e988e0b",
       "license": "CC0-1.0",
       "kind": "model"
     }

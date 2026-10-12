@@ -1,156 +1,134 @@
-// First-person arms (D-017): rigid faceted pieces from the asset forge — a fist closed around
-// the tool's handle, an open left hand, forearms with rolled-up sleeves and upper arms. Nothing
-// deforms. Poses are keyframed in camera space — where the tool's handle is and which way its
-// blade and edge point; the fist rides on the handle and the arm follows by two-bone IK from a
-// fixed shoulder. Animations: idle (breathing, walk sway), swing (wind-up, sweep, recover;
-// `onHit` fires mid-sweep) and pickup (the left hand reaches down and forward).
+// First-person arms (D-018): "PSX First Person Arms" by drillimpact (CC0) — a viewmodel rig
+// made for first person, with animations by its author. The machete (or the stone axe) sits in
+// the right hand bone. Clips: knife_idle (holding), knife_hit_01/02 (alternating cuts; `onHit`
+// fires mid-cut), knife_draw (taking a tool out), grab.L (the left hand picks something up while
+// the right keeps the tool). A little walk sway on top.
 import * as THREE from 'three';
-import { prepareModel } from './facets.js';
+import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
-const V = (x, y, z) => new THREE.Vector3(x, y, z);
-const MACHETE_GRIP = V(-0.004, 0.075, 0); // handle centre in the machete model
-const WRIST = V(0.1, 0, -0.03); // the fist's wrist, relative to the grip point (fist model)
-
-// A pose: grip point, blade direction (machete +y) and edge direction, all in camera space.
-function pose(grip, up, edge, left = null) {
-  const Y = up.clone().normalize();
-  const X = edge.clone().negate().addScaledVector(Y, edge.dot(Y)).normalize(); // machete +x = spine side
-  const Z = V(0, 0, 0).crossVectors(X, Y);
-  const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z));
-  return { grip, q, left };
-}
-
-// Idle: the machete held upright in front, edge forward, hand low on the right.
-const IDLE = pose(V(0.16, -0.21, -0.42), V(0.08, 1, -0.22), V(-0.25, 0, -1));
-const LEFT_REST = V(-0.3, -0.8, -0.05);
-// A wide, flat sweep from right to left: cuts everything in an arc in front of you.
-const SWING = [
-  [0, IDLE],
-  [0.15, pose(V(0.28, -0.12, -0.32), V(0.55, 0.75, 0.35), V(-0.35, 0.05, -1))],
-  [0.29, pose(V(-0.14, -0.34, -0.46), V(-0.8, -0.05, -0.6), V(-0.55, -0.15, 0.8))],
-  [0.58, IDLE],
-];
-const PICKUP = [
-  [0, { ...IDLE, left: LEFT_REST }],
-  [0.26, { ...pose(V(0.22, -0.36, -0.38), V(0.15, 1, -0.1), V(-0.2, 0, -1)), left: V(-0.06, -0.19, -0.5) }],
-  [0.62, { ...IDLE, left: LEFT_REST }],
-];
-const ease = (t) => t * t * (3 - 2 * t);
+const HIT_AT = { knife_hit_01: 0.32, knife_hit_02: 0.34 };
+const PICK_AT = 0.36;
 
 export class Hands {
   constructor(camera, assets, { machete }) {
     this.camera = camera;
-    const piece = (key) => {
-      const o = assets[key].scene.clone(true);
-      prepareModel(o);
-      o.traverse((m) => { if (m.isMesh) { m.castShadow = false; m.frustumCulled = false; } });
-      return o;
-    };
-    // Arm segments are modelled along +y (from the joint nearest the hand).
-    this.R = { upper: piece('arm/upperarm'), fore: piece('arm/forearm'), shoulder: V(0.17, -0.3, 0.06), pole: V(0.6, -0.7, 0.2) };
-    this.L = { upper: piece('arm/upperarm'), fore: piece('arm/forearm'), shoulder: V(-0.17, -0.3, 0.06), pole: V(-0.6, -0.7, 0.2), hand: piece('arm/hand') };
-    for (const a of [this.R, this.L]) { a.lenA = 0.27; a.lenB = 0.25; camera.add(a.upper, a.fore); }
-    camera.add(this.L.hand);
-    this.fist = piece('arm/fist');
+    const src = assets['arm/psx'];
+    this.rig = cloneSkinned(src.scene);
+    this.rig.traverse((o) => {
+      if (!o.isMesh) return;
+      o.frustumCulled = false;
+      o.castShadow = false;
+      o.receiveShadow = false;
+      // Pixel-art texture: keep it crisp.
+      if (o.material.map) { o.material.map.magFilter = THREE.NearestFilter; o.material.map.needsUpdate = true; }
+    });
+    // The rig has its own "camera" bone (the eye the animations were made for; it looks along
+    // its +x with +y up). Every frame the rig is placed so that bone sits exactly on our camera.
+    this.eye = this.rig.getObjectByName('camera');
+    this.rig.matrixAutoUpdate = false;
+    this.holder = new THREE.Group();
+    this.holder.add(this.rig);
+    camera.add(this.holder);
+    this.hand = this.rig.getObjectByName('handR') ?? this.rig.getObjectByName('hand.R');
+    this.mixer = new THREE.AnimationMixer(this.rig);
+    this.clips = new Map(src.animations.map((c) => [c.name, c]));
+    this.actions = new Map();
+    for (const [name, clip] of this.clips) {
+      const a = this.mixer.clipAction(clip);
+      if (!/idle|relax/.test(name)) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; }
+      this.actions.set(name, a);
+    }
+    this.mixer.addEventListener('finished', (e) => { if (e.action === this.oneShot) this.toIdle(); });
+    this.socket = new THREE.Group(); // tool mount in the hand (tuned so the grip sits in the fist)
+    this.hand.add(this.socket);
+    this.socket.position.set(0, 0.075, 0.012);
     this.machete = null;
+    this.current = null;
     this.setTool(machete);
-    this.state = { name: 'idle', t: 0 };
     this.onHit = null;
     this.onPick = null;
+    this.cut = 0;
+    this.oneShot = this.play('knife_draw', 0);
+    this.state = { name: 'draw', t: 0 };
   }
 
-  // Swap what's in the right hand (object with userData.grip = handle point in its own space).
-  // The fist sits on the handle, so it moves with the tool.
+  play(name, fade = 0.12) {
+    const a = this.actions.get(name);
+    if (!a) return null;
+    a.reset().setEffectiveWeight(1).fadeIn(fade).play();
+    if (this.current && this.current !== a) this.current.fadeOut(fade);
+    this.current = a;
+    return a;
+  }
+
+  toIdle() {
+    this.state = { name: 'idle', t: 0 };
+    this.oneShot = null;
+    this.play('knife_idle', 0.18);
+  }
+
+  // Swap what's in the right hand: the tool's handle point (userData.grip) goes into the fist.
   setTool(obj) {
     if (this.machete === obj) return;
     this.machete?.removeFromParent();
     this.machete = obj;
-    this.grip = obj.userData.grip ?? MACHETE_GRIP;
-    this.fist.position.copy(this.grip);
-    obj.add(this.fist);
-    this.camera.add(obj);
+    obj.position.copy(obj.userData.grip ?? new THREE.Vector3()).negate();
+    obj.quaternion.identity();
+    obj.traverse((o) => { if (o.isMesh) o.frustumCulled = false; });
+    this.socket.add(obj);
+    if (this.current) { this.oneShot = this.play('knife_draw', 0.1); this.state = { name: 'draw', t: 0 }; }
   }
 
   get busy() { return this.state.name !== 'idle'; }
 
-  swing() { if (!this.busy) { this.state = { name: 'swing', t: 0, hit: false }; return true; } return false; }
+  swing() {
+    if (this.busy) return false;
+    const name = this.cut++ % 2 ? 'knife_hit_02' : 'knife_hit_01';
+    this.oneShot = this.play(name, 0.06);
+    this.state = { name: 'swing', clip: name, t: 0, hit: false };
+    return true;
+  }
 
-  pickup() { if (!this.busy) { this.state = { name: 'pickup', t: 0, hit: false }; return true; } return false; }
+  pickup() {
+    if (this.busy) return false;
+    this.oneShot = this.play('grab.L', 0.1);
+    this.state = { name: 'pickup', t: 0, hit: false };
+    return true;
+  }
 
-  sample(keys, t) {
-    let i = 0;
-    while (i < keys.length - 2 && t > keys[i + 1][0]) i++;
-    const [t0, a] = keys[i], [t1, b] = keys[i + 1];
-    const u = ease(THREE.MathUtils.clamp((t - t0) / (t1 - t0), 0, 1));
-    return {
-      grip: a.grip.clone().lerp(b.grip, u),
-      q: a.q.clone().slerp(b.q, u),
-      left: a.left && b.left ? a.left.clone().lerp(b.left, u) : LEFT_REST.clone(),
-    };
+  // Show one clip frozen at time t (tests / screenshots).
+  pose(name, t) {
+    this.freeze = true;
+    this.play(name, 0);
+    this.current.time = t;
+    this.mixer.update(0);
+    this.fit();
+    this.state = { name: 'pose', t };
+  }
+
+  // The rig is authored in glTF space looking along +z with +y up, its "camera" bone at the
+  // eye. Turn it to face our camera's −z and move the eye bone onto the camera.
+  fit() {
+    this.rig.matrix.identity();
+    this.rig.updateMatrixWorld(true);
+    const e = new THREE.Vector3().setFromMatrixPosition(this.eye.matrixWorld).applyMatrix4(this.rig.matrixWorld.clone().invert());
+    this.rig.matrix.makeRotationY(Math.PI).multiply(new THREE.Matrix4().makeTranslation(-e.x, -e.y, -e.z));
+    this.rig.matrixWorldNeedsUpdate = true;
   }
 
   update(dt, { speed = 0, bob = 0 } = {}) {
     const st = this.state;
-    if (!this.freeze) st.t += dt;
-    let p;
-    if (st.name === 'swing') {
-      p = this.sample(SWING, st.t);
-      if (!st.hit && st.t > 0.24) { st.hit = true; this.onHit?.(); }
-      if (st.t > SWING[SWING.length - 1][0]) this.state = { name: 'idle', t: 0 };
-    } else if (st.name === 'pickup') {
-      p = this.sample(PICKUP, st.t);
-      if (!st.hit && st.t > 0.26) { st.hit = true; this.onPick?.(); }
-      if (st.t > PICKUP[PICKUP.length - 1][0]) this.state = { name: 'idle', t: 0 };
-    } else {
-      p = { grip: IDLE.grip.clone(), q: IDLE.q.clone(), left: LEFT_REST.clone() };
-    }
-    // Narrow (portrait) screens: bring the hands in toward the middle so they stay in view.
-    const sx = THREE.MathUtils.clamp(this.camera.aspect / 1.5, 0.35, 1);
-    p.grip.x *= sx;
-    p.grip.z *= 1 + (1 - sx) * 0.25;
-    p.left.x *= sx;
-    // Breathing and walking sway on top of every pose.
-    const now = performance.now() / 1000;
-    const walk = Math.min(1, speed / 3);
-    p.grip.x += Math.cos(bob) * 0.012 * walk;
-    p.grip.y += Math.abs(Math.sin(bob)) * 0.018 * walk + Math.sin(now * 1.6) * 0.004;
-    p.grip.z += Math.sin(now * 1.1) * 0.003;
-
-    // The tool (with the fist on its handle).
-    this.machete.position.copy(p.grip).sub(this.grip.clone().applyQuaternion(p.q));
-    this.machete.quaternion.copy(p.q);
-    // Right arm: from the shoulder to the wrist of the fist.
-    const wristR = this.grip.clone().add(WRIST).applyQuaternion(p.q).add(this.machete.position);
-    this.arm(this.R, this.R.shoulder.clone().multiply(V(sx, 1, 1)), wristR);
-    // Left arm: relaxed out of view, or reaching; the open hand points forward and down.
-    const lsh = this.L.shoulder.clone().multiply(V(sx, 1, 1));
-    this.arm(this.L, lsh, p.left);
-    // Open hand model: fingers +y, palm facing −z. Fingers forward-down, palm facing down.
-    const F = V(0.12, -0.5, -0.85).normalize(), palm = V(0, -0.9, 0.4);
-    const Z = palm.negate().addScaledVector(F, -palm.dot(F)).normalize();
-    this.L.hand.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(V(0, 0, 0).crossVectors(F, Z), F, Z));
-    this.L.hand.position.copy(p.left);
-  }
-
-  // Two-bone IK in camera space, then lay the rigid segments along shoulder→elbow→wrist.
-  arm(a, shoulder, wrist) {
-    const d = THREE.MathUtils.clamp(wrist.distanceTo(shoulder), 0.05, a.lenA + a.lenB - 0.002);
-    const dir = wrist.clone().sub(shoulder).normalize();
-    const cosA = THREE.MathUtils.clamp((a.lenA ** 2 + d * d - a.lenB ** 2) / (2 * a.lenA * d), -1, 1);
-    const pd = a.pole.clone();
-    pd.addScaledVector(dir, -pd.dot(dir)).normalize();
-    const elbow = shoulder.clone().addScaledVector(dir, cosA * a.lenA).addScaledVector(pd, Math.sqrt(1 - cosA * cosA) * a.lenA);
-    const reach = shoulder.clone().addScaledVector(dir, d);
-    this.lay(a.upper, elbow, shoulder, a.lenA);
-    this.lay(a.fore, reach, elbow, a.lenB);
-  }
-
-  // Put a +y-modelled segment at `from`, pointing at `to`, stretched to length `len` (model ~len).
-  lay(obj, from, to, len) {
-    const dir = to.clone().sub(from);
-    const L = dir.length();
-    obj.position.copy(from);
-    obj.quaternion.setFromUnitVectors(V(0, 1, 0), dir.normalize());
-    obj.scale.set(1, L / len, 1);
+    const step = this.freeze ? 0 : dt;
+    st.t += step;
+    this.mixer.update(step);
+    this.fit();
+    if (st.name === 'swing' && !st.hit && st.t > HIT_AT[st.clip]) { st.hit = true; this.onHit?.(); }
+    if (st.name === 'pickup' && !st.hit && st.t > PICK_AT) { st.hit = true; this.onPick?.(); }
+    // Walk sway and breathing, and on narrow screens pull the arms back a little.
+    const walk = Math.min(1, speed / 3), now = performance.now() / 1000;
+    const narrow = THREE.MathUtils.clamp(1.5 - this.camera.aspect, 0, 1);
+    // The rig was framed for a wider view: lift it so the hand and tool sit in our picture.
+    this.holder.position.set(Math.cos(bob) * 0.012 * walk - narrow * 0.19, 0.075 + narrow * 0.02 - Math.abs(Math.sin(bob)) * 0.016 * walk + Math.sin(now * 1.6) * 0.003, -0.01 + narrow * 0.03);
+    this.holder.rotation.set(0, 0, Math.cos(bob) * 0.012 * walk);
   }
 }
