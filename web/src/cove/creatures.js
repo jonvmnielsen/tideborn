@@ -11,12 +11,15 @@ import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
 export const SPECIES = {
-  doe: { name: 'Hind', model: 'animal/doe', height: 1.35, hp: 50, walk: 1.3, run: 7.5, kind: 'prey', scare: 13, loot: { meat: 3, hide: 2 }, herd: 4 },
-  stag: { name: 'Kronhjort', model: 'animal/stag', height: 2.0, hp: 90, walk: 1.3, run: 7, kind: 'territorial', scare: 9, charge: 6, damage: 14, loot: { meat: 5, hide: 3 } },
+  doe: { name: 'Hind', model: 'animal/doe', height: 1.35, hp: 50, walk: 1.3, run: 7.5, kind: 'prey', scare: 13, loot: { meat: 3, hide: 2 }, herd: 4,
+    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer 60 kg for dig' } },
+  stag: { name: 'Kronhjort', model: 'animal/stag', height: 2.0, hp: 90, walk: 1.3, run: 7, kind: 'territorial', scare: 9, charge: 6, damage: 14, loot: { meat: 5, hide: 3 },
+    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer 140 kg' } },
   fox: { name: 'Ræv', model: 'animal/fox', height: 0.55, hp: 25, walk: 1.6, run: 6.5, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 } },
 };
 
 const UP = new THREE.Vector3(0, 1, 0);
+const NAMES = ['Freja', 'Ronja', 'Sigga', 'Kvik', 'Luna', 'Tove', 'Birk', 'Odin', 'Mynte', 'Saga', 'Rap', 'Loke'];
 const _v = new THREE.Vector3();
 
 function clipNamed(clips, ...names) {
@@ -51,6 +54,9 @@ class Creature {
   }
 
   reset() {
+    this.trust = 0;
+    this.tamed = false;
+    this.calm = 0;
     const p = this.w.spot(this.home, 10);
     this.pos = p;
     this.yaw = Math.random() * Math.PI * 2;
@@ -117,6 +123,10 @@ class Creature {
     const dx = player.x - this.pos.x, dz = player.z - this.pos.z, dist = Math.hypot(dx, dz);
     const away = _v.set(-dx, 0, -dz).normalize();
     this.t -= dt;
+    if (this.tamed) { this.updateTame(dt, player, dx, dz, dist); this.place(); return; }
+    // Taming: walk (don't run) toward it with food it likes in your bag, and it lets you come close.
+    this.calm = Math.max(0, this.calm - dt);
+    const tolerant = sp.tame && player.alive && ((player.speed < 3.4 && W.hasFood?.(sp)) || this.calm > 0);
     this.flinch = Math.max(0, this.flinch - dt * 4);
     const fromHome = this.pos.distanceTo(this.home);
     const night = W.night?.() ?? false;
@@ -165,14 +175,58 @@ class Creature {
     }
     // Senses.
     if (this.state !== 'flee' && this.state !== 'chase' && this.state !== 'bite' && player.alive) {
-      if (sp.kind === 'prey' && (dist < sp.scare || W.panicNear(this))) { this.state = 'flee'; this.t = 3 + Math.random() * 2; this.play('run'); }
-      if (sp.kind === 'territorial' && dist < (sp.charge ?? 6)) { this.state = 'chase'; this.t = 4; this.play('run'); }
-      else if (sp.kind === 'territorial' && dist < sp.scare) { this.state = 'flee'; this.t = 3; this.play('run'); }
+      const scare = tolerant ? 1.0 : sp.scare;
+      if (sp.kind === 'prey' && (dist < scare || (!tolerant && W.panicNear(this)))) { this.state = 'flee'; this.t = 3 + Math.random() * 2; this.play('run'); }
+      if (sp.kind === 'territorial' && !tolerant && dist < (sp.charge ?? 6)) { this.state = 'chase'; this.t = 4; this.play('run'); }
+      else if (sp.kind === 'territorial' && dist < scare) { this.state = 'flee'; this.t = 3; this.play('run'); }
+      // A calm animal turns to look at you instead of wandering off.
+      if (tolerant && dist < 8 && this.state === 'walk') { this.state = 'idle'; this.t = 3; this.play('idle'); }
       if (sp.kind === 'hostile' && dist < (night ? sp.sense * 1.6 : sp.sense) && fromHome < (sp.leash ?? 40)) { this.state = 'chase'; this.play('run'); }
     }
     if (!player.alive && (this.state === 'chase' || this.state === 'bite')) { this.state = 'walk'; this.goal = this.home; this.t = 8; this.play('walk'); }
     if ((this.state === 'walk' || this.state === 'flee' || this.state === 'chase') && this.speed > 0.1 && this.current?.getClip() !== (this.state === 'walk' ? this.clips.walk : this.clips.run)) this.play(this.state === 'walk' ? 'walk' : 'run');
     this.place();
+  }
+
+  // A tame animal follows you a few metres behind, or stays where you told it to.
+  updateTame(dt, player, dx, dz, dist) {
+    const sp = this.sp;
+    if (this.mode === 'follow' && player.alive) {
+      if (dist > 70) { const p = this.w.spot(new THREE.Vector3(player.x, 0, player.z), 4); this.pos.copy(p); }
+      if (dist > 4.5) {
+        const fast = dist > 9;
+        this.step(dt, _v.set(dx, 0, dz).normalize(), fast ? sp.run * 0.8 : sp.walk * 1.4);
+        this.play(fast ? 'run' : 'walk');
+        this.state = 'follow';
+        return;
+      }
+    }
+    this.step(dt, UP, 0);
+    if (this.state === 'follow' || this.t < 0) {
+      this.state = Math.random() < 0.5 && this.clips.eat ? 'eat' : 'idle';
+      this.t = 3 + Math.random() * 4;
+      this.play(this.state);
+    }
+    // Face you when you're close.
+    if (dist < 5) { let d = Math.atan2(dx, dz) - this.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yaw += d * Math.min(1, dt * 2); }
+  }
+
+  // One feeding. Returns 'tamed' when this was the last one.
+  feed() {
+    this.trust += 1;
+    this.calm = 40;
+    this.state = 'eat';
+    this.t = 2.5;
+    this.play('eat');
+    if (this.trust >= this.sp.tame.feeds) {
+      this.tamed = true;
+      this.mode = 'follow';
+      this.name = NAMES[(this.id * 7 + Math.floor(Math.random() * 5)) % NAMES.length];
+      this.storage = {};
+      this.hp = this.sp.hp;
+      return 'tamed';
+    }
+    return 'fed';
   }
 
   place() {
@@ -185,7 +239,9 @@ class Creature {
   }
 
   hurt(n, from) {
-    if (this.dead) return false;
+    if (this.dead || this.tamed) return false;
+    this.trust = 0;
+    this.calm = 0;
     this.hp -= n;
     this.flinch = 1;
     if (this.hp <= 0) {
@@ -268,7 +324,7 @@ export class Creatures {
   // Animals caught by a swing from p facing f (a flat unit vector) within reach and the arc.
   inArc(p, f, reach, cosMin) {
     return this.list.filter((c) => {
-      if (c.dead) return false;
+      if (c.dead || c.tamed) return false;
       const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
       const r = c.sp.height * 0.45;
       if (d - r > reach) return false;
@@ -290,6 +346,22 @@ export class Creatures {
     return best;
   }
 
+  // A living animal right in front of you: a tame one, or a wild one you could feed.
+  animalNear(p, f, reach = 2.8) {
+    let best = null, bd = Infinity;
+    for (const c of this.list) {
+      if (c.dead || (!c.tamed && !c.sp.tame)) continue;
+      const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
+      if (d > reach + c.sp.height * 0.4) continue;
+      const cos = (dx * f.x + dz * f.y) / Math.max(0.01, d);
+      if (cos < 0.7 && d > 1.2) continue;
+      if (d < bd) { bd = d; best = c; }
+    }
+    return best;
+  }
+
+  get tamed() { return this.list.filter((c) => c.tamed && !c.dead); }
+
   butcher(c) {
     c.butchered = true;
     c.t = 0;
@@ -298,11 +370,22 @@ export class Creatures {
 
   serialize() { return this.list.map((c) => (c.dead ? [c.id, Math.round(c.t), c.butchered ? 1 : 0] : null)).filter(Boolean); }
 
-  restore(list) {
+  serializeTame() {
+    return this.list.filter((c) => c.tamed || c.trust > 0).map((c) => ({ id: c.id, trust: c.trust, tamed: c.tamed ? 1 : 0, name: c.name, mode: c.mode, x: +c.pos.x.toFixed(2), z: +c.pos.z.toFixed(2), s: c.storage }));
+  }
+
+  restore(list, tame) {
     for (const [id, t, b] of list ?? []) {
       const c = this.list[id];
       if (!c) continue;
       c.dead = true; c.t = t; c.butchered = !!b; c.fall = 1; c.state = 'dead';
+    }
+    for (const o of tame ?? []) {
+      const c = this.list[o.id];
+      if (!c || c.dead) continue;
+      c.trust = o.trust ?? 0;
+      if (o.tamed) Object.assign(c, { tamed: true, name: o.name, mode: o.mode ?? 'follow', storage: o.s ?? {} });
+      if (o.x !== undefined && o.tamed) { c.pos.set(o.x, this.island.heightAt(o.x, o.z), o.z); c.place(); }
     }
   }
 }

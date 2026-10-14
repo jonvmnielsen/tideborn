@@ -204,7 +204,7 @@ async function start() {
     gather.update(dt);
     building.update(dt, t, gather.inv);
     vitals.update(dt);
-    creatures.update(dt, { x: camera.position.x, z: camera.position.z, alive: vitals.alive });
+    creatures.update(dt, { x: camera.position.x, z: camera.position.z, alive: vitals.alive, speed: fp.speed });
     // Footsteps on every other bob peak.
     const step = Math.floor(fp.bob / Math.PI);
     if (step !== lastStep && fp.speed > 0.5) sfx(['step1', 'step2', 'step3'], { vol: 0.12 + 0.06 * Math.min(1, fp.speed / 5) });

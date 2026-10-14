@@ -39,6 +39,7 @@ export class Gather {
   constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals }) {
     Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals });
     building.changed = () => { this.dirty = true; };
+    creatures.hasFood = (sp) => sp.tame.food.some((f) => this.inv.count(f) > 0);
     this.inv = new Inventory();
     this.target = null;
     this.falling = [];
@@ -111,7 +112,23 @@ export class Gather {
     this.pickTarget = pick;
     this.carcass = pick ? null : this.creatures.carcassNear(p, this.flat());
     if (this.carcass) { this.pickTarget = null; this.target = null; }
+    this.animal = pick || this.carcass ? null : this.creatures.animalNear(p, this.flat());
+    if (this.animal) { this.target = null; }
   }
+
+  // Feed a wild animal one of the foods it likes; enough feedings and it's yours.
+  feed(c) {
+    const food = c.sp.tame.food.find((f) => this.inv.count(f) > 0);
+    if (!food) return;
+    this.inv.remove(food, 1);
+    const r = c.feed();
+    sfx('pickup', { vol: 0.5, rate: 0.7 });
+    if (r === 'tamed') { this.toast(`${c.sp.name}en stoler på dig — du kalder den ${c.name}. ${c.sp.tame.use}.`, false, null); sfx('pickup2', { vol: 0.7, rate: 0.8 }); }
+    else this.toast(`${c.sp.name}en spiser af din hånd (${c.trust}/${c.sp.tame.feeds})`, false, food);
+    this.dirty = true;
+  }
+
+  animalLoad(c) { return Object.entries(c.storage ?? {}).reduce((a, [id, n]) => a + (ITEMS[id]?.kg ?? 0) * n, 0); }
 
   // Stations you're standing by (a burning campfire within 4 m).
   near() {
@@ -154,6 +171,7 @@ export class Gather {
     }
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
     if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
+    if (this.animal) return this.useAnimal(this.animal);
     if (b.useTarget) return this.use(b.useTarget);
     if (this.hands.swing()) sfx(['swish', 'swish2'], { vol: 0.35 });
   }
@@ -161,6 +179,7 @@ export class Gather {
   interact() {
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
     if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
+    if (this.animal) return this.useAnimal(this.animal);
     if (this.build.useTarget) this.use(this.build.useTarget);
   }
 
@@ -169,6 +188,12 @@ export class Gather {
     if (p.id === 'door' || p.id === 'gate') { this.build.toggle(p); sfx('wood1', { vol: 0.4, rate: p.open ? 0.8 : 1.1 }); return; }
     if (p.id === 'chest') { this.ui.chest = p; this.ui.toggle(true); sfx('crate', { vol: 0.4 }); return; }
     if (p.id === 'bed') { this.build.spawn = p; this.dirty = true; this.toast('Din seng — her vågner du', false, 'b:bed'); }
+  }
+
+  useAnimal(c) {
+    if (c.tamed) { this.ui.chest = c; this.ui.toggle(true); return; }
+    if (this.creatures.hasFood(c.sp)) { if (this.hands.pickup()) this.pending = { feed: c }; return; }
+    this.toast(`${c.sp.name}en vil have ${c.sp.tame.food.map((f) => ITEMS[f].name.toLowerCase()).join(' eller ')}`, true);
   }
 
   startBuild(id) {
@@ -227,6 +252,7 @@ export class Gather {
   collect() {
     const n = this.pending;
     this.pending = null;
+    if (n?.feed) { if (!n.feed.dead && !n.feed.tamed) this.feed(n.feed); return; }
     if (n?.carcass) {
       if (n.carcass.butchered) return;
       sfx(['slice', 'slice2'], { vol: 0.6 });
@@ -405,7 +431,7 @@ export class Gather {
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
       piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
-      vitals: this.vitals.toJSON(), dead: this.creatures.serialize(),
+      vitals: this.vitals.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -432,7 +458,7 @@ export class Gather {
     for (const s of data.shelters ?? []) this.addShelter(s.x, s.z, s.rot);
     this.build.restore(data.build);
     this.vitals.load_(data.vitals);
-    this.creatures.restore(data.dead);
+    this.creatures.restore(data.dead, data.tame);
     this.regrow();
     this.dirty = false;
   }
@@ -498,21 +524,30 @@ class GatherUi {
 
   // The chest: everything in the bag on one side, the chest on the other; tap a stack to move it.
   renderChest() {
-    const inv = this.g.inv, box = this.chest.storage;
+    const inv = this.g.inv, box = this.chest.storage, animal = this.chest.tamed ? this.chest : null;
+    const cap = animal ? animal.sp.tame.carry : Infinity, load = animal ? this.g.animalLoad(animal) : 0;
     const bagItems = Object.entries(inv.items).filter(([id, n]) => n > 0 && id !== 'machete');
     const boxItems = Object.entries(box).filter(([, n]) => n > 0);
     const cell = (id, n, side) => `<div class="bp-item" data-move="${side}" data-id="${id}">${this.icon(id)}<b>${n}</b><span>${ITEMS[id]?.name ?? id}</span></div>`;
     this.panel.innerHTML = `
-      <div class="bp-head"><h2>Kiste</h2><button class="bp-close" type="button">Luk</button></div>
+      <div class="bp-head"><h2>${animal ? `${animal.name} · ${animal.sp.name.toLowerCase()}` : 'Kiste'}</h2><button class="bp-close" type="button">Luk</button></div>
+      ${animal ? `<div class="bp-load"><div class="bp-meter"><i style="width:${Math.min(100, (load / cap) * 100)}%"></i></div><span>Sadeltasker: ${load.toFixed(1)} / ${cap} kg</span></div>
+      <div class="bp-tabs"><button data-mode="follow" class="${animal.mode === 'follow' ? 'on' : ''}">Følg mig</button><button data-mode="stay" class="${animal.mode === 'stay' ? 'on' : ''}">Bliv her</button></div>` : ''}
       <p class="bp-foot">Tryk på en bunke for at flytte den over.</p>
       <div class="bp-cols">
         <section><h3>Rygsæk · ${inv.load.toFixed(0)}/${inv.capacity} kg</h3><div class="bp-grid">${bagItems.map(([id, n]) => cell(id, n, 'in')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
-        <section><h3>I kisten</h3><div class="bp-grid">${boxItems.map(([id, n]) => cell(id, n, 'out')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
+        <section><h3>${animal ? 'I sadeltaskerne' : 'I kisten'}</h3><div class="bp-grid">${boxItems.map(([id, n]) => cell(id, n, 'out')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
       </div>`;
     this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
+    for (const b of this.panel.querySelectorAll('[data-mode]')) b.onclick = () => { animal.mode = b.dataset.mode; this.g.dirty = true; this.g.toast(animal.mode === 'follow' ? `${animal.name} følger dig` : `${animal.name} bliver her`, false); this.render(); };
     for (const b of this.panel.querySelectorAll('[data-move]')) b.onclick = () => {
       const id = b.dataset.id;
-      if (b.dataset.move === 'in') { const n = inv.count(id); inv.remove(id, n); box[id] = (box[id] ?? 0) + n; }
+      if (b.dataset.move === 'in') {
+        let n = inv.count(id);
+        if (animal) n = Math.min(n, Math.floor((cap - load + 1e-6) / Math.max(0.001, ITEMS[id]?.kg ?? 0)));
+        if (n <= 0) { this.g.toast(`${animal.name} kan ikke bære mere`, true); return; }
+        inv.remove(id, n); box[id] = (box[id] ?? 0) + n;
+      }
       else { const n = box[id]; delete box[id]; inv.add({ [id]: n }); }
       this.g.dirty = true;
       sfx('pickup', { vol: 0.4 });
@@ -595,6 +630,17 @@ class GatherUi {
       this.promptKey.textContent = g.mobile ? '' : 'E';
       this.bar.hidden = true;
       if (this.act) this.act.textContent = 'Flå';
+      return;
+    }
+    if (g.animal) {
+      const c = g.animal, food = g.creatures.hasFood(c.sp);
+      this.cross.classList.add('on');
+      this.prompt.hidden = this.open;
+      this.promptText.textContent = c.tamed ? `${c.name} — sadeltasker` : food ? `Giv ${c.sp.name.toLowerCase()}en mad (${c.trust}/${c.sp.tame.feeds})` : `${c.sp.name} — spiser ${c.sp.tame.food.map((f) => ITEMS[f].name.toLowerCase()).join(' / ')}`;
+      this.promptKey.textContent = g.mobile ? '' : 'E';
+      this.bar.hidden = c.tamed || !c.trust;
+      if (!this.bar.hidden) this.barFill.style.width = `${(c.trust / c.sp.tame.feeds) * 100}%`;
+      if (this.act) this.act.textContent = c.tamed ? 'Tasker' : 'Fodr';
       return;
     }
     const u = !g.pickTarget && b.useTarget;

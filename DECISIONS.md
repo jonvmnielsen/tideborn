@@ -119,3 +119,11 @@ Step 2 of the plan Jon approved ("run all five steps, one at a time, test before
 - **Food and gear**: cooked meat is made by a campfire (recipes can need a station), a hide backpack (+110 kg) from four hides.
 - Waiting on Jon's Quaternius animal packs for the real night threat (feral dogs / wolves) and wild boar.
 
+## D-022 — Taming: earn its trust with food; the first tame is a pack animal (2026-10-14)
+Step 3. Readable taming as the brief asks (find → prepare → secure → bond → utility), without opaque timers:
+- **Find and prepare**: each tameable species likes certain food (hind and stag: bananas or coconuts). Looking at one tells you what it eats.
+- **Approach**: with that food in your bag and walking (not running) a wild animal lets you come close instead of bolting — the stag doesn't charge. Running, or hitting it, breaks the trust.
+- **Bond**: feed it from your hand (E / tap; hind 4 times, stag 7). The last feeding makes it yours and it gets a name.
+- **Utility — haul**: a tame animal carries for you in its saddlebags (hind 60 kg, stag 140 kg; E / tap opens them like a chest). It follows a few metres behind (runs to catch up, comes to you if you get far away) or stays where you tell it. Tame animals can't be hurt by your swings, and are saved with their name, mode and load.
+- When Jon's Quaternius packs arrive the same system takes the horse / donkey (haul and later riding) and the dog (guard).
+
