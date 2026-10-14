@@ -9,11 +9,12 @@
 // after a while, somewhere near their home.
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
+import { FAMILY, MUTATIONS, rollWild, inherit, mutate, effective } from './breeding.js';
 
 export const SPECIES = {
-  doe: { name: 'Hind', model: 'animal/doe', height: 1.35, hp: 50, walk: 1.3, run: 7.5, kind: 'prey', scare: 13, loot: { meat: 3, hide: 2 }, herd: 4,
+  doe: { name: 'Hind', family: 'deer', sex: 'f', model: 'animal/doe', height: 1.35, hp: 50, walk: 1.3, run: 7.5, kind: 'prey', scare: 13, loot: { meat: 3, hide: 2 }, herd: 4,
     tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer 60 kg for dig' } },
-  stag: { name: 'Kronhjort', model: 'animal/stag', height: 2.0, hp: 90, walk: 1.3, run: 7, kind: 'territorial', scare: 9, charge: 6, damage: 14, loot: { meat: 5, hide: 3 },
+  stag: { name: 'Kronhjort', family: 'deer', sex: 'm', model: 'animal/stag', height: 2.0, hp: 90, walk: 1.3, run: 7, kind: 'territorial', scare: 9, charge: 6, damage: 14, loot: { meat: 5, hide: 3 },
     tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer 140 kg' } },
   fox: { name: 'Ræv', model: 'animal/fox', height: 0.55, hp: 25, walk: 1.6, run: 6.5, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 } },
 };
@@ -29,16 +30,20 @@ function clipNamed(clips, ...names) {
 }
 
 class Creature {
-  constructor(world, sp, id, home) {
+  constructor(world, sp, id, home, born = null) {
     this.w = world;
     this.sp = sp;
+    this.kind = Object.keys(SPECIES).find((k) => SPECIES[k] === sp);
     this.id = id;
     this.home = home.clone();
+    this.sex = sp.sex;
+    this.born = born;
     const src = world.assets[sp.model];
     this.root = new THREE.Group();
     this.body = cloneSkinned(src.scene);
     this.body.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
-    this.body.scale.setScalar(world.scaleFor(sp));
+    this.baseScale = world.scaleFor(sp);
+    this.body.scale.setScalar(this.baseScale);
     this.root.add(this.body);
     world.root.add(this.root);
     this.mixer = new THREE.AnimationMixer(this.body);
@@ -57,10 +62,13 @@ class Creature {
     this.trust = 0;
     this.tamed = false;
     this.calm = 0;
+    // A fresh wild animal: generation 0, stats rolled in the wild range, no mutations.
+    if (this.sp.family) { this.stats = rollWild(this.sp.family); this.gen = 0; this.parents = null; this.mutations = []; this.maturity = 1; }
     const p = this.w.spot(this.home, 10);
     this.pos = p;
     this.yaw = Math.random() * Math.PI * 2;
-    this.hp = this.sp.hp;
+    this.hp = this.maxHp;
+    this.look();
     this.state = 'idle';
     this.t = Math.random() * 3;
     this.dead = false;
@@ -71,6 +79,25 @@ class Creature {
     this.root.visible = true;
     this.body.rotation.set(0, 0, 0);
     this.play('idle');
+  }
+
+  get maxHp() { return this.stats ? Math.round(this.stats.vitality * (this.sp.hp / 50)) : this.sp.hp; }
+
+  // Size (young animals are small) and the visible tells of mutations.
+  look() {
+    const grown = 0.45 + 0.55 * Math.min(1, this.maturity ?? 1);
+    const sc = [1, 1, 1];
+    let tint = null;
+    for (const id of this.mutations ?? []) {
+      const m = MUTATIONS[id];
+      if (m.scale) m.scale.forEach((v, i) => { sc[i] *= v; });
+      if (m.tint) tint = tint ? tint.map((v, i) => v * m.tint[i]) : [...m.tint];
+    }
+    this.body.scale.set(this.baseScale * grown * sc[0], this.baseScale * grown * sc[1], this.baseScale * grown * sc[2]);
+    if (tint && !this.tinted) {
+      this.tinted = true;
+      this.body.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.color.setRGB(...tint); } });
+    }
   }
 
   play(name, fade = 0.25) {
@@ -191,11 +218,17 @@ class Creature {
   // A tame animal follows you a few metres behind, or stays where you told it to.
   updateTame(dt, player, dx, dz, dist) {
     const sp = this.sp;
+    if (this.maturity < 1) {
+      this.maturity = Math.min(1, this.maturity + dt / (FAMILY[sp.family].grow * effective(this).growMul));
+      this.look();
+    }
+    if (this.cool > 0) this.cool -= dt;
+    if (this.preg > 0) { this.preg -= dt; if (this.preg <= 0) this.w.birth(this); }
     if (this.mode === 'follow' && player.alive) {
       if (dist > 70) { const p = this.w.spot(new THREE.Vector3(player.x, 0, player.z), 4); this.pos.copy(p); }
       if (dist > 4.5) {
         const fast = dist > 9;
-        this.step(dt, _v.set(dx, 0, dz).normalize(), fast ? sp.run * 0.8 : sp.walk * 1.4);
+        this.step(dt, _v.set(dx, 0, dz).normalize(), fast ? (this.stats ? effective(this).run : sp.run) * 0.8 : sp.walk * 1.4);
         this.play(fast ? 'run' : 'walk');
         this.state = 'follow';
         return;
@@ -221,9 +254,9 @@ class Creature {
     if (this.trust >= this.sp.tame.feeds) {
       this.tamed = true;
       this.mode = 'follow';
-      this.name = NAMES[(this.id * 7 + Math.floor(Math.random() * 5)) % NAMES.length];
+      this.name = this.w.newName?.(this) ?? NAMES[(this.id * 7 + Math.floor(Math.random() * 5)) % NAMES.length];
       this.storage = {};
-      this.hp = this.sp.hp;
+      this.hp = this.maxHp;
       return 'tamed';
     }
     return 'fed';
@@ -362,6 +395,58 @@ export class Creatures {
 
   get tamed() { return this.list.filter((c) => c.tamed && !c.dead); }
 
+  capacity(c) { return c.stats ? Math.round(effective(c).carry) : c.sp.tame.carry; }
+
+  // A mate for c: tame, adult, same family, the other sex, near, not carrying or resting.
+  mateFor(c) {
+    if (!c.sp.family || !c.tamed || c.maturity < 1 || c.preg > 0 || c.cool > 0) return null;
+    let best = null, bd = 10;
+    for (const o of this.list) {
+      if (o === c || !o.tamed || o.dead || o.sp.family !== c.sp.family || o.sex === c.sex || o.maturity < 1 || o.preg > 0 || o.cool > 0) continue;
+      const d = o.pos.distanceTo(c.pos);
+      if (d < bd) { bd = d; best = o; }
+    }
+    return best;
+  }
+
+  pair(a, b) {
+    const mother = a.sex === 'f' ? a : b, father = a.sex === 'f' ? b : a, F = FAMILY[a.sp.family];
+    mother.preg = F.gestation;
+    mother.mate = father;
+    father.cool = F.cooldown.m;
+    return mother;
+  }
+
+  // She gives birth: a fawn, tame from birth, beside her.
+  birth(mother) {
+    const father = mother.mate ?? mother, F = FAMILY[mother.sp.family];
+    mother.cool = F.cooldown.f;
+    mother.mate = null;
+    const sex = Math.random() < 0.5 ? 'f' : 'm';
+    const kind = Object.keys(SPECIES).find((k) => SPECIES[k].family === mother.sp.family && SPECIES[k].sex === sex);
+    const gen = Math.max(mother.gen ?? 0, father.gen ?? 0) + 1;
+    const stats = inherit(mother.sp.family, mother.stats, father.stats);
+    const mut = mutate(mother.sp.family, mother.mutations, father.mutations, gen);
+    const c = new Creature(this, SPECIES[kind], Math.max(...this.list.map((q) => q.id)) + 1, mother.pos, { kind });
+    this.list.push(c);
+    Object.assign(c, { stats, gen, mutations: mut.list, parents: [mother.name, father.name], maturity: 0.05, tamed: true, mode: 'follow', storage: {}, cool: 0, preg: 0 });
+    c.name = this.newName(c);
+    c.hp = c.maxHp;
+    c.pos.copy(this.spot(mother.pos, 2.5));
+    c.tinted = false;
+    c.look();
+    c.place();
+    console.info('[tideborn] birth', JSON.stringify({ name: c.name, gen, parents: c.parents, stats: Object.fromEntries(Object.entries(stats).map(([k, v]) => [k, +v.toFixed(1)])), mutation: mut.fresh, mutations: mut.list }));
+    this.onBirth?.(c, mut.fresh);
+    return c;
+  }
+
+  newName(c) {
+    const taken = new Set(this.list.map((o) => o.name));
+    const names = c.sex === 'f' ? ['Hilde', 'Asta', 'Embla', 'Gro', 'Liv', 'Runa', 'Siv', 'Vilja', 'Yrsa', 'Tyra', 'Idun', 'Dagny'] : ['Bjørn', 'Frode', 'Gorm', 'Halfdan', 'Ivar', 'Knud', 'Rolf', 'Sune', 'Ulf', 'Varg', 'Egil', 'Torben'];
+    return names.find((n) => !taken.has(n)) ?? `${names[0]} ${c.gen}`;
+  }
+
   butcher(c) {
     c.butchered = true;
     c.t = 0;
@@ -371,21 +456,27 @@ export class Creatures {
   serialize() { return this.list.map((c) => (c.dead ? [c.id, Math.round(c.t), c.butchered ? 1 : 0] : null)).filter(Boolean); }
 
   serializeTame() {
-    return this.list.filter((c) => c.tamed || c.trust > 0).map((c) => ({ id: c.id, trust: c.trust, tamed: c.tamed ? 1 : 0, name: c.name, mode: c.mode, x: +c.pos.x.toFixed(2), z: +c.pos.z.toFixed(2), s: c.storage }));
+    const r = (o) => o && Object.fromEntries(Object.entries(o).map(([k, v]) => [k, +v.toFixed(2)]));
+    return this.list.filter((c) => c.tamed || c.trust > 0).map((c) => ({ id: c.id, kind: c.kind, born: c.born ? 1 : 0, trust: c.trust, tamed: c.tamed ? 1 : 0, name: c.name, mode: c.mode, x: +c.pos.x.toFixed(2), z: +c.pos.z.toFixed(2), s: c.storage,
+      st: r(c.stats), gen: c.gen, mu: c.mutations, pa: c.parents, ma: +(c.maturity ?? 1).toFixed(3), pr: Math.round(c.preg ?? 0), co: Math.round(c.cool ?? 0), mate: c.mate?.id }));
   }
 
   restore(list, tame) {
+    const byId = (id) => this.list.find((q) => q?.id === id);
     for (const [id, t, b] of list ?? []) {
-      const c = this.list[id];
+      const c = byId(id);
       if (!c) continue;
       c.dead = true; c.t = t; c.butchered = !!b; c.fall = 1; c.state = 'dead';
     }
     for (const o of tame ?? []) {
-      const c = this.list[o.id];
+      if (o.born && !byId(o.id)) this.list.push(new Creature(this, SPECIES[o.kind], o.id, new THREE.Vector3(o.x, 0, o.z), { kind: o.kind }));
+      const c = byId(o.id);
       if (!c || c.dead) continue;
       c.trust = o.trust ?? 0;
       if (o.tamed) Object.assign(c, { tamed: true, name: o.name, mode: o.mode ?? 'follow', storage: o.s ?? {} });
-      if (o.x !== undefined && o.tamed) { c.pos.set(o.x, this.island.heightAt(o.x, o.z), o.z); c.place(); }
+      if (o.st) Object.assign(c, { stats: o.st, gen: o.gen ?? 0, mutations: o.mu ?? [], parents: o.pa ?? null, maturity: o.ma ?? 1, preg: o.pr ?? 0, cool: o.co ?? 0 });
+      if (o.x !== undefined && o.tamed) { c.pos.set(o.x, this.island.heightAt(o.x, o.z), o.z); c.tinted = false; c.look(); c.hp = c.maxHp; c.place(); }
     }
+    for (const o of tame ?? []) if (o.mate !== undefined && byId(o.id)) byId(o.id).mate = byId(o.mate);
   }
 }

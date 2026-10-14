@@ -14,6 +14,7 @@ import { Hands, ViewmodelPass, VIEW, VIEW_LAYER } from './hands.js';
 import { Gather } from './gather.js';
 import { Building } from './build.js';
 import { Creatures } from './creatures.js';
+import { MUTATIONS } from './breeding.js';
 import { Vitals } from './vitals.js';
 import { People } from './followers.js';
 import { createOcean } from './ocean.js';
@@ -127,6 +128,7 @@ async function start() {
   const people = new People({ scene, assets, island, flora, building, camp: flora.camp });
   people.creatures = creatures;
   creatures.feared = (x, z) => people.feared(x, z);
+  creatures.onBirth = (c, fresh) => { gather.toast(`${c.parents[0]} har født: ${c.name} (${c.sex === 'f' ? 'hun' : 'han'}, generation ${c.gen})${fresh ? ` — en mutation: ${MUTATIONS[fresh].name}!` : ''}`, false); gather.dirty = true; };
   const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people });
   people.onPlayerHit = (q, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.6, rate: 1.2 }); fp.pitch += 0.04; };
   people.onJoin = () => { gather.dirty = true; };

@@ -10,6 +10,7 @@ import { sfx } from './sound.js';
 import { ITEMS, RECIPES, Inventory, BASE_KG, SLOW_AT } from './inventory.js';
 import { PIECES, PIECE } from './build.js';
 import { ROLE_NAMES } from './followers.js';
+import { FAMILY, MUTATIONS } from './breeding.js';
 
 // cut: hits with { machete, axe } (0 = can't); give: items; fall: seconds to topple;
 // regrow: seconds until it's back (0 = never).
@@ -587,23 +588,53 @@ class GatherUi {
     };
   }
 
+  // Lineage: sex, generation, parents, growth / pregnancy, the six stats against wild range and cap,
+  // and mutations with their tells.
+  lineage(c) {
+    if (!c.stats) return '';
+    const F = FAMILY[c.sp.family];
+    const rows = Object.entries(F.stats).map(([k, s]) => {
+      const v = c.stats[k], pct = (x) => Math.max(0, Math.min(100, (x / s.cap) * 100));
+      return `<div class="st"><span>${s.label}</span><div class="st-bar"><em style="left:${pct(s.min)}%;width:${pct(s.max) - pct(s.min)}%"></em><i style="width:${pct(v)}%"></i></div><b>${s.dec ? v.toFixed(s.dec) : Math.round(v)}${s.unit ? ' ' + s.unit : ''}</b></div>`;
+    }).join('');
+    const muts = (c.mutations ?? []).map((id) => `<span class="mut">${MUTATIONS[id].name} <small>${MUTATIONS[id].note} · ${MUTATIONS[id].tell}</small></span>`).join('') || '<span class="mut none">Ingen mutationer</span>';
+    const life = c.maturity < 1 ? `Vokser: ${Math.round(c.maturity * 100)} %` : c.preg > 0 ? `Drægtig — føder om ${Math.ceil(c.preg / 60)} min` : c.cool > 0 ? `Hviler efter parring (${Math.ceil(c.cool / 60)} min)` : 'Voksen';
+    return `<div class="lineage"><p>${c.sex === 'f' ? 'Hun' : 'Han'} · generation ${c.gen ?? 0}${c.parents ? ` · forældre: ${c.parents.join(' og ')}` : ' · vildfanget'} · ${life}</p>
+      <div class="stats">${rows}</div><p class="st-key"><em></em> vildt spænd · streg = avlsloft</p><div class="muts">${muts}</div></div>`;
+  }
+
+  pairButton(c) {
+    if (!c.sp.family) return '';
+    const mate = this.g.creatures.mateFor(c);
+    return `<button data-pair ${mate ? '' : 'disabled'} title="${mate ? '' : 'Kræver to tamme voksne, en hun og en han, tæt på hinanden'}">${mate ? `Par med ${mate.name}` : 'Par'}</button>`;
+  }
+
   renderChest() {
     if (this.chest.side) return this.renderPerson();
     const inv = this.g.inv, box = this.chest.storage, animal = this.chest.tamed ? this.chest : null;
-    const cap = animal ? animal.sp.tame.carry : Infinity, load = animal ? this.g.animalLoad(animal) : 0;
+    const cap = animal ? this.g.creatures.capacity(animal) : Infinity, load = animal ? this.g.animalLoad(animal) : 0;
     const bagItems = Object.entries(inv.items).filter(([id, n]) => n > 0 && id !== 'machete');
     const boxItems = Object.entries(box).filter(([, n]) => n > 0);
     const cell = (id, n, side) => `<div class="bp-item" data-move="${side}" data-id="${id}">${this.icon(id)}<b>${n}</b><span>${ITEMS[id]?.name ?? id}</span></div>`;
     this.panel.innerHTML = `
       <div class="bp-head"><h2>${animal ? `${animal.name} · ${animal.sp.name.toLowerCase()}` : 'Kiste'}</h2><button class="bp-close" type="button">Luk</button></div>
       ${animal ? `<div class="bp-load"><div class="bp-meter"><i style="width:${Math.min(100, (load / cap) * 100)}%"></i></div><span>Sadeltasker: ${load.toFixed(1)} / ${cap} kg</span></div>
-      <div class="bp-tabs"><button data-mode="follow" class="${animal.mode === 'follow' ? 'on' : ''}">Følg mig</button><button data-mode="stay" class="${animal.mode === 'stay' ? 'on' : ''}">Bliv her</button></div>` : ''}
+      <div class="bp-tabs"><button data-mode="follow" class="${animal.mode === 'follow' ? 'on' : ''}">Følg mig</button><button data-mode="stay" class="${animal.mode === 'stay' ? 'on' : ''}">Bliv her</button>${this.pairButton(animal)}</div>
+      ${this.lineage(animal)}` : ''}
       <p class="bp-foot">Tryk på en bunke for at flytte den over.</p>
       <div class="bp-cols">
         <section><h3>Rygsæk · ${inv.load.toFixed(0)}/${inv.capacity} kg</h3><div class="bp-grid">${bagItems.map(([id, n]) => cell(id, n, 'in')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
         <section><h3>${animal ? 'I sadeltaskerne' : 'I kisten'}</h3><div class="bp-grid">${boxItems.map(([id, n]) => cell(id, n, 'out')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
       </div>`;
     this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
+    this.panel.querySelector('[data-pair]')?.addEventListener('click', () => {
+      const mate = this.g.creatures.mateFor(animal);
+      if (!mate) return;
+      const mother = this.g.creatures.pair(animal, mate);
+      this.g.toast(`${animal.name} og ${mate.name} er parret — ${mother.name} føder om ${Math.round(FAMILY[mother.sp.family].gestation / 60)} minutter`, false);
+      this.g.dirty = true;
+      this.render();
+    });
     for (const b of this.panel.querySelectorAll('[data-mode]')) b.onclick = () => { animal.mode = b.dataset.mode; this.g.dirty = true; this.g.toast(animal.mode === 'follow' ? `${animal.name} følger dig` : `${animal.name} bliver her`, false); this.render(); };
     for (const b of this.panel.querySelectorAll('[data-move]')) b.onclick = () => {
       const id = b.dataset.id;
