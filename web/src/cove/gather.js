@@ -7,7 +7,8 @@
 import * as THREE from 'three';
 import { cloneModel } from '../assets.js';
 import { sfx } from './sound.js';
-import { ITEMS, RECIPES, Inventory } from './inventory.js';
+import { ITEMS, RECIPES, Inventory, BASE_KG, SLOW_AT } from './inventory.js';
+import { PIECES, PIECE } from './build.js';
 
 // cut: hits with { machete, axe } (0 = can't); give: items; fall: seconds to topple;
 // regrow: seconds until it's back (0 = never).
@@ -35,8 +36,9 @@ const REACH = 2.6, ARC = Math.cos((70 * Math.PI) / 180);
 const SAVE_KEY = 'tideborn-cove-save-1';
 
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, onPlace }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building });
+    building.changed = () => { this.dirty = true; };
     this.inv = new Inventory();
     this.target = null;
     this.falling = [];
@@ -50,7 +52,7 @@ export class Gather {
     this.warned = 0;
     hands.onHit = () => this.hit();
     hands.onPick = () => this.collect();
-    this.icons = makeIcons(assets);
+    this.icons = makeIcons(assets, PIECES);
     let lootI = { crate: 0, barrel: 0 };
     for (const n of [...flora.byId.values()].sort((a, b) => a.id - b.id)) if (LOOT[n.kind]) n.loot = LOOT[n.kind][lootI[n.kind]++ % LOOT[n.kind].length];
     this.ui = new GatherUi(this);
@@ -111,13 +113,39 @@ export class Gather {
 
   // Click / action button: pick up what you look at, otherwise swing.
   act() {
-    if (this.placing) return this.place();
+    const b = this.build;
+    if (b.mode?.id) {
+      const id = b.mode.id, r = b.commit(this.inv);
+      if (r) { this.toast(r.text, r.warn, r.warn ? null : `b:${id}`); if (!r.warn) sfx('wood_heavy', { vol: 0.5 }); }
+      if (r && !r.warn && !b.canPay(id, this.inv)) { b.stop(); this.toast('Du har ikke materialer til flere', true); }
+      return;
+    }
+    if (b.mode?.tear) {
+      const r = b.removeMarked(this.inv);
+      this.toast(r.text, r.warn);
+      if (!r.warn) sfx('wood_heavy', { vol: 0.45, rate: 1.2 });
+      return;
+    }
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
+    if (b.useTarget) return this.use(b.useTarget);
     if (this.hands.swing()) sfx(['swish', 'swish2'], { vol: 0.35 });
   }
 
   interact() {
-    if (this.pickTarget && this.hands.pickup()) this.pending = this.pickTarget;
+    if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
+    if (this.build.useTarget) this.use(this.build.useTarget);
+  }
+
+  // Doors and gates open and close, a chest opens the bag panel beside it, a bed becomes home.
+  use(p) {
+    if (p.id === 'door' || p.id === 'gate') { this.build.toggle(p); sfx('wood1', { vol: 0.4, rate: p.open ? 0.8 : 1.1 }); return; }
+    if (p.id === 'chest') { this.ui.chest = p; this.ui.toggle(true); sfx('crate', { vol: 0.4 }); return; }
+    if (p.id === 'bed') { this.build.spawn = p; this.dirty = true; this.toast('Din seng — her vågner du', false, 'b:bed'); }
+  }
+
+  startBuild(id) {
+    this.build.start(id);
+    this.toast(this.mobile ? `${PIECE[id].name}: sigt og tryk Byg` : `${PIECE[id].name}: klik for at bygge · R drejer · Esc stopper`, false, `b:${id}`);
   }
 
   // ---- a swing lands: everything in the arc takes a cut ------------------------------------
@@ -204,7 +232,8 @@ export class Gather {
       const got = n - (left[id] ?? 0);
       if (got > 0) this.toast(`+${got} ${ITEMS[id].name}`, false, id);
     }
-    if (Object.keys(left).length) this.toast(`Du kan ikke bære mere (${this.inv.load.toFixed(1)} / ${this.inv.capacity} kg) — resten ligger i en bunke`, true);
+    if (this.inv.burden > 1 && !this.warnedHeavy) { this.warnedHeavy = true; this.toast(`Du er overlæsset (${this.inv.load.toFixed(0)} / ${this.inv.capacity} kg) — du går langsomt og kan ikke løbe`, true); }
+    if (this.inv.burden <= 1) this.warnedHeavy = false;
   }
 
   dropPile(items, at = null) {
@@ -284,44 +313,17 @@ export class Gather {
   }
 
   // ---- building ------------------------------------------------------------------------------
-  startPlacing(id) {
-    if (this.placing) return;
-    const ghost = cloneModel(this.assets, ITEMS[id].model);
-    ghost.traverse((o) => { if (o.isMesh) { o.material = o.material.clone(); o.material.transparent = true; o.material.opacity = 0.55; o.castShadow = false; } });
-    this.scene.add(ghost);
-    this.placing = { id, ghost };
-    this.toast('Klik / tryk for at bygge her', false);
-  }
+  startPlacing(id) { if (PIECE[id]) this.startBuild(id); }
 
-  place() {
-    const { id, ghost } = this.placing;
-    ghost.removeFromParent();
-    this.placing = null;
-    this.inv.remove(id, 1);
-    this.addShelter(ghost.position.x, ghost.position.z, ghost.rotation.y);
-    sfx('wood_heavy', { vol: 0.5 });
-    this.toast('Læet står', false);
-  }
-
+  // Saves from before the building kit had lean-tos as a list of their own.
   addShelter(x, z, rot) {
-    const o = cloneModel(this.assets, 'build/lean_to');
-    o.position.set(x, this.island.heightAt(x, z) - 0.05, z);
-    o.rotation.y = rot;
-    this.scene.add(o);
-    this.shelters.push({ x, z, rot });
-    this.dirty = true;
+    this.build.place('lean_to', { pos: { x, y: this.island.heightAt(x, z), z }, rot });
   }
 
   // ---- per frame -----------------------------------------------------------------------------
   update(dt) {
     this.clock += dt;
     this.aim();
-    if (this.placing) {
-      const p = this.camera.position, f = this.flat();
-      const x = p.x + f.x * 3.6, z = p.z + f.y * 3.6;
-      this.placing.ghost.position.set(x, this.island.heightAt(x, z), z);
-      this.placing.ghost.rotation.y = Math.atan2(-f.x, -f.y) + Math.PI;
-    }
     this.shakes = this.shakes.filter((s) => {
       s.age += dt;
       if (s.t.gone) return false;
@@ -360,7 +362,7 @@ export class Gather {
       v: 1, clock: this.clock, inv: this.inv.toJSON(),
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
-      piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), shelters: this.shelters,
+      piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -385,6 +387,7 @@ export class Gather {
     this.flora.cover.refresh();
     for (const p of data.piles ?? []) this.dropPile(p.items, p);
     for (const s of data.shelters ?? []) this.addShelter(s.x, s.z, s.rot);
+    this.build.restore(data.build);
     this.regrow();
     this.dirty = false;
   }
@@ -420,6 +423,13 @@ class GatherUi {
       this.act = el('button', 'act-btn', document.body, 'Hug');
       tap(this.act, () => g.act());
     }
+    // While building: turn and stop (on phones these are the only way; on desktop R / Esc too).
+    this.buildBar = el('div', 'build-bar');
+    this.turnBtn = el('button', 'hud-btn', this.buildBar, '⟳ Drej');
+    this.stopBtn = el('button', 'hud-btn', this.buildBar, '✕ Stop');
+    tap(this.turnBtn, () => g.build.turn());
+    tap(this.stopBtn, () => g.build.stop());
+    this.tab = 'bag';
     this.panel = el('div', 'bagpanel');
     this.panel.hidden = true;
     this.panel.addEventListener('click', (e) => e.stopPropagation());
@@ -429,25 +439,65 @@ class GatherUi {
 
   get open() { return !this.panel.hidden; }
 
-  toggle(force) {
+  toggle(force, tab) {
     this.panel.hidden = force !== undefined ? !force : !this.panel.hidden;
+    if (tab) this.tab = tab;
+    if (!this.open) this.chest = null;
     if (this.open) { document.exitPointerLock?.(); this.render(); }
     this.onToggle?.(this.open);
   }
 
   icon(id) { return this.g.icons[id] ? `<img src="${this.g.icons[id]}" alt="">` : ''; }
 
+  cost(c) { const inv = this.g.inv; return Object.entries(c).map(([id, n]) => `<span class="${inv.count(id) >= n ? 'ok' : ''}">${this.icon(id)}${inv.count(id)}/${n}</span>`).join(''); }
+
+  // The chest: everything in the bag on one side, the chest on the other; tap a stack to move it.
+  renderChest() {
+    const inv = this.g.inv, box = this.chest.storage;
+    const bagItems = Object.entries(inv.items).filter(([id, n]) => n > 0 && id !== 'machete');
+    const boxItems = Object.entries(box).filter(([, n]) => n > 0);
+    const cell = (id, n, side) => `<div class="bp-item" data-move="${side}" data-id="${id}">${this.icon(id)}<b>${n}</b><span>${ITEMS[id]?.name ?? id}</span></div>`;
+    this.panel.innerHTML = `
+      <div class="bp-head"><h2>Kiste</h2><button class="bp-close" type="button">Luk</button></div>
+      <p class="bp-foot">Tryk på en bunke for at flytte den over.</p>
+      <div class="bp-cols">
+        <section><h3>Rygsæk · ${inv.load.toFixed(0)}/${inv.capacity} kg</h3><div class="bp-grid">${bagItems.map(([id, n]) => cell(id, n, 'in')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
+        <section><h3>I kisten</h3><div class="bp-grid">${boxItems.map(([id, n]) => cell(id, n, 'out')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
+      </div>`;
+    this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
+    for (const b of this.panel.querySelectorAll('[data-move]')) b.onclick = () => {
+      const id = b.dataset.id;
+      if (b.dataset.move === 'in') { const n = inv.count(id); inv.remove(id, n); box[id] = (box[id] ?? 0) + n; }
+      else { const n = box[id]; delete box[id]; inv.add({ [id]: n }); }
+      this.g.dirty = true;
+      sfx('pickup', { vol: 0.4 });
+      this.render();
+    };
+  }
+
+  renderBuild() {
+    const inv = this.g.inv, b = this.g.build;
+    return `<div class="bp-recipes bp-build">${PIECES.map((p) => `
+      <div class="bp-rec${b.canPay(p.id, inv) ? '' : ' no'}">${this.icon(`b:${p.id}`)}<div><b>${p.name}</b>${p.note ? `<small>${p.note}</small>` : ''}
+        <div class="bp-cost">${b.kit(p.id, inv) ? `<span class="ok">${this.icon('lean_to')}byggesæt</span>` : this.cost(p.cost)}</div></div>
+        <button data-build="${p.id}" ${b.canPay(p.id, inv) ? '' : 'disabled'}>Byg</button></div>`).join('')}</div>
+      <p class="bp-foot">Sigt med sigtekornet. Vægge, døre og tag sætter sig på fundamenternes kanter og hjørner; et loft er gulv på næste etage. <button class="bp-tear" type="button">Riv ned…</button></p>`;
+  }
+
   render() {
     const inv = this.g.inv, kg = inv.load, cap = inv.capacity;
-    this.bagBtn.innerHTML = `${this.icon(inv.bag ?? 'bag_leaf')}<span>${kg.toFixed(1)}/${cap} kg</span>`;
-    this.bagBtn.classList.toggle('full', kg >= cap - 0.2);
+    this.bagBtn.innerHTML = `${this.icon(inv.bag ?? 'bag_leaf')}<span>${kg.toFixed(0)}/${cap} kg</span>`;
+    this.bagBtn.classList.toggle('full', inv.burden > 1);
+    this.bagBtn.classList.toggle('heavy', inv.burden > SLOW_AT && inv.burden <= 1);
     this.toolBtn.innerHTML = this.icon(inv.tool ?? 'machete');
     if (!this.open) return;
+    if (this.chest) return this.renderChest();
     const items = Object.entries(inv.items).filter(([, n]) => n > 0);
-    const bag = inv.bag ? ITEMS[inv.bag].name : 'Ingen taske — du bærer i hænderne og lommerne';
+    const bag = inv.bag ? ITEMS[inv.bag].name : 'Ingen taske';
     this.panel.innerHTML = `
-      <div class="bp-head"><h2>Rygsæk</h2><button class="bp-close" type="button">Luk</button></div>
-      <div class="bp-load"><div class="bp-meter"><i style="width:${Math.min(100, (kg / cap) * 100)}%"></i></div><span>${kg.toFixed(1)} / ${cap} kg · ${bag}</span></div>
+      <div class="bp-head"><div class="bp-tabs"><button data-tab="bag" class="${this.tab === 'bag' ? 'on' : ''}">Rygsæk</button><button data-tab="build" class="${this.tab === 'build' ? 'on' : ''}">Byg</button></div><button class="bp-close" type="button">Luk</button></div>
+      ${this.tab === 'build' ? this.renderBuild() : `
+      <div class="bp-load"><div class="bp-meter"><i style="width:${Math.min(100, (kg / cap) * 100)}%"></i></div><span>${kg.toFixed(1)} / ${cap} kg · ${bag}${inv.burden > 1 ? ' · overlæsset' : inv.burden > SLOW_AT ? ' · tungt' : ''}</span></div>
       <div class="bp-cols">
         <section><h3>Indhold</h3><div class="bp-grid">${items.map(([id, n]) => `
           <div class="bp-item${id === inv.tool ? ' held' : ''}" data-id="${id}">${this.icon(id)}<b>${n}</b><span>${ITEMS[id].name}</span>
@@ -457,9 +507,12 @@ class GatherUi {
             <div class="bp-cost">${Object.entries(r.cost).map(([id, n]) => `<span class="${inv.count(id) >= n ? 'ok' : ''}">${this.icon(id)}${inv.count(id)}/${n}</span>`).join('')}</div></div>
             <button data-make="${i}" ${inv.canMake(r) ? '' : 'disabled'}>Lav</button></div>`).join('')}</div></section>
       </div>
-      <p class="bp-foot">Uden taske kan du bære ${8} kg. Tasker laves her — eller findes. <button class="bp-reset" type="button">Start forfra</button></p>`;
+      <p class="bp-foot">Du kan bære ${BASE_KG} kg selv; tasker giver mere. Over ${Math.round(SLOW_AT * 100)} % går du langsommere, over 100 % kan du ikke løbe. <button class="bp-reset" type="button">Start forfra</button></p>`}`;
     this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
-    this.panel.querySelector('.bp-reset').onclick = () => { if (confirm('Slet det gemte spil og start forfra?')) this.g.reset(); };
+    this.panel.querySelector('.bp-reset')?.addEventListener('click', () => { if (confirm('Slet det gemte spil og start forfra?')) this.g.reset(); });
+    for (const t of this.panel.querySelectorAll('[data-tab]')) t.onclick = () => { this.tab = t.dataset.tab; this.render(); };
+    for (const t of this.panel.querySelectorAll('[data-build]')) t.onclick = () => { this.toggle(false); this.g.startBuild(t.dataset.build); };
+    this.panel.querySelector('.bp-tear')?.addEventListener('click', () => { this.toggle(false); this.g.build.tearDown(); this.g.toast(this.g.mobile ? 'Riv ned: sigt og tryk Riv' : 'Riv ned: sigt og klik · Esc stopper', false); });
     for (const b of this.panel.querySelectorAll('[data-make]')) b.onclick = () => {
       const r = RECIPES[+b.dataset.make];
       if (inv.make(r)) { sfx('pickup2', { vol: 0.6 }); this.g.toast(`Lavet: ${ITEMS[r.id].name}`, false, r.id); if (ITEMS[r.id].tool) { inv.tool = r.id; inv.changed(); } }
@@ -473,21 +526,44 @@ class GatherUi {
   }
 
   update() {
-    const g = this.g, t = g.target;
+    const g = this.g, b = g.build, t = g.target;
     const k = t ? KINDS[t.kind] : null;
+    this.buildBar.hidden = !b.mode || this.open;
+    if (b.mode) {
+      const plan = b.ghost?.plan, m = b.marked;
+      this.cross.classList.add('on');
+      this.prompt.hidden = this.open;
+      this.promptText.textContent = b.mode.tear ? (m ? `Riv ned: ${PIECE[m.id].name}` : 'Sigt på det, du vil rive ned') : plan?.ok ? `Byg: ${PIECE[b.mode.id].name}` : plan?.reason ?? 'Sigt på jorden';
+      this.prompt.classList.toggle('bad', b.mode.id ? !plan?.ok : !m);
+      this.promptKey.textContent = g.mobile ? '' : 'klik';
+      this.bar.hidden = true;
+      if (this.act) this.act.textContent = b.mode.tear ? 'Riv' : 'Byg';
+      return;
+    }
+    this.prompt.classList.remove('bad');
+    const u = !g.pickTarget && b.useTarget;
+    if (u) {
+      this.cross.classList.add('on');
+      this.prompt.hidden = this.open;
+      this.promptText.textContent = u.id === 'chest' ? 'Åbn kisten' : u.id === 'bed' ? (b.spawn === u ? 'Din seng' : 'Gør sengen til dit hjem') : `${u.open ? 'Luk' : 'Åbn'} ${u.id === 'door' ? 'døren' : 'porten'}`;
+      this.promptKey.textContent = g.mobile ? '' : 'E';
+      this.bar.hidden = true;
+      if (this.act) this.act.textContent = u.id === 'bed' ? 'Sov' : u.id === 'chest' || !u.open ? 'Åbn' : 'Luk';
+      return;
+    }
     this.cross.classList.toggle('on', !!t);
     this.prompt.hidden = !t || this.open;
     if (t) {
       const need = k.cut ? (t.key.includes('giant') && g.tool === 'axe' ? 14 : k.cut[g.tool]) : 0;
       let label = k.pick ? (t.kind === 'pile' ? `Saml bunken (${Object.values(t.items).reduce((a, b) => a + b, 0)})` : k.label) : need ? `Hug: ${k.label}` : `${k.label} — kræver en økse`;
       if (k.open && t.opened) label = 'Tom';
-      this.promptText.textContent = g.placing ? 'Byg læet her' : label;
+      this.promptText.textContent = label;
       this.promptKey.textContent = g.mobile ? '' : k.pick ? 'E' : need ? 'klik' : '';
       const show = need > 1 && !k.pick;
       this.bar.hidden = !show;
       if (show) this.barFill.style.width = `${((t.hits ?? 0) / need) * 100}%`;
     }
-    if (this.act) this.act.textContent = g.placing ? 'Byg' : g.pickTarget ? (KINDS[g.pickTarget.kind].open ? 'Åbn' : 'Saml') : 'Hug';
+    if (this.act) this.act.textContent = g.pickTarget ? (KINDS[g.pickTarget.kind].open ? 'Åbn' : 'Saml') : 'Hug';
   }
 
   toast(text, warn = false, id = null) {
@@ -541,7 +617,7 @@ class Chips {
 }
 
 // Item icons: each item's model rendered once to a small transparent picture.
-function makeIcons(assets) {
+function makeIcons(assets, pieces = []) {
   const out = {};
   try {
     const size = 128;
@@ -554,7 +630,8 @@ function makeIcons(assets) {
     sun.position.set(2, 4, 3);
     scene.add(sun);
     const cam = new THREE.PerspectiveCamera(30, 1, 0.01, 100);
-    for (const [id, it] of Object.entries(ITEMS)) {
+    const list = [...Object.entries(ITEMS), ...pieces.map((p) => [`b:${p.id}`, { model: p.model, piece: true }])];
+    for (const [id, it] of list) {
       if (!assets[it.model]) continue;
       const o = assets[it.model].scene.clone(true);
       o.traverse((m) => { if (m.isMesh) { m.material = m.material.clone(); m.material.flatShading = true; } });
@@ -563,7 +640,7 @@ function makeIcons(assets) {
       o.position.sub(c);
       const g = new THREE.Group();
       g.add(o);
-      g.rotation.set(0.35, -0.6, it.tool ? -0.8 : 0);
+      g.rotation.set(it.piece ? 0.45 : 0.35, -0.6, it.tool ? -0.8 : 0);
       scene.add(g);
       cam.position.set(0, 0, s * 1.9);
       cam.lookAt(0, 0, 0);

@@ -12,6 +12,7 @@ import { makeFacetGround, Plume, prepareModel } from './facets.js';
 import { Fauna } from './fauna.js';
 import { Hands, ViewmodelPass, VIEW, VIEW_LAYER } from './hands.js';
 import { Gather } from './gather.js';
+import { Building } from './build.js';
 import { Castaways } from './npc.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
@@ -68,7 +69,13 @@ async function start() {
   const castaways = new Castaways(scene, assets, island, flora.camp);
 
   const depthAt = (x, z) => -island.heightAt(x, z);
-  const fp = new FirstPerson(camera, canvas, { ground: (x, z) => island.heightAt(x, z), blocked: (x, z, r) => flora.blocked(x, z, r), depthAt });
+  const building = new Building({ scene, assets, island, flora, camera });
+  // You walk on the ground and on foundations, floors and stairs; trees, walls and fences stop you.
+  const fp = new FirstPerson(camera, canvas, {
+    ground: (x, z, feet) => (feet === undefined ? island.heightAt(x, z) : building.groundAt(x, z, feet)),
+    blocked: (x, z, r, feet) => flora.blocked(x, z, r) || (feet !== undefined && building.blockedAt(x, z, r, feet)),
+    depthAt,
+  });
   fp.stick = (s) => {
     ui.stick.hidden = !s;
     if (!s) return;
@@ -93,17 +100,31 @@ async function start() {
   const hands = new Hands(camera, assets, { machete: tools.machete });
   initSfx(assets);
   initSfx({ 'sfx/treefall': { url: 'cove/audio/mw-lumberjack/tree_crack_fall.mp3' } });
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools });
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building });
+  // Wake in your bed if you have made one your home.
+  if (building.spawn) { const b = building.spawn; fp.place(b.x + Math.sin(b.rot) * 1.2, b.z + Math.cos(b.rot) * 1.2, b.rot, b.y + 0.2); }
   gather.ui.onToggle = (open) => { fp.enabled = !open && ui.start.hidden; };
-  // Desktop: left click (with the mouse captured) cuts or picks up; E picks up; Tab / I opens
-  // the bag; Q switches tool; Esc stops building.
-  canvas.addEventListener('mousedown', (e) => { if (e.button === 0 && document.pointerLockElement === canvas) gather.act(); });
+  // Desktop: left click (with the mouse captured) cuts, picks up, builds; right click stops
+  // building; E picks up / opens doors; Tab / I opens the bag, B the building menu; Q switches
+  // tool; R turns the piece being built; Esc stops building.
+  canvas.addEventListener('mousedown', (e) => {
+    if (document.pointerLockElement !== canvas) return;
+    if (e.button === 0) gather.act();
+    if (e.button === 2 && building.mode) building.stop();
+  });
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   addEventListener('keydown', (e) => {
-    if (e.code === 'Tab' || e.code === 'KeyI') { e.preventDefault(); gather.ui.toggle(); if (!gather.ui.open && !mobile) canvas.requestPointerLock?.(); }
+    if (e.code === 'Tab' || e.code === 'KeyI' || e.code === 'KeyB') {
+      e.preventDefault();
+      if (e.code === 'KeyB' && gather.ui.open && gather.ui.tab !== 'build') { gather.ui.tab = 'build'; gather.ui.render(); return; }
+      gather.ui.toggle(undefined, e.code === 'KeyB' ? 'build' : e.code === 'KeyI' || e.code === 'Tab' ? 'bag' : undefined);
+      if (!gather.ui.open && !mobile) canvas.requestPointerLock?.();
+    }
     if (!fp.enabled) return;
     if (e.code === 'KeyE') gather.interact();
     if (e.code === 'KeyQ' || e.code === 'Digit1' || e.code === 'Digit2') gather.cycleTool();
-    if (e.code === 'Escape' && gather.placing) { gather.placing.ghost.removeFromParent(); gather.placing = null; }
+    if (e.code === 'KeyR' && building.mode?.id) building.turn();
+    if (e.code === 'Escape' && building.mode) building.stop();
   });
 
   let time = params.get('t') in TIMES ? params.get('t') : 'eftermiddag';
@@ -151,10 +172,12 @@ async function start() {
     const dt = Math.min(0.05, clock.getDelta());
     renderer.info.reset();
     t += dt;
+    fp.pace = gather.inv.pace;
     if (fp.enabled) fp.update(dt); else fp.update(0);
     camera.updateMatrixWorld();
     hands.update(dt, { speed: fp.speed, bob: fp.bob });
     gather.update(dt);
+    building.update(dt, t, gather.inv);
     // Footsteps on every other bob peak.
     const step = Math.floor(fp.bob / Math.PI);
     if (step !== lastStep && fp.speed > 0.5) sfx(['step1', 'step2', 'step3'], { vol: 0.12 + 0.06 * Math.min(1, fp.speed / 5) });
@@ -173,7 +196,7 @@ async function start() {
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { VIEW, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { VIEW, building, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 

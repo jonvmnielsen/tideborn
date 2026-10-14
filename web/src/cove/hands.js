@@ -15,10 +15,15 @@ export const VIEW_LAYER = 1;
 // Viewmodel framing: `fov` = view angle across the screen's shorter side (degrees; wider = the
 // arms look smaller), `shift` = where the picture is moved, in screen halves (+x right, −y down;
 // x is scaled by the aspect on portrait screens, where the angle spans the width).
-export const VIEW = { fov: 110, shift: [0.25, -0.3] };
+export const VIEW = { fov: 105, shift: [0.25, -0.38] };
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 
-const HIT_AT = { knife_hit_01: 0.32, knife_hit_02: 0.34 };
+// The cut (D-020): our own motion on top of knife_idle — the PSX knife clips cut the other way.
+// The arm draws back to the right, then sweeps in toward the middle and down, edge first, and
+// comes back. Keys: [time, yaw (around the eye, + = left), pitch (+ = up), forearm roll (+ = tip
+// to the right)]; the hit lands mid-sweep.
+const CUT = [[0, 0, 0, 0], [0.17, -0.34, 0.1, 0.5], [0.33, 0.55, -0.26, -0.75], [0.62, 0, 0, 0]];
+const CUT_HIT = 0.25;
 const PICK_AT = 0.36;
 const _q = new THREE.Quaternion(), _x = new THREE.Vector3(1, 0, 0), _y = new THREE.Vector3(0, 1, 0);
 
@@ -68,8 +73,8 @@ export class Hands {
     // long axis) and the wrist cocked a little — the fist and the grip stay as animated.
     this.forearm = this.hand.parent;
     this.twist = { roll: 0.9, bend: -0.4 };
-    // Turn about the handle (it is round, so free in the fist): edge forward, spine to the eye.
-    this.turn = Math.PI - 0.5;
+    // Turn about the handle (it is round, so free in the fist).
+    this.turn = -0.5; // edge toward the middle of the screen, so it leads the cut
     this.rollAxis = this.hand.position.clone().normalize();
     // The knife clips hold the left arm out in front as a guard. Keep the view clear: the left arm
     // is folded away (its upper-arm bone scaled to nothing, so it vanishes into the shoulder
@@ -90,8 +95,12 @@ export class Hands {
   play(name, fade = 0.12) {
     const a = this.actions.get(name);
     if (!a) return null;
-    a.reset().setEffectiveWeight(1).fadeIn(fade).play();
-    if (this.current && this.current !== a) this.current.fadeOut(fade);
+    // A zero-length fade can leave the weight at 0 while time stands still (frozen poses), so
+    // cut over directly then.
+    a.reset().setEffectiveWeight(1);
+    if (fade > 0) a.fadeIn(fade);
+    a.play();
+    if (this.current && this.current !== a) { if (fade > 0) this.current.fadeOut(fade); else this.current.stop(); }
     this.current = a;
     return a;
   }
@@ -118,10 +127,21 @@ export class Hands {
 
   swing() {
     if (this.busy) return false;
-    const name = this.cut++ % 2 ? 'knife_hit_02' : 'knife_hit_01';
-    this.oneShot = this.play(name, 0.06);
-    this.state = { name: 'swing', clip: name, t: 0, hit: false };
+    this.cut++;
+    this.state = { name: 'swing', t: 0, hit: false };
     return true;
+  }
+
+  // The cut's offsets at time t (smooth between keys; the sweep itself speeds up into the hit).
+  cutAt(t) {
+    for (let i = 1; i < CUT.length; i++) {
+      const [t1] = CUT[i];
+      if (t > t1 && i < CUT.length - 1) continue;
+      const a = CUT[i - 1], b = CUT[i];
+      let u = THREE.MathUtils.clamp((t - a[0]) / (b[0] - a[0]), 0, 1);
+      u = i === 2 ? u * u * (3 - 2 * u) * 0.5 + u * u * 0.5 : u * u * (3 - 2 * u);
+      return { yaw: a[1] + (b[1] - a[1]) * u, pitch: a[2] + (b[2] - a[2]) * u, roll: a[3] + (b[3] - a[3]) * u };
+    }
   }
 
   pickup() {
@@ -134,6 +154,7 @@ export class Hands {
   // Show one clip frozen at time t (tests / screenshots).
   pose(name, t) {
     this.freeze = true;
+    if (name === 'cut') { this.state = { name: 'swing', t, hit: true }; this.play('knife_idle', 0); this.update(0); return; }
     this.leftShow = name.endsWith('.L') ? 1 : 0;
     this.play(name, 0);
     this.current.time = t;
@@ -180,7 +201,7 @@ export class Hands {
     this.base[1].copy(this.hand.quaternion);
     this.base[2].copy(this.leftArm.scale);
     this.leftArm.scale.multiplyScalar(Math.max(1e-3, this.leftShow));
-    const { roll, bend } = this.twist;
+    const { bend } = this.twist, roll = this.twist.roll + (this.swingRoll ?? 0);
     if (roll) this.forearm.quaternion.multiply(_q.setFromAxisAngle(this.rollAxis, roll));
     if (bend) this.hand.quaternion.multiply(_q.setFromAxisAngle(_x, bend));
   }
@@ -199,17 +220,20 @@ export class Hands {
     const st = this.state;
     const step = this.freeze ? 0 : dt;
     st.t += step;
+    const cut = st.name === 'swing' ? this.cutAt(st.t) : null;
+    this.swingRoll = cut?.roll ?? 0;
     if (!this.freeze) this.leftShow += ((st.name === 'pickup' ? 1 : 0) - this.leftShow) * Math.min(1, dt * 12);
     this.unadjust();
     this.mixer.update(step);
     this.adjust();
     this.fit();
-    if (st.name === 'swing' && !st.hit && st.t > HIT_AT[st.clip]) { st.hit = true; this.onHit?.(); }
+    if (st.name === 'swing' && !st.hit && st.t > CUT_HIT) { st.hit = true; this.onHit?.(); }
+    if (st.name === 'swing' && !this.freeze && st.t > CUT[CUT.length - 1][0]) { this.state = { name: 'idle', t: 0 }; this.swingRoll = 0; }
     if (st.name === 'pickup' && !st.hit && st.t > PICK_AT) { st.hit = true; this.onPick?.(); }
     // Walk sway and breathing.
     const walk = Math.min(1, speed / 3), now = performance.now() / 1000;
     this.holder.position.set(Math.cos(bob) * 0.012 * walk, 0.075 - Math.abs(Math.sin(bob)) * 0.016 * walk + Math.sin(now * 1.6) * 0.003, -0.01);
-    this.holder.rotation.set(0, 0, Math.cos(bob) * 0.012 * walk);
+    this.holder.rotation.set(cut?.pitch ?? 0, cut?.yaw ?? 0, Math.cos(bob) * 0.012 * walk);
   }
 }
 

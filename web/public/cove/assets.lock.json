@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "8458f71",
-  "synced": "2026-10-12T15:08:15.126Z",
+  "libraryCommit": "ac7b36d",
+  "synced": "2026-10-14T21:49:21.458Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -879,6 +879,158 @@
       "file": "arm/psx.glb",
       "bytes": 594456,
       "sha": "61a22e988e0b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/foundation": {
+      "id": "forge-lowpoly/b_foundation",
+      "file": "build/foundation.glb",
+      "bytes": 23584,
+      "sha": "0fcb2b4dd961",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/floor": {
+      "id": "forge-lowpoly/b_floor",
+      "file": "build/floor.glb",
+      "bytes": 22856,
+      "sha": "339f598fe763",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/post": {
+      "id": "forge-lowpoly/b_post",
+      "file": "build/post.glb",
+      "bytes": 4892,
+      "sha": "1b2d3479c410",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/wall": {
+      "id": "forge-lowpoly/b_wall",
+      "file": "build/wall.glb",
+      "bytes": 121668,
+      "sha": "087bc9fbfe25",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/doorway": {
+      "id": "forge-lowpoly/b_doorway",
+      "file": "build/doorway.glb",
+      "bytes": 83956,
+      "sha": "7bc807f49331",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/window": {
+      "id": "forge-lowpoly/b_window",
+      "file": "build/window.glb",
+      "bytes": 114124,
+      "sha": "31880e23410e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/door": {
+      "id": "forge-lowpoly/b_door",
+      "file": "build/door.glb",
+      "bytes": 7004,
+      "sha": "8c21213b0c5e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/railing": {
+      "id": "forge-lowpoly/b_railing",
+      "file": "build/railing.glb",
+      "bytes": 15140,
+      "sha": "9da252f671c5",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/roof": {
+      "id": "forge-lowpoly/b_roof",
+      "file": "build/roof.glb",
+      "bytes": 121040,
+      "sha": "80c4e118403b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/gable": {
+      "id": "forge-lowpoly/b_gable",
+      "file": "build/gable.glb",
+      "bytes": 13064,
+      "sha": "e6cb06b1b12a",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/stairs": {
+      "id": "forge-lowpoly/b_stairs",
+      "file": "build/stairs.glb",
+      "bytes": 28752,
+      "sha": "ca0f98bffd54",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/pillar": {
+      "id": "forge-lowpoly/b_pillar",
+      "file": "build/pillar.glb",
+      "bytes": 7416,
+      "sha": "2dca0f938a4c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/palisade": {
+      "id": "forge-lowpoly/palisade",
+      "file": "build/palisade.glb",
+      "bytes": 45892,
+      "sha": "639c9e86f61e",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/gate_frame": {
+      "id": "forge-lowpoly/gate_frame",
+      "file": "build/gate_frame.glb",
+      "bytes": 12032,
+      "sha": "c0361c34b06b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/gate": {
+      "id": "forge-lowpoly/gate",
+      "file": "build/gate.glb",
+      "bytes": 32660,
+      "sha": "78b6b477b139",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/torch": {
+      "id": "forge-lowpoly/torch",
+      "file": "build/torch.glb",
+      "bytes": 6324,
+      "sha": "7feb09686f12",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/bed": {
+      "id": "forge-lowpoly/bed",
+      "file": "build/bed.glb",
+      "bytes": 41268,
+      "sha": "6b5db36c3513",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/chest": {
+      "id": "forge-lowpoly/chest",
+      "file": "build/chest.glb",
+      "bytes": 4676,
+      "sha": "47fe4401afb6",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/campfire": {
+      "id": "forge-lowpoly/campfire",
+      "file": "build/campfire.glb",
+      "bytes": 29824,
+      "sha": "4e0754f71af6",
       "license": "CC0-1.0",
       "kind": "model"
     }

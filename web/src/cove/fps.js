@@ -18,6 +18,7 @@ export class FirstPerson {
     this.move = { x: 0, y: 0 };
     this.bob = 0;
     this.speed = 0;
+    this.pace = 1; // load factor from the inventory (1 = free, lower = laden)
     this.enabled = false;
     camera.rotation.order = 'YXZ';
 
@@ -72,8 +73,8 @@ export class FirstPerson {
     this.pitch = THREE.MathUtils.clamp(this.pitch - dy * sens, -1.35, 1.35);
   }
 
-  place(x, z, yaw) {
-    this.pos.set(x, this.ground(x, z) + EYE, z);
+  place(x, z, yaw, feet) {
+    this.pos.set(x, this.ground(x, z, feet) + EYE, z);
     this.yaw = yaw;
   }
 
@@ -95,10 +96,10 @@ export class FirstPerson {
     fx += this.move.x; fz += this.move.y;
     const l = Math.hypot(fx, fz);
     if (l > 1) { fx /= l; fz /= l; }
-    const run = k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95;
+    const run = this.pace > 0.5 && (k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95);
     const depth = this.depthAt(this.pos.x, this.pos.z);
     const wade = 1 - Math.min(0.6, Math.max(0, depth) * 0.5);
-    const want = (run ? RUN : WALK) * Math.min(1, Math.hypot(fx, fz)) * wade;
+    const want = (run ? RUN : WALK) * Math.min(1, Math.hypot(fx, fz)) * wade * this.pace;
     this.speed += (want - this.speed) * Math.min(1, dt * 8);
     if (l > 0.01) {
       const s = Math.sin(this.yaw), c = Math.cos(this.yaw);
@@ -106,13 +107,14 @@ export class FirstPerson {
       const vz = (-c * fz - s * fx) / Math.max(1, Math.hypot(fx, fz));
       const nx = this.pos.x + vx * this.speed * dt, nz = this.pos.z + vz * this.speed * dt;
       // Slide along obstacles; stop at chest-deep water.
-      const ok = (x, z) => !this.blocked(x, z, 0.35) && this.depthAt(x, z) < 1.15;
+      const feet = this.pos.y - EYE;
+      const ok = (x, z) => !this.blocked(x, z, 0.35, feet) && this.depthAt(x, z) < 1.15;
       if (ok(nx, nz)) { this.pos.x = nx; this.pos.z = nz; }
       else if (ok(nx, this.pos.z)) this.pos.x = nx;
       else if (ok(this.pos.x, nz)) this.pos.z = nz;
       this.bob += dt * this.speed * 2.1;
     }
-    const gy = Math.max(this.ground(this.pos.x, this.pos.z), -1.0) + EYE;
+    const gy = Math.max(this.ground(this.pos.x, this.pos.z, this.pos.y - EYE), -1.0) + EYE;
     this.pos.y += (gy - this.pos.y) * Math.min(1, dt * 12);
     const bobY = Math.sin(this.bob * 2) * 0.035 * Math.min(1, this.speed / WALK);
     this.camera.position.set(this.pos.x, this.pos.y + bobY, this.pos.z);

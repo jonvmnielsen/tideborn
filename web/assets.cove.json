@@ -444,6 +444,82 @@
     {
       "id": "psx-fp-arms/fp/arms_rig",
       "as": "arm/psx"
+    },
+    {
+      "id": "forge-lowpoly/b_foundation",
+      "as": "build/foundation"
+    },
+    {
+      "id": "forge-lowpoly/b_floor",
+      "as": "build/floor"
+    },
+    {
+      "id": "forge-lowpoly/b_post",
+      "as": "build/post"
+    },
+    {
+      "id": "forge-lowpoly/b_wall",
+      "as": "build/wall"
+    },
+    {
+      "id": "forge-lowpoly/b_doorway",
+      "as": "build/doorway"
+    },
+    {
+      "id": "forge-lowpoly/b_window",
+      "as": "build/window"
+    },
+    {
+      "id": "forge-lowpoly/b_door",
+      "as": "build/door"
+    },
+    {
+      "id": "forge-lowpoly/b_railing",
+      "as": "build/railing"
+    },
+    {
+      "id": "forge-lowpoly/b_roof",
+      "as": "build/roof"
+    },
+    {
+      "id": "forge-lowpoly/b_gable",
+      "as": "build/gable"
+    },
+    {
+      "id": "forge-lowpoly/b_stairs",
+      "as": "build/stairs"
+    },
+    {
+      "id": "forge-lowpoly/b_pillar",
+      "as": "build/pillar"
+    },
+    {
+      "id": "forge-lowpoly/palisade",
+      "as": "build/palisade"
+    },
+    {
+      "id": "forge-lowpoly/gate_frame",
+      "as": "build/gate_frame"
+    },
+    {
+      "id": "forge-lowpoly/gate",
+      "as": "build/gate"
+    },
+    {
+      "id": "forge-lowpoly/torch",
+      "as": "build/torch"
+    },
+    {
+      "id": "forge-lowpoly/bed",
+      "as": "build/bed"
+    },
+    {
+      "id": "forge-lowpoly/chest",
+      "as": "build/chest"
+    },
+    {
+      "id": "forge-lowpoly/campfire",
+      "as": "build/campfire"
     }
   ],
   "audio": [

@@ -1,35 +1,36 @@
-// What the castaway carries. Everything weighs something; without a bag you manage 8 kg in
-// your arms and pockets. Bags raise that — a palm-leaf pouch and a bamboo basket can be made,
-// a canvas backpack has to be found (washed up in a crate). The best bag you own is the one you
-// wear. Tools (the machete, a stone axe) are carried too. The panel (Tab / I, or the bag button
-// on a phone) shows the contents, the load and what you can make.
+// What the castaway carries (D-020, after ARK): you can always pick things up — nothing is
+// refused. Resources are light (a log 0.5 kg, a handful of fibre 0.01 kg) and you carry 100 kg
+// before it starts to tell; above 60 % of what you can carry you walk slower, above 100 % you
+// trudge and can't run. Bags add to what you carry — a palm-leaf pouch and a bamboo basket can be
+// made, a canvas backpack has to be found (washed up in a crate). The best bag you own is the one
+// you wear. The panel (Tab / I, or the bag button on a phone) shows contents, load and recipes.
 
 export const ITEMS = {
-  wood: { name: 'Træ', model: 'item/wood', kg: 2 },
-  palm_leaf: { name: 'Palmeblade', model: 'item/palm_leaf', kg: 0.4 },
-  fiber: { name: 'Fibre', model: 'item/fiber', kg: 0.2 },
-  bamboo: { name: 'Bambus', model: 'item/bamboo_poles', kg: 1.5 },
-  stone: { name: 'Sten', model: 'item/stone', kg: 1.5 },
-  coconut: { name: 'Kokosnødder', model: 'item/coconut', kg: 1 },
-  banana: { name: 'Bananer', model: 'item/bananas', kg: 0.5 },
-  rope: { name: 'Reb', model: 'item/rope', kg: 0.4 },
-  machete: { name: 'Machete', model: 'props/machete', kg: 0.8, tool: 'machete' },
-  stone_axe: { name: 'Stenøkse', model: 'props/stone_axe', kg: 1.6, tool: 'axe' },
-  bag_leaf: { name: 'Palmebladstaske', model: 'item/bag_leaf', kg: 0.4, bag: 6 },
-  bag_basket: { name: 'Bambuskurv', model: 'item/bag_basket', kg: 1.5, bag: 14 },
-  bag_canvas: { name: 'Lærredsrygsæk', model: 'item/bag_canvas', kg: 1, bag: 24 },
-  lean_to: { name: 'Læ (byggesæt)', model: 'build/lean_to', kg: 6, build: true },
+  wood: { name: 'Træ', model: 'item/wood', kg: 0.5 },
+  palm_leaf: { name: 'Palmeblade', model: 'item/palm_leaf', kg: 0.05 },
+  fiber: { name: 'Fibre', model: 'item/fiber', kg: 0.01 },
+  bamboo: { name: 'Bambus', model: 'item/bamboo_poles', kg: 0.5 },
+  stone: { name: 'Sten', model: 'item/stone', kg: 0.5 },
+  coconut: { name: 'Kokosnødder', model: 'item/coconut', kg: 0.25 },
+  banana: { name: 'Bananer', model: 'item/bananas', kg: 0.1 },
+  rope: { name: 'Reb', model: 'item/rope', kg: 0.05 },
+  machete: { name: 'Machete', model: 'props/machete', kg: 1, tool: 'machete' },
+  stone_axe: { name: 'Stenøkse', model: 'props/stone_axe', kg: 2, tool: 'axe' },
+  bag_leaf: { name: 'Palmebladstaske', model: 'item/bag_leaf', kg: 0.5, bag: 30 },
+  bag_basket: { name: 'Bambuskurv', model: 'item/bag_basket', kg: 1.5, bag: 75 },
+  bag_canvas: { name: 'Lærredsrygsæk', model: 'item/bag_canvas', kg: 1, bag: 150 },
+  lean_to: { name: 'Læ (byggesæt)', model: 'build/lean_to', kg: 4, build: true }, // old saves; the lean-to is now built from the Byg tab
 };
 
 export const RECIPES = [
   { id: 'rope', n: 1, cost: { fiber: 4 }, note: 'Snoet af plantefibre' },
   { id: 'stone_axe', n: 1, cost: { stone: 1, wood: 1, rope: 1 }, note: 'Fælder de store træer' },
-  { id: 'bag_leaf', n: 1, cost: { palm_leaf: 6, fiber: 4 }, note: '+6 kg at bære' },
-  { id: 'bag_basket', n: 1, cost: { bamboo: 4, fiber: 6, rope: 1 }, note: '+14 kg at bære' },
-  { id: 'lean_to', n: 1, cost: { bamboo: 6, palm_leaf: 10, rope: 2 }, note: 'Et læ at sove under' },
+  { id: 'bag_leaf', n: 1, cost: { palm_leaf: 6, fiber: 4 }, note: '+30 kg at bære' },
+  { id: 'bag_basket', n: 1, cost: { bamboo: 4, fiber: 6, rope: 1 }, note: '+75 kg at bære' },
 ];
 
-export const BASE_KG = 8;
+export const BASE_KG = 100;
+export const SLOW_AT = 0.6; // share of capacity where walking starts to slow
 
 export class Inventory {
   constructor() {
@@ -54,22 +55,23 @@ export class Inventory {
     return kg;
   }
 
-  // How many of `id` still fit.
-  room(id) {
-    const kg = ITEMS[id].kg;
-    return kg > 0 ? Math.max(0, Math.floor((this.capacity - this.load + 1e-6) / kg)) : Infinity;
+  // How heavily laden you are: 0 = free, 1 = at capacity, above 1 = overloaded.
+  get burden() { return this.load / this.capacity; }
+
+  // Walking speed factor from the load: full speed up to SLOW_AT, then down to 60 % at capacity;
+  // overloaded you trudge at 35 % and can't run.
+  get pace() {
+    const b = this.burden;
+    if (b <= SLOW_AT) return 1;
+    if (b <= 1) return 1 - 0.4 * (b - SLOW_AT) / (1 - SLOW_AT);
+    return 0.35;
   }
 
-  // Adds what fits; returns what didn't.
+  // Everything is taken (returns what didn't fit — always nothing now, kept for callers).
   add(items) {
-    const left = {};
-    for (const [id, n] of Object.entries(items)) {
-      const take = Math.min(n, this.room(id));
-      if (take > 0) this.items[id] = this.count(id) + take;
-      if (n - take > 0) left[id] = n - take;
-    }
+    for (const [id, n] of Object.entries(items)) if (n > 0) this.items[id] = this.count(id) + n;
     this.changed();
-    return left;
+    return {};
   }
 
   remove(id, n = 1) {
@@ -85,7 +87,6 @@ export class Inventory {
     if (!this.canMake(r)) return false;
     for (const [id, n] of Object.entries(r.cost)) this.items[id] -= n;
     for (const id of Object.keys(r.cost)) if (!this.items[id]) delete this.items[id];
-    // Made things are never refused for weight: you're holding it, you just can't pick up more.
     this.items[r.id] = this.count(r.id) + r.n;
     this.changed();
     return true;

@@ -1,8 +1,10 @@
 # Status
 
-_Last updated: 2026-10-11_ · Play: https://jonvmnielsen.github.io/tideborn/
+_Last updated: 2026-10-14_ · Play: https://jonvmnielsen.github.io/tideborn/
 
-**Now:** look test for the new direction (tropical volcano island, stylized adult low poly, first person, living jungle with animals, arms holding the machete, gathering with carrying limits, bags, crafting and saving, and two castaways — D-012–D-016): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
+**Now (D-020):** building a whole base works in the cove (18 pieces, storeys, doors, storage, bed); carrying is ARK-style; the machete cuts from the right. Next, in order: combat (threat, health, death/respawn) → first tame → followers → breeding — with known animals (waiting on Quaternius animal packs from Jon).
+
+**Look test** for the new direction (tropical volcano island, stylized adult low poly, first person, living jungle with animals, arms holding the machete, gathering with carrying limits, bags, crafting and saving, and two castaways — D-012–D-016): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
 
 Measured against the vertical slice in `Docs/DESIGN_BRIEF.md` §3.
 
