@@ -11,13 +11,17 @@ export const ITEMS = {
   fiber: { name: 'Fibre', model: 'item/fiber', kg: 0.01 },
   bamboo: { name: 'Bambus', model: 'item/bamboo_poles', kg: 0.5 },
   stone: { name: 'Sten', model: 'item/stone', kg: 0.5 },
-  coconut: { name: 'Kokosnødder', model: 'item/coconut', kg: 0.25 },
-  banana: { name: 'Bananer', model: 'item/bananas', kg: 0.1 },
+  coconut: { name: 'Kokosnødder', model: 'item/coconut', kg: 0.25, food: 12 },
+  banana: { name: 'Bananer', model: 'item/bananas', kg: 0.1, food: 8 },
+  meat: { name: 'Råt kød', model: 'item/meat', kg: 0.25, food: 6 },
+  meat_cooked: { name: 'Stegt kød', model: 'item/meat_cooked', kg: 0.2, food: 30 },
+  hide: { name: 'Skind', model: 'item/hide', kg: 0.3 },
   rope: { name: 'Reb', model: 'item/rope', kg: 0.05 },
   machete: { name: 'Machete', model: 'props/machete', kg: 1, tool: 'machete' },
   stone_axe: { name: 'Stenøkse', model: 'props/stone_axe', kg: 2, tool: 'axe' },
   bag_leaf: { name: 'Palmebladstaske', model: 'item/bag_leaf', kg: 0.5, bag: 30 },
   bag_basket: { name: 'Bambuskurv', model: 'item/bag_basket', kg: 1.5, bag: 75 },
+  bag_hide: { name: 'Skindrygsæk', model: 'item/bag_hide', kg: 1.2, bag: 110 },
   bag_canvas: { name: 'Lærredsrygsæk', model: 'item/bag_canvas', kg: 1, bag: 150 },
   lean_to: { name: 'Læ (byggesæt)', model: 'build/lean_to', kg: 4, build: true }, // old saves; the lean-to is now built from the Byg tab
 };
@@ -27,6 +31,8 @@ export const RECIPES = [
   { id: 'stone_axe', n: 1, cost: { stone: 1, wood: 1, rope: 1 }, note: 'Fælder de store træer' },
   { id: 'bag_leaf', n: 1, cost: { palm_leaf: 6, fiber: 4 }, note: '+30 kg at bære' },
   { id: 'bag_basket', n: 1, cost: { bamboo: 4, fiber: 6, rope: 1 }, note: '+75 kg at bære' },
+  { id: 'bag_hide', n: 1, cost: { hide: 4, rope: 2, fiber: 4 }, note: '+110 kg at bære' },
+  { id: 'meat_cooked', n: 1, cost: { meat: 1 }, station: 'campfire', note: 'Steg det ved et bål' },
 ];
 
 export const BASE_KG = 100;
@@ -81,10 +87,11 @@ export class Inventory {
     this.changed();
   }
 
-  canMake(r) { return Object.entries(r.cost).every(([id, n]) => this.count(id) >= n); }
+  // `near` = the stations you stand by (e.g. 'campfire').
+  canMake(r, near = new Set()) { return (!r.station || near.has(r.station)) && Object.entries(r.cost).every(([id, n]) => this.count(id) >= n); }
 
-  make(r) {
-    if (!this.canMake(r)) return false;
+  make(r, near) {
+    if (!this.canMake(r, near)) return false;
     for (const [id, n] of Object.entries(r.cost)) this.items[id] -= n;
     for (const id of Object.keys(r.cost)) if (!this.items[id]) delete this.items[id];
     this.items[r.id] = this.count(r.id) + r.n;

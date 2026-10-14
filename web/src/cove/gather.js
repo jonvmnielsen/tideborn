@@ -36,8 +36,8 @@ const REACH = 2.6, ARC = Math.cos((70 * Math.PI) / 180);
 const SAVE_KEY = 'tideborn-cove-save-1';
 
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals });
     building.changed = () => { this.dirty = true; };
     this.inv = new Inventory();
     this.target = null;
@@ -109,6 +109,32 @@ export class Gather {
     }
     this.target = pick ?? cut;
     this.pickTarget = pick;
+    this.carcass = pick ? null : this.creatures.carcassNear(p, this.flat());
+    if (this.carcass) { this.pickTarget = null; this.target = null; }
+  }
+
+  // Stations you're standing by (a burning campfire within 4 m).
+  near() {
+    const p = this.camera.position, out = new Set();
+    for (const q of this.build.pieces) if (q.id === 'campfire' && Math.hypot(q.x - p.x, q.z - p.z) < 4) out.add('campfire');
+    return out;
+  }
+
+  eat(id) {
+    const f = ITEMS[id]?.food;
+    if (!f || !this.inv.count(id)) return;
+    this.inv.remove(id, 1);
+    this.vitals.heal(f);
+    sfx('pickup', { vol: 0.5, rate: 0.8 });
+    this.toast(`Spiste ${ITEMS[id].name.toLowerCase()} (+${f} liv)`, false, id);
+  }
+
+  // You blacked out: everything but tools and bags stays in a pile where you fell.
+  dropAll() {
+    const drop = {};
+    for (const [id, n] of Object.entries(this.inv.items)) if (n > 0 && !ITEMS[id]?.tool && !ITEMS[id]?.bag) drop[id] = n;
+    for (const [id, n] of Object.entries(drop)) this.inv.remove(id, n);
+    if (Object.keys(drop).length) { const p = this.camera.position; this.dropPile(drop, { x: p.x, z: p.z }); }
   }
 
   // Click / action button: pick up what you look at, otherwise swing.
@@ -127,12 +153,14 @@ export class Gather {
       return;
     }
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
+    if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
     if (b.useTarget) return this.use(b.useTarget);
     if (this.hands.swing()) sfx(['swish', 'swish2'], { vol: 0.35 });
   }
 
   interact() {
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
+    if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
     if (this.build.useTarget) this.use(this.build.useTarget);
   }
 
@@ -177,6 +205,13 @@ export class Gather {
       this.flora.cover.removed.add(pl.id);
     }
     if (swathe.length) { this.flora.cover.drop(swathe.slice(0, 40)); sounds.add(KINDS.cover.hit); }
+    // Animals in the arc.
+    for (const c of this.creatures.inArc(p, this.flat(), REACH + 0.3, ARC)) {
+      const killed = c.hurt(tool === 'axe' ? 26 : 18, p);
+      this.chips.burst(c.pos.clone().add(new THREE.Vector3(0, c.sp.height * 0.55, 0)), '#8a1e1a', 10);
+      sfx(['flesh1', 'flesh2', 'flesh3'], { vol: 0.6 });
+      if (killed) this.toast(`${c.sp.name} er nede — flå den med E`, false);
+    }
     for (const s of [...sounds].slice(0, 2)) sfx(s, { vol: 0.55 });
     if (tooBig && this.clock - this.warned > 3) { this.warned = this.clock; this.toast('For stort til macheten — lav en stenøkse', true); }
     if (Object.keys(gained).length) this.receive(gained);
@@ -192,6 +227,13 @@ export class Gather {
   collect() {
     const n = this.pending;
     this.pending = null;
+    if (n?.carcass) {
+      if (n.carcass.butchered) return;
+      sfx(['slice', 'slice2'], { vol: 0.6 });
+      this.chips.burst(n.carcass.pos.clone().add(new THREE.Vector3(0, 0.4, 0)), '#7a1c18', 12);
+      this.receive(this.creatures.butcher(n.carcass));
+      return;
+    }
     if (!n || n.gone) return;
     const k = KINDS[n.kind];
     if (k.open) {
@@ -363,6 +405,7 @@ export class Gather {
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
       piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
+      vitals: this.vitals.toJSON(), dead: this.creatures.serialize(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -388,6 +431,8 @@ export class Gather {
     for (const p of data.piles ?? []) this.dropPile(p.items, p);
     for (const s of data.shelters ?? []) this.addShelter(s.x, s.z, s.rot);
     this.build.restore(data.build);
+    this.vitals.load_(data.vitals);
+    this.creatures.restore(data.dead);
     this.regrow();
     this.dirty = false;
   }
@@ -494,6 +539,7 @@ class GatherUi {
     if (this.chest) return this.renderChest();
     const items = Object.entries(inv.items).filter(([, n]) => n > 0);
     const bag = inv.bag ? ITEMS[inv.bag].name : 'Ingen taske';
+    const near = this.g.near();
     this.panel.innerHTML = `
       <div class="bp-head"><div class="bp-tabs"><button data-tab="bag" class="${this.tab === 'bag' ? 'on' : ''}">Rygsæk</button><button data-tab="build" class="${this.tab === 'build' ? 'on' : ''}">Byg</button></div><button class="bp-close" type="button">Luk</button></div>
       ${this.tab === 'build' ? this.renderBuild() : `
@@ -501,11 +547,11 @@ class GatherUi {
       <div class="bp-cols">
         <section><h3>Indhold</h3><div class="bp-grid">${items.map(([id, n]) => `
           <div class="bp-item${id === inv.tool ? ' held' : ''}" data-id="${id}">${this.icon(id)}<b>${n}</b><span>${ITEMS[id].name}</span>
-            <div class="bp-acts">${ITEMS[id].tool ? `<button data-act="hold">${id === inv.tool ? 'I hånden' : 'Hold'}</button>` : ''}${ITEMS[id].build ? '<button data-act="build">Byg</button>' : ''}${id !== 'machete' ? '<button data-act="drop">Læg</button>' : ''}</div></div>`).join('')}</div></section>
+            <div class="bp-acts">${ITEMS[id].tool ? `<button data-act="hold">${id === inv.tool ? 'I hånden' : 'Hold'}</button>` : ''}${ITEMS[id].build ? '<button data-act="build">Byg</button>' : ''}${ITEMS[id].food ? '<button data-act="eat">Spis</button>' : ''}${id !== 'machete' ? '<button data-act="drop">Læg</button>' : ''}</div></div>`).join('')}</div></section>
         <section><h3>Lav</h3><div class="bp-recipes">${RECIPES.map((r, i) => `
-          <div class="bp-rec${inv.canMake(r) ? '' : ' no'}">${this.icon(r.id)}<div><b>${ITEMS[r.id].name}</b><small>${r.note}</small>
+          <div class="bp-rec${inv.canMake(r, near) ? '' : ' no'}">${this.icon(r.id)}<div><b>${ITEMS[r.id].name}</b><small>${r.note}${r.station && !near.has(r.station) ? ' — stå ved et bål' : ''}</small>
             <div class="bp-cost">${Object.entries(r.cost).map(([id, n]) => `<span class="${inv.count(id) >= n ? 'ok' : ''}">${this.icon(id)}${inv.count(id)}/${n}</span>`).join('')}</div></div>
-            <button data-make="${i}" ${inv.canMake(r) ? '' : 'disabled'}>Lav</button></div>`).join('')}</div></section>
+            <button data-make="${i}" ${inv.canMake(r, near) ? '' : 'disabled'}>Lav</button></div>`).join('')}</div></section>
       </div>
       <p class="bp-foot">Du kan bære ${BASE_KG} kg selv; tasker giver mere. Over ${Math.round(SLOW_AT * 100)} % går du langsommere, over 100 % kan du ikke løbe. <button class="bp-reset" type="button">Start forfra</button></p>`}`;
     this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
@@ -515,12 +561,13 @@ class GatherUi {
     this.panel.querySelector('.bp-tear')?.addEventListener('click', () => { this.toggle(false); this.g.build.tearDown(); this.g.toast(this.g.mobile ? 'Riv ned: sigt og tryk Riv' : 'Riv ned: sigt og klik · Esc stopper', false); });
     for (const b of this.panel.querySelectorAll('[data-make]')) b.onclick = () => {
       const r = RECIPES[+b.dataset.make];
-      if (inv.make(r)) { sfx('pickup2', { vol: 0.6 }); this.g.toast(`Lavet: ${ITEMS[r.id].name}`, false, r.id); if (ITEMS[r.id].tool) { inv.tool = r.id; inv.changed(); } }
+      if (inv.make(r, this.g.near())) { sfx('pickup2', { vol: 0.6 }); this.g.toast(`Lavet: ${ITEMS[r.id].name}`, false, r.id); if (ITEMS[r.id].tool) { inv.tool = r.id; inv.changed(); } }
     };
     for (const b of this.panel.querySelectorAll('[data-act]')) b.onclick = () => {
       const id = b.closest('[data-id]').dataset.id;
       if (b.dataset.act === 'hold') { inv.tool = id; inv.changed(); }
       if (b.dataset.act === 'drop') { inv.remove(id, 1); this.g.dropPile({ [id]: 1 }); }
+      if (b.dataset.act === 'eat') this.g.eat(id);
       if (b.dataset.act === 'build') { this.toggle(false); this.g.startPlacing(id); }
     };
   }
@@ -541,6 +588,15 @@ class GatherUi {
       return;
     }
     this.prompt.classList.remove('bad');
+    if (g.carcass) {
+      this.cross.classList.add('on');
+      this.prompt.hidden = this.open;
+      this.promptText.textContent = `Flå: ${g.carcass.sp.name}`;
+      this.promptKey.textContent = g.mobile ? '' : 'E';
+      this.bar.hidden = true;
+      if (this.act) this.act.textContent = 'Flå';
+      return;
+    }
     const u = !g.pickTarget && b.useTarget;
     if (u) {
       this.cross.classList.add('on');

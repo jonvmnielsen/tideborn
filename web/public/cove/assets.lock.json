@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
   "libraryCommit": "ac7b36d",
-  "synced": "2026-10-14T21:49:21.458Z",
+  "synced": "2026-10-14T21:55:12.943Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -1033,6 +1033,78 @@
       "sha": "4e0754f71af6",
       "license": "CC0-1.0",
       "kind": "model"
+    },
+    "animal/doe": {
+      "id": "quaternius-animals/characters/doe",
+      "file": "animal/doe.glb",
+      "bytes": 186868,
+      "sha": "39fb616af783",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "animal/stag": {
+      "id": "quaternius-animals/characters/stag",
+      "file": "animal/stag.glb",
+      "bytes": 181388,
+      "sha": "a676e0e0d552",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "animal/fox": {
+      "id": "quaternius-animals/characters/fox",
+      "file": "animal/fox.glb",
+      "bytes": 190944,
+      "sha": "3bf396d08f19",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/meat": {
+      "id": "forge-lowpoly/meat",
+      "file": "item/meat.glb",
+      "bytes": 11988,
+      "sha": "fd46efcf7a0f",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/meat_cooked": {
+      "id": "forge-lowpoly/meat_cooked",
+      "file": "item/meat_cooked.glb",
+      "bytes": 11972,
+      "sha": "7867f62987af",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/hide": {
+      "id": "forge-lowpoly/hide",
+      "file": "item/hide.glb",
+      "bytes": 20652,
+      "sha": "37410098cd62",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "item/bag_hide": {
+      "id": "forge-lowpoly/bag_hide",
+      "file": "item/bag_hide.glb",
+      "bytes": 18624,
+      "sha": "5d700e8ddb4b",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "sfx/bitten": {
+      "id": "kenney-impact-sounds/impactpunch_heavy_001",
+      "file": "sfx/bitten.ogg",
+      "bytes": 10861,
+      "sha": "a969184798d8",
+      "license": "CC0-1.0",
+      "kind": "audio"
+    },
+    "sfx/bitten2": {
+      "id": "kenney-impact-sounds/impactpunch_heavy_003",
+      "file": "sfx/bitten2.ogg",
+      "bytes": 10029,
+      "sha": "ebfb1d7b70de",
+      "license": "CC0-1.0",
+      "kind": "audio"
     }
   }
 }

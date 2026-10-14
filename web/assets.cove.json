@@ -520,11 +520,50 @@
     {
       "id": "forge-lowpoly/campfire",
       "as": "build/campfire"
+    },
+    {
+      "id": "quaternius-animals/characters/doe",
+      "as": "animal/doe"
+    },
+    {
+      "id": "quaternius-animals/characters/stag",
+      "as": "animal/stag"
+    },
+    {
+      "id": "quaternius-animals/characters/fox",
+      "as": "animal/fox"
+    },
+    {
+      "id": "forge-lowpoly/meat",
+      "as": "item/meat"
+    },
+    {
+      "id": "forge-lowpoly/meat_cooked",
+      "as": "item/meat_cooked"
+    },
+    {
+      "id": "forge-lowpoly/hide",
+      "as": "item/hide"
+    },
+    {
+      "id": "forge-lowpoly/bag_hide",
+      "as": "item/bag_hide"
+    },
+    {
+      "id": "kenney-impact-sounds/impactpunch_heavy_001",
+      "as": "sfx/bitten"
+    },
+    {
+      "id": "kenney-impact-sounds/impactpunch_heavy_003",
+      "as": "sfx/bitten2"
     }
   ],
   "audio": [
     "jse-forest/forest_day",
     "ksl-countryside/wind_soft",
-    "mw-lumberjack/tree_crack_fall"
+    "mw-lumberjack/tree_crack_fall",
+    "jse-melee/axe_flesh_hit_01",
+    "jse-melee/axe_flesh_hit_03",
+    "jse-melee/axe_flesh_hit_05"
   ]
 }

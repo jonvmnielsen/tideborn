@@ -13,6 +13,8 @@ import { Fauna } from './fauna.js';
 import { Hands, ViewmodelPass, VIEW, VIEW_LAYER } from './hands.js';
 import { Gather } from './gather.js';
 import { Building } from './build.js';
+import { Creatures } from './creatures.js';
+import { Vitals } from './vitals.js';
 import { Castaways } from './npc.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
@@ -73,7 +75,7 @@ async function start() {
   // You walk on the ground and on foundations, floors and stairs; trees, walls and fences stop you.
   const fp = new FirstPerson(camera, canvas, {
     ground: (x, z, feet) => (feet === undefined ? island.heightAt(x, z) : building.groundAt(x, z, feet)),
-    blocked: (x, z, r, feet) => flora.blocked(x, z, r) || (feet !== undefined && building.blockedAt(x, z, r, feet)),
+    blocked: (x, z, r, feet) => flora.blocked(x, z, r) || (feet !== undefined && building.blockedAt(x, z, r, feet)) || creatures?.blocksPlayer(x, z, r),
     depthAt,
   });
   fp.stick = (s) => {
@@ -100,10 +102,32 @@ async function start() {
   const hands = new Hands(camera, assets, { machete: tools.machete });
   initSfx(assets);
   initSfx({ 'sfx/treefall': { url: 'cove/audio/mw-lumberjack/tree_crack_fall.mp3' } });
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building });
+  initSfx(Object.fromEntries([1, 3, 5].map((n, i) => [`sfx/flesh${i + 1}`, { url: `cove/audio/jse-melee/axe_flesh_hit_0${n}.mp3` }])));
+  // Animals (D-021): deer herds in the open grass behind the beach, a stag with them, foxes at the
+  // jungle edge. Known animals only.
+  const creatures = new Creatures({ scene, assets, island, flora, building });
+  const at = (x, back) => new THREE.Vector3(x, 0, island.shoreZ(x) - back);
+  creatures.add('doe', at(-10, 31), 4);
+  creatures.add('stag', at(-4, 33), 1);
+  creatures.add('doe', at(70, 32), 3);
+  creatures.add('fox', at(-85, 40), 1);
+  creatures.add('fox', at(35, 38), 1);
+  // Health; at 0 you black out, drop what you carried and wake in your bed (or on the beach).
+  const vitals = new Vitals({
+    onDeath: () => { gather.dropAll(); fp.enabled = false; },
+    onRespawn: () => {
+      const b = building.spawn;
+      if (b) fp.place(b.x + Math.sin(b.rot) * 1.2, b.z + Math.cos(b.rot) * 1.2, b.rot, b.y + 0.2);
+      else fp.place(sx, island.shoreZ(sx) - 7, 0.35);
+      fp.enabled = !gather.ui.open;
+      if (!mobile) canvas.requestPointerLock?.();
+    },
+  });
+  creatures.onBite = (c, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.7 }); fp.pitch += 0.05; };
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals });
   // Wake in your bed if you have made one your home.
   if (building.spawn) { const b = building.spawn; fp.place(b.x + Math.sin(b.rot) * 1.2, b.z + Math.cos(b.rot) * 1.2, b.rot, b.y + 0.2); }
-  gather.ui.onToggle = (open) => { fp.enabled = !open && ui.start.hidden; };
+  gather.ui.onToggle = (open) => { fp.enabled = !open && ui.start.hidden && vitals.alive; };
   // Desktop: left click (with the mouse captured) cuts, picks up, builds; right click stops
   // building; E picks up / opens doors; Tab / I opens the bag, B the building menu; Q switches
   // tool; R turns the piece being built; Esc stops building.
@@ -128,6 +152,7 @@ async function start() {
   });
 
   let time = params.get('t') in TIMES ? params.get('t') : 'eftermiddag';
+  creatures.night = () => time === 'solnedgang';
   const setTime = (name) => {
     time = name;
     sky.setSun(...TIMES[name]);
@@ -178,6 +203,8 @@ async function start() {
     hands.update(dt, { speed: fp.speed, bob: fp.bob });
     gather.update(dt);
     building.update(dt, t, gather.inv);
+    vitals.update(dt);
+    creatures.update(dt, { x: camera.position.x, z: camera.position.z, alive: vitals.alive });
     // Footsteps on every other bob peak.
     const step = Math.floor(fp.bob / Math.PI);
     if (step !== lastStep && fp.speed > 0.5) sfx(['step1', 'step2', 'step3'], { vol: 0.12 + 0.06 * Math.min(1, fp.speed / 5) });
@@ -196,7 +223,7 @@ async function start() {
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { VIEW, building, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 

@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
   "libraryCommit": "ac7b36d",
-  "synced": "2026-10-14T21:49:21.458Z",
+  "synced": "2026-10-14T21:55:12.943Z",
   "licenses": {
     "sonniss-gdc": {
       "name": "Sonniss #GameAudioGDC Bundle License",
@@ -24,6 +24,21 @@
     "mw-lumberjack/tree_crack_fall": {
       "seconds": 4.6,
       "bytes": 55529,
+      "license": "sonniss-gdc"
+    },
+    "jse-melee/axe_flesh_hit_01": {
+      "seconds": 0.78,
+      "bytes": 9762,
+      "license": "sonniss-gdc"
+    },
+    "jse-melee/axe_flesh_hit_03": {
+      "seconds": 1.04,
+      "bytes": 12897,
+      "license": "sonniss-gdc"
+    },
+    "jse-melee/axe_flesh_hit_05": {
+      "seconds": 0.91,
+      "bytes": 11329,
       "license": "sonniss-gdc"
     }
   }
