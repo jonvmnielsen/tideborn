@@ -10,7 +10,7 @@ import { loadAssets } from '../assets.js';
 import { Island, VOLCANO } from './island.js';
 import { makeFacetGround, Plume, prepareModel } from './facets.js';
 import { Fauna } from './fauna.js';
-import { Hands } from './hands.js';
+import { Hands, ViewmodelPass, VIEW, VIEW_LAYER } from './hands.js';
 import { Gather } from './gather.js';
 import { Castaways } from './npc.js';
 import { createOcean } from './ocean.js';
@@ -62,6 +62,7 @@ async function start() {
   const ocean = createOcean({ depth, mobile });
   scene.add(ocean);
   const sky = new CoveSky(scene, renderer, { mobile });
+  for (const l of [sky.sun, sky.hemi]) l.layers.enable(VIEW_LAYER); // the arms are lit like the world
   const flora = new Flora(scene, assets, island, { mobile });
   const fauna = new Fauna(scene, assets, island, { mobile });
   const castaways = new Castaways(scene, assets, island, flora.camp);
@@ -118,6 +119,7 @@ async function start() {
   const rt = new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: mobile ? 2 : 4 });
   const composer = new EffectComposer(renderer, rt);
   composer.addPass(new RenderPass(scene, camera));
+  composer.addPass(new ViewmodelPass(hands, scene)); // arms and tool on top (D-019)
   const bloom = new UnrealBloomPass(new THREE.Vector2(innerWidth, innerHeight).multiplyScalar(mobile ? 0.35 : 0.5), 0.35, 0.3, 3.0); // only lava and hard glints are bright enough to bloom
   composer.addPass(bloom);
   composer.addPass(new OutputPass());
@@ -165,13 +167,13 @@ async function start() {
     plume.update(t);
     fauna.update(t, dt, p);
     castaways.update(dt);
-    if (useBloom) composer.render(); else renderer.render(scene, camera);
+    if (useBloom) composer.render(); else { renderer.render(scene, camera); hands.draw(renderer, scene); }
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { VIEW, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 
