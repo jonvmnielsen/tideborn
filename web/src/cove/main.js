@@ -15,7 +15,7 @@ import { Gather } from './gather.js';
 import { Building } from './build.js';
 import { Creatures } from './creatures.js';
 import { Vitals } from './vitals.js';
-import { Castaways } from './npc.js';
+import { People } from './followers.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { Flora } from './flora.js';
@@ -68,7 +68,6 @@ async function start() {
   for (const l of [sky.sun, sky.hemi]) l.layers.enable(VIEW_LAYER); // the arms are lit like the world
   const flora = new Flora(scene, assets, island, { mobile });
   const fauna = new Fauna(scene, assets, island, { mobile });
-  const castaways = new Castaways(scene, assets, island, flora.camp);
 
   const depthAt = (x, z) => -island.heightAt(x, z);
   const building = new Building({ scene, assets, island, flora, camera });
@@ -124,7 +123,16 @@ async function start() {
     },
   });
   creatures.onBite = (c, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.7 }); fp.pitch += 0.05; };
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals });
+  // People (D-023): Jens and Mads at the camp, Ida hurt on the east beach, raiders on the west headland.
+  const people = new People({ scene, assets, island, flora, building, camp: flora.camp });
+  people.creatures = creatures;
+  creatures.feared = (x, z) => people.feared(x, z);
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people });
+  people.onPlayerHit = (q, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.6, rate: 1.2 }); fp.pitch += 0.04; };
+  people.onJoin = () => { gather.dirty = true; };
+  people.onMeal = (q, got) => { if (!got) gather.toast(`${q.name} fik ingen mad (loyalitet ${Math.round(q.loyalty)})`, true); };
+  people.onEscape = (q) => gather.toast(`${q.name} er stukket af tilbage til røverne!`, true);
+  people.onDeliver = (q, items, chest) => { const p = camera.position; if (Math.hypot(q.pos.x - p.x, q.pos.z - p.z) < 20) gather.toast(`${q.name} kommer med ${Object.entries(items).map(([k, n]) => `${n} ${gather.itemName(k)}`).join(', ')}${chest ? ' til kisten' : ' — byg en kiste ved siden af'}`, false); };
   // Wake in your bed if you have made one your home.
   if (building.spawn) { const b = building.spawn; fp.place(b.x + Math.sin(b.rot) * 1.2, b.z + Math.cos(b.rot) * 1.2, b.rot, b.y + 0.2); }
   gather.ui.onToggle = (open) => { fp.enabled = !open && ui.start.hidden && vitals.alive; };
@@ -216,14 +224,15 @@ async function start() {
     flora.update(p.x, p.z, t);
     plume.update(t);
     fauna.update(t, dt, p);
-    castaways.update(dt);
+    const look = gather.flat();
+    people.update(dt, { player: { x: camera.position.x, z: camera.position.z, alive: vitals.alive, fx: look.x, fz: look.y }, inv: gather.inv });
     if (useBloom) composer.render(); else { renderer.render(scene, camera); hands.draw(renderer, scene); }
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, castaways, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, people, island, flora, fauna, sky, plume, setTime, go };
   loop();
 }
 

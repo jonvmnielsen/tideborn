@@ -28,7 +28,7 @@ function rebind(mesh, bones) {
   mesh.bind(new THREE.Skeleton(list, mesh.skeleton.boneInverses), mesh.bindMatrix);
 }
 
-export function makeCastaway(assets, { outfit = 'char/peasant', parts = ['char/hair_beard', 'char/hair_parted', 'char/eyebrows'], hair = '#5a3a22' } = {}) {
+export function makeCastaway(assets, { outfit = 'char/peasant', body = 'char/body_male', parts = ['char/hair_beard', 'char/hair_parted', 'char/eyebrows'], hair = '#5a3a22' } = {}) {
   const root = cloneSkinned(assets[outfit].scene);
   const bones = new Map();
   root.traverse((o) => { if (o.isBone) bones.set(o.name, o); });
@@ -45,66 +45,27 @@ export function makeCastaway(assets, { outfit = 'char/peasant', parts = ['char/h
       rigParent.add(m);
     }
   };
-  add('char/body_male', (m) => { if (/MI_Superhero/i.test(m.material.name) || m.skeleton.bones.length > 10) keepBones(m, ['Head', 'neck_01']); });
+  add(body, (m) => { if (/MI_Superhero/i.test(m.material.name) || m.skeleton.bones.length > 10) keepBones(m, ['Head', 'neck_01']); });
   // The free hair textures are grey (the paid version tints them in a shader): tint here.
   for (const p of parts) add(p, (m) => { m.material = m.material.clone(); m.material.color.set(hair); });
   root.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
   const mixer = new THREE.AnimationMixer(root);
-  const clips = new Map((assets['char/anims'].animations ?? []).map((c) => [c.name, c]));
+  const clips = new Map([...(assets['char/anims'].animations ?? []), ...(assets['char/anims2']?.animations ?? [])].map((c) => [c.name, c]));
   // The library's clips also move the root bone; drop root position so the character stays put.
   for (const c of clips.values()) c.tracks = c.tracks.filter((t) => !/^root\.position/.test(t.name));
   let current = null;
+  const once = new Set(['Death01', 'LayToIdle', 'Punch_Jab', 'Punch_Cross', 'Hit_Chest', 'Hit_Head', 'Hit_Knockback', 'Yes', 'Consume', 'Interact', 'PickUp_Table', 'Chest_Open', 'Melee_Hook', 'Sword_Attack', 'Sitting_Enter', 'Sitting_Exit']);
   const play = (name, fade = 0.3) => {
     const clip = clips.get(name);
     if (!clip) return;
     const a = mixer.clipAction(clip);
     if (current === a) return;
-    a.reset().fadeIn(fade).play();
-    current?.fadeOut(fade);
+    a.reset().setEffectiveWeight(1);
+    if (once.has(name)) { a.setLoop(THREE.LoopOnce, 1); a.clampWhenFinished = true; }
+    if (fade > 0) a.fadeIn(fade);
+    a.play();
+    if (current) { if (fade > 0) current.fadeOut(fade); else current.stop(); }
     current = a;
   };
-  return { root, mixer, play, clips };
-}
-
-// Two castaways at the camp: one walks the beach and back, one kneels by the boat mending it.
-export class Castaways {
-  constructor(scene, assets, island, camp) {
-    this.island = island;
-    this.walker = makeCastaway(assets);
-    this.mender = makeCastaway(assets, { outfit: 'char/ranger', parts: ['char/hair_beard', 'char/eyebrows'], hair: '#2a1e16' });
-    scene.add(this.walker.root, this.mender.root);
-    const sx = camp.x + 3.5, sz = camp.z - 2.5;
-    this.mender.root.position.set(sx, island.heightAt(sx, sz), sz);
-    this.mender.root.rotation.y = -2.2;
-    this.mender.play('Fixing_Kneeling', 0);
-    this.path = [[camp.x + 8, camp.z - 9], [camp.x + 34, camp.z - 11], [camp.x + 22, camp.z - 16]];
-    this.leg = 0;
-    this.wait = 2;
-    const [x, z] = this.path[0];
-    this.walker.root.position.set(x, island.heightAt(x, z), z);
-    this.walker.play('Idle_Loop', 0);
-  }
-
-  update(dt) {
-    this.mender.mixer.update(dt);
-    this.walker.mixer.update(dt);
-    const w = this.walker.root;
-    if (this.wait > 0) {
-      this.wait -= dt;
-      this.walker.play(this.wait > 1.5 ? 'Idle_Talking_Loop' : 'Idle_Loop');
-      return;
-    }
-    const [tx, tz] = this.path[(this.leg + 1) % this.path.length];
-    const dx = tx - w.position.x, dz = tz - w.position.z, d = Math.hypot(dx, dz);
-    if (d < 0.3) { this.leg = (this.leg + 1) % this.path.length; this.wait = 3 + Math.random() * 4; return; }
-    this.walker.play('Walk_Loop');
-    const sp = 1.25 * dt;
-    w.position.x += (dx / d) * sp;
-    w.position.z += (dz / d) * sp;
-    w.position.y = this.island.heightAt(w.position.x, w.position.z);
-    const want = Math.atan2(dx, dz);
-    let diff = want - w.rotation.y;
-    diff = Math.atan2(Math.sin(diff), Math.cos(diff));
-    w.rotation.y += diff * Math.min(1, dt * 5);
-  }
+  return { root, mixer, play, clips, get current() { return current; } };
 }

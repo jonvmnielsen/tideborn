@@ -2,7 +2,7 @@
 
 _Last updated: 2026-10-14_ · Play: https://jonvmnielsen.github.io/tideborn/
 
-**Now (D-020):** building a whole base works in the cove (18 pieces, storeys, doors, storage, bed); carrying is ARK-style; the machete cuts from the right. Hunting and health work (D-021): deer herds, a stag that charges, butchering, cooking, blacking out and waking in your bed. Taming works (D-022): feed a hind or the stag until it trusts you; it follows and carries in its saddlebags. Next, in order: followers → breeding; the night threat (feral dogs/wolves, boar) waits on Quaternius animal packs from Jon.
+**Now (D-020):** building a whole base works in the cove (18 pieces, storeys, doors, storage, bed); carrying is ARK-style; the machete cuts from the right. Hunting and health work (D-021): deer herds, a stag that charges, butchering, cooking, blacking out and waking in your bed. Taming works (D-022): feed a hind or the stag until it trusts you; it follows and carries in its saddlebags. Followers work (D-023): rescue Ida or help Mads (Ally), beat and bind a raider (Bound), give them roles. Next: breeding; the night threat (feral dogs/wolves, boar) waits on Quaternius animal packs from Jon.
 
 **Look test** for the new direction (tropical volcano island, stylized adult low poly, first person, living jungle with animals, arms holding the machete, gathering with carrying limits, bags, crafting and saving, and two castaways — D-012–D-016): https://jonvmnielsen.github.io/tideborn/cove.html — the game below is the previous direction until it is rebuilt.
 

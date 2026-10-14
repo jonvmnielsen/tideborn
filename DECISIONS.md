@@ -127,3 +127,11 @@ Step 3. Readable taming as the brief asks (find → prepare → secure → bond 
 - **Utility — haul**: a tame animal carries for you in its saddlebags (hind 60 kg, stag 140 kg; E / tap opens them like a chest). It follows a few metres behind (runs to catch up, comes to you if you get far away) or stays where you tell it. Tame animals can't be hurt by your swings, and are saved with their name, mode and load.
 - When Jon's Quaternius packs arrive the same system takes the horse / donkey (haul and later riding) and the dog (guard).
 
+## D-023 — Followers: Ally by earning, Bound by force (2026-10-14)
+Step 4, after `Docs/FOLLOWERS_RULES.md` (slice scope: one Ally and one Bound end-to-end with a readable benefit each; identities never convert; the critical path needs no followers). Hire is left for later. People are Quaternius outfits + base heads with the Universal Animation Library (both CC0); more clips loaded (jog, punches, hits, death, getting up, chopping, carrying, folded arms, sitting).
+- **Earn → Ally**: Ida lies hurt on the east beach — give her three meals and she gets up and joins. Mads mends his boat by the camp — bring 2 rope and 6 wood. Allies start at loyalty 60, ceiling 95; only allies can follow you ("Følg"), and they fight animals and raiders that go for you.
+- **Force → Bound**: two raiders (Rask, Vibe) camp on the west headland and attack anyone who comes close. Beat one down (non-lethal) and bind them with a rope within 45 s, or they get up. Bound start at 25, ceiling 65, gather 50 % more for food alone, and as guards keep charging animals away from their post — but they never follow you, and a bound one whose loyalty falls below 15 from hunger runs back to the raiders.
+- **Roles**: Følg (allies), Saml (walk to something growing near their post, chop, carry it back into the nearest chest), Vagt (stand at the post and fight what comes near), Hvil. E / tap on a follower opens their orders: identity badge, loyalty against its ceiling, role, "give food now".
+- **Upkeep**: every 5 minutes each follower eats — from a chest near their post, or your bag when they walk with you; fed +6 loyalty, unfed −12.
+- Jens still walks the beach (no path yet). The old fixed castaways are replaced by this.
+

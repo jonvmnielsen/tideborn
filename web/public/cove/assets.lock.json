@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "ac7b36d",
-  "synced": "2026-10-14T21:55:12.943Z",
+  "libraryCommit": "4f5baf5",
+  "synced": "2026-10-14T22:20:21.472Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -830,8 +830,8 @@
     "char/anims": {
       "id": "quaternius-ual1/ual1_standard",
       "file": "char/anims.glb",
-      "bytes": 453268,
-      "sha": "f6a02fe62d0f",
+      "bytes": 1126888,
+      "sha": "90399c632cbe",
       "license": "CC0-1.0",
       "kind": "model",
       "animations": [
@@ -839,7 +839,20 @@
         "Walk_Loop",
         "Sitting_Idle_Loop",
         "Fixing_Kneeling",
-        "Idle_Talking_Loop"
+        "Idle_Talking_Loop",
+        "Jog_Fwd_Loop",
+        "Sprint_Loop",
+        "Death01",
+        "Hit_Chest",
+        "Hit_Head",
+        "Punch_Cross",
+        "Punch_Jab",
+        "Sitting_Enter",
+        "Sitting_Exit",
+        "Interact",
+        "PickUp_Table",
+        "Crouch_Idle_Loop",
+        "Sword_Attack"
       ]
     },
     "arm/fist": {
@@ -1105,6 +1118,83 @@
       "sha": "ebfb1d7b70de",
       "license": "CC0-1.0",
       "kind": "audio"
+    },
+    "char/anims2": {
+      "id": "quaternius-ual2/ual2_standard",
+      "file": "char/anims2.glb",
+      "bytes": 654872,
+      "sha": "75ead1fd73f2",
+      "license": "CC0-1.0",
+      "kind": "model",
+      "animations": [
+        "LayToIdle",
+        "Consume",
+        "Farm_Harvest",
+        "TreeChopping_Loop",
+        "Walk_Carry_Loop",
+        "Idle_FoldArms_Loop",
+        "Yes",
+        "Idle_No",
+        "Melee_Hook",
+        "Hit_Knockback",
+        "Chest_Open"
+      ]
+    },
+    "char/body_female": {
+      "id": "quaternius-base-characters/characters/superhero_female_fullbody",
+      "file": "char/body_female.glb",
+      "bytes": 660084,
+      "sha": "3763972263b1",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/hair_long": {
+      "id": "quaternius-base-characters/characters/hair_long",
+      "file": "char/hair_long.glb",
+      "bytes": 290020,
+      "sha": "61b73b08ae75",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/hair_buns": {
+      "id": "quaternius-base-characters/characters/hair_buns",
+      "file": "char/hair_buns.glb",
+      "bytes": 296564,
+      "sha": "efe98b980a02",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/hair_buzzed": {
+      "id": "quaternius-base-characters/characters/hair_buzzed",
+      "file": "char/hair_buzzed.glb",
+      "bytes": 197356,
+      "sha": "c891350b8d90",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/eyebrows_female": {
+      "id": "quaternius-base-characters/characters/eyebrows_female",
+      "file": "char/eyebrows_female.glb",
+      "bytes": 258948,
+      "sha": "8283500d6a58",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/peasant_f": {
+      "id": "quaternius-outfits-fantasy/characters/female_peasant",
+      "file": "char/peasant_f.glb",
+      "bytes": 453172,
+      "sha": "28778c7c753c",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "char/ranger_f": {
+      "id": "quaternius-outfits-fantasy/characters/female_ranger",
+      "file": "char/ranger_f.glb",
+      "bytes": 989888,
+      "sha": "77621bc4ee55",
+      "license": "CC0-1.0",
+      "kind": "model"
     }
   }
 }

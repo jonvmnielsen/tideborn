@@ -177,7 +177,7 @@ class Creature {
     if (this.state !== 'flee' && this.state !== 'chase' && this.state !== 'bite' && player.alive) {
       const scare = tolerant ? 1.0 : sp.scare;
       if (sp.kind === 'prey' && (dist < scare || (!tolerant && W.panicNear(this)))) { this.state = 'flee'; this.t = 3 + Math.random() * 2; this.play('run'); }
-      if (sp.kind === 'territorial' && !tolerant && dist < (sp.charge ?? 6)) { this.state = 'chase'; this.t = 4; this.play('run'); }
+      if (sp.kind === 'territorial' && !tolerant && dist < (sp.charge ?? 6) && !W.feared?.(this.pos.x, this.pos.z)) { this.state = 'chase'; this.t = 4; this.play('run'); }
       else if (sp.kind === 'territorial' && dist < scare) { this.state = 'flee'; this.t = 3; this.play('run'); }
       // A calm animal turns to look at you instead of wandering off.
       if (tolerant && dist < 8 && this.state === 'walk') { this.state = 'idle'; this.t = 3; this.play('idle'); }

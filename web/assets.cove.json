@@ -422,7 +422,20 @@
         "Walk_Loop",
         "Sitting_Idle_Loop",
         "Fixing_Kneeling",
-        "Idle_Talking_Loop"
+        "Idle_Talking_Loop",
+        "Jog_Fwd_Loop",
+        "Sprint_Loop",
+        "Death01",
+        "Hit_Chest",
+        "Hit_Head",
+        "Punch_Cross",
+        "Punch_Jab",
+        "Sitting_Enter",
+        "Sitting_Exit",
+        "Interact",
+        "PickUp_Table",
+        "Crouch_Idle_Loop",
+        "Sword_Attack"
       ]
     },
     {
@@ -556,6 +569,51 @@
     {
       "id": "kenney-impact-sounds/impactpunch_heavy_003",
       "as": "sfx/bitten2"
+    },
+    {
+      "id": "quaternius-ual2/ual2_standard",
+      "as": "char/anims2",
+      "animations": [
+        "LayToIdle",
+        "Consume",
+        "Farm_Harvest",
+        "TreeChopping_Loop",
+        "Walk_Carry_Loop",
+        "Idle_FoldArms_Loop",
+        "Yes",
+        "Idle_No",
+        "Melee_Hook",
+        "Hit_Knockback",
+        "Chest_Open"
+      ]
+    },
+    {
+      "id": "quaternius-base-characters/characters/superhero_female_fullbody",
+      "as": "char/body_female"
+    },
+    {
+      "id": "quaternius-base-characters/characters/hair_long",
+      "as": "char/hair_long"
+    },
+    {
+      "id": "quaternius-base-characters/characters/hair_buns",
+      "as": "char/hair_buns"
+    },
+    {
+      "id": "quaternius-base-characters/characters/hair_buzzed",
+      "as": "char/hair_buzzed"
+    },
+    {
+      "id": "quaternius-base-characters/characters/eyebrows_female",
+      "as": "char/eyebrows_female"
+    },
+    {
+      "id": "quaternius-outfits-fantasy/characters/female_peasant",
+      "as": "char/peasant_f"
+    },
+    {
+      "id": "quaternius-outfits-fantasy/characters/female_ranger",
+      "as": "char/ranger_f"
     }
   ],
   "audio": [

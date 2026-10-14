@@ -9,6 +9,7 @@ import { cloneModel } from '../assets.js';
 import { sfx } from './sound.js';
 import { ITEMS, RECIPES, Inventory, BASE_KG, SLOW_AT } from './inventory.js';
 import { PIECES, PIECE } from './build.js';
+import { ROLE_NAMES } from './followers.js';
 
 // cut: hits with { machete, axe } (0 = can't); give: items; fall: seconds to topple;
 // regrow: seconds until it's back (0 = never).
@@ -36,8 +37,8 @@ const REACH = 2.6, ARC = Math.cos((70 * Math.PI) / 180);
 const SAVE_KEY = 'tideborn-cove-save-1';
 
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people });
     building.changed = () => { this.dirty = true; };
     creatures.hasFood = (sp) => sp.tame.food.some((f) => this.inv.count(f) > 0);
     this.inv = new Inventory();
@@ -114,6 +115,27 @@ export class Gather {
     if (this.carcass) { this.pickTarget = null; this.target = null; }
     this.animal = pick || this.carcass ? null : this.creatures.animalNear(p, this.flat());
     if (this.animal) { this.target = null; }
+    this.person = pick || this.carcass || this.animal ? null : this.people.personNear(p, this.flat());
+    if (this.person) { this.target = null; }
+  }
+
+  // Talk to, rescue, bind or give orders to someone.
+  usePerson(q) {
+    const P = this.people;
+    if (q.follower) { this.ui.chest = q; this.ui.toggle(true); return; }
+    if (q.side === 'hostile' && q.state === 'down') { const r = P.bind(q, this.inv); if (r) this.say(r); return; }
+    if (q.need) {
+      if (!q.asked && !q.need.food) { q.asked = true; this.toast(`${q.name}: "${q.ask}"`, false); return; }
+      this.say(P.give(q, this.inv));
+      return;
+    }
+    this.toast(`${q.name}: "${q.line ?? 'Pas på dem ude på vestpynten. De skyder først og spørger bagefter.'}"`, false);
+  }
+
+  say(r) {
+    this.toast(r.text, r.warn, r.item ?? null);
+    if (r.good) sfx('pickup2', { vol: 0.7, rate: 0.9 });
+    this.dirty = true;
   }
 
   // Feed a wild animal one of the foods it likes; enough feedings and it's yours.
@@ -172,6 +194,7 @@ export class Gather {
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
     if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
     if (this.animal) return this.useAnimal(this.animal);
+    if (this.person) return this.usePerson(this.person);
     if (b.useTarget) return this.use(b.useTarget);
     if (this.hands.swing()) sfx(['swish', 'swish2'], { vol: 0.35 });
   }
@@ -180,6 +203,7 @@ export class Gather {
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
     if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
     if (this.animal) return this.useAnimal(this.animal);
+    if (this.person) return this.usePerson(this.person);
     if (this.build.useTarget) this.use(this.build.useTarget);
   }
 
@@ -230,6 +254,13 @@ export class Gather {
       this.flora.cover.removed.add(pl.id);
     }
     if (swathe.length) { this.flora.cover.drop(swathe.slice(0, 40)); sounds.add(KINDS.cover.hit); }
+    // Raiders in the arc.
+    for (const q of this.people.inArc(p, this.flat(), REACH + 0.2, ARC)) {
+      const down = this.people.hit(q, tool === 'axe' ? 22 : 16);
+      this.chips.burst(q.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), '#8a1e1a', 8);
+      sfx(['flesh1', 'flesh2', 'flesh3'], { vol: 0.6 });
+      if (down) this.toast(`${q.name} er slået ned — bind dem med et reb (E), før de rejser sig`, false);
+    }
     // Animals in the arc.
     for (const c of this.creatures.inArc(p, this.flat(), REACH + 0.3, ARC)) {
       const killed = c.hurt(tool === 'axe' ? 26 : 18, p);
@@ -431,7 +462,7 @@ export class Gather {
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
       piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
-      vitals: this.vitals.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(),
+      vitals: this.vitals.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(), people: this.people.serialize(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -459,6 +490,7 @@ export class Gather {
     this.build.restore(data.build);
     this.vitals.load_(data.vitals);
     this.creatures.restore(data.dead, data.tame);
+    this.people.restore(data.people);
     this.regrow();
     this.dirty = false;
   }
@@ -469,6 +501,8 @@ export class Gather {
   }
 
   toast(text, warn, id) { this.ui.toast(text, warn, id); }
+
+  itemName(k) { return (ITEMS[k]?.name ?? k).toLowerCase(); }
 }
 
 // ---- screen: crosshair, prompt, toasts, the bag panel --------------------------------------------
@@ -523,7 +557,38 @@ class GatherUi {
   cost(c) { const inv = this.g.inv; return Object.entries(c).map(([id, n]) => `<span class="${inv.count(id) >= n ? 'ok' : ''}">${this.icon(id)}${inv.count(id)}/${n}</span>`).join(''); }
 
   // The chest: everything in the bag on one side, the chest on the other; tap a stack to move it.
+  // Orders for a follower: identity, loyalty against its ceiling, role, and food.
+  renderPerson() {
+    const q = this.chest, g = this.g, inv = g.inv;
+    const ally = q.side === 'ally';
+    const roles = [['follow', 'Følg mig'], ['gather', 'Saml her'], ['guard', 'Vagt her'], ['rest', 'Hvil her']];
+    this.panel.innerHTML = `
+      <div class="bp-head"><h2>${q.name} <span class="badge ${q.side}">${ally ? 'Allieret' : 'Bunden'}</span></h2><button class="bp-close" type="button">Luk</button></div>
+      <div class="bp-load"><div class="bp-meter loyal"><i style="width:${q.loyalty}%"></i><b style="left:${q.ceiling}%"></b></div><span>Loyalitet ${Math.round(q.loyalty)} / ${q.ceiling} · ${ROLE_NAMES[q.role]}</span></div>
+      <div class="bp-tabs">${roles.map(([r, label]) => `<button data-role="${r}" class="${q.role === r ? 'on' : ''}" ${r === 'follow' && !ally ? 'disabled' : ''}>${label}</button>`).join('')}</div>
+      <p class="bp-foot">${ally
+        ? 'Allierede kom frivilligt. De kan følge dig og slås for dig, og deres loyalitet kan nå højt. De samler i normalt tempo.'
+        : 'Bundne arbejder 50 % hårdere for mad alene og holder dyr væk som vagt. De følger dig aldrig, og sulter de, til loyaliteten falder under 15, stikker de af.'}</p>
+      <p class="bp-foot">De spiser hvert 5. minut — fra en kiste nær deres plads, eller fra din rygsæk når de følger dig. <button class="bp-feed" type="button" ${['meat_cooked', 'banana', 'coconut', 'meat'].some((k) => inv.count(k)) ? '' : 'disabled'}>Giv mad nu</button></p>`;
+    this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
+    for (const b of this.panel.querySelectorAll('[data-role]')) b.onclick = () => {
+      if (g.people.setRole(q, b.dataset.role, g.camera.position.clone().setY(0))) { g.dirty = true; g.toast(`${q.name}: ${ROLE_NAMES[q.role].toLowerCase()}${q.role !== 'follow' ? ' her' : ''}`, false); }
+      this.render();
+    };
+    this.panel.querySelector('.bp-feed').onclick = () => {
+      const f = ['meat_cooked', 'banana', 'coconut', 'meat'].find((k) => inv.count(k) > 0);
+      if (!f) return;
+      inv.remove(f, 1);
+      q.loyalty = Math.min(q.ceiling, q.loyalty + 6);
+      q.meal = 300;
+      g.toast(`${q.name} spiser ${ITEMS[f].name.toLowerCase()}`, false, f);
+      g.dirty = true;
+      this.render();
+    };
+  }
+
   renderChest() {
+    if (this.chest.side) return this.renderPerson();
     const inv = this.g.inv, box = this.chest.storage, animal = this.chest.tamed ? this.chest : null;
     const cap = animal ? animal.sp.tame.carry : Infinity, load = animal ? this.g.animalLoad(animal) : 0;
     const bagItems = Object.entries(inv.items).filter(([id, n]) => n > 0 && id !== 'machete');
@@ -641,6 +706,18 @@ class GatherUi {
       this.bar.hidden = c.tamed || !c.trust;
       if (!this.bar.hidden) this.barFill.style.width = `${(c.trust / c.sp.tame.feeds) * 100}%`;
       if (this.act) this.act.textContent = c.tamed ? 'Tasker' : 'Fodr';
+      return;
+    }
+    if (g.person) {
+      const q = g.person;
+      this.cross.classList.add('on');
+      this.prompt.hidden = this.open;
+      const badge = q.side === 'ally' ? 'Allieret' : q.side === 'bound' ? 'Bunden' : '';
+      this.promptText.textContent = q.follower ? `${q.name} · ${badge} — ${ROLE_NAMES[q.role] ?? ''}` : q.state === 'down' ? `Bind ${q.name} (1 reb)` : q.need?.food ? `Giv ${q.name} mad (${q.fed ?? 0}/${q.need.food})` : `Tal med ${q.name}`;
+      this.promptKey.textContent = g.mobile ? '' : 'E';
+      this.bar.hidden = q.state !== 'down';
+      if (!this.bar.hidden) this.barFill.style.width = `${Math.max(0, q.t / 45) * 100}%`;
+      if (this.act) this.act.textContent = q.follower ? 'Ordrer' : q.state === 'down' ? 'Bind' : q.need?.food ? 'Giv mad' : 'Tal';
       return;
     }
     const u = !g.pickTarget && b.useTarget;

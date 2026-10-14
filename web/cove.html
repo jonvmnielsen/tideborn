@@ -92,6 +92,14 @@
     .bp-tabs button.on { opacity: 1; border-color: rgba(233, 217, 176, 0.8); }
     .bp-build { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; margin-top: 14px; }
     .bp-empty { opacity: 0.5; font-size: 13px; margin: 6px 0; }
+    .badge { font-size: 11px; padding: 2px 8px; border-radius: 9px; margin-left: 8px; letter-spacing: 0.06em; vertical-align: middle; }
+    .badge.ally { background: #3f7a4a; }
+    .badge.bound { background: #7a3f2e; }
+    .bp-meter.loyal { position: relative; overflow: visible; }
+    .bp-meter.loyal i { background: linear-gradient(90deg, #c06a4a, #e9d9b0); border-radius: 3px; }
+    .bp-meter.loyal b { position: absolute; top: -3px; width: 2px; height: 12px; background: #fff; opacity: 0.8; }
+    .bp-tabs button[disabled] { opacity: 0.25; }
+    .bp-feed { padding: 4px 10px; font-size: 12px; }
     .bp-tear { padding: 4px 10px; font-size: 12px; }
     .bp-foot { margin: 14px 0 0; font-size: 12px; opacity: 0.65; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .inv { position: fixed; left: 50%; bottom: max(36px, calc(env(safe-area-inset-bottom) + 24px)); transform: translateX(-50%); display: flex; gap: 6px; pointer-events: none; max-width: calc(100% - 32px); flex-wrap: wrap; justify-content: center; }
