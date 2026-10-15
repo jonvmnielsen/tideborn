@@ -386,7 +386,7 @@ export class People {
 
   inArc(p, f, reach, cosMin) {
     return this.list.filter((q) => {
-      if (q.side !== 'hostile' && q.side !== 'captive') return false;
+      if (q.side !== 'hostile' && q.side !== 'captive' && q.side !== 'neutral') return false;
       if (q.state === 'dead') return false;
       const dx = q.pos.x - p.x, dz = q.pos.z - p.z, d = Math.hypot(dx, dz);
       if (d - 0.3 > reach) return false;
@@ -412,6 +412,18 @@ export class People {
   // instead — but one that takes them to 0 still kills. Returns 'out', 'dead' or null.
   hit(q, n, blunt) {
     if (q.state === 'dead') return null;
+    // Strangers: the first blow is a warning (no harm done); hit them again within a few seconds
+    // and they fight back — and are fair game from then on.
+    if (q.side === 'neutral') {
+      const now = performance.now() / 1000;
+      if (!(now - (q.provoked ?? -99) < 8)) { q.provoked = now; if (!['injured', 'mending'].includes(q.state)) q.anim('Hit_Chest', 0.05); return 'warn'; }
+      q.side = 'hostile';
+      q.need = null;
+      q.post = q.pos.clone();
+      q.campYaw = q.yaw;
+      q.state = 'attack';
+      q.anim('Jog_Fwd_Loop', 0.2);
+    }
     const down = ['out', 'bound', 'led', 'staked'].includes(q.state);
     if (down && !blunt) return this.kill(q);
     if (down) return null;

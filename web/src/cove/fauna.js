@@ -90,13 +90,13 @@ export class Fauna {
     // Butterflies stay around the player.
     const nb = mobile ? 10 : 22;
     this.butterflies = [new Flock(parent, assets, 'fauna/butterfly_blue', Math.ceil(nb / 2), { kind: 'bird', freq: 26, amp: 1.0, pivot: 0.004 }), new Flock(parent, assets, 'fauna/butterfly_orange', Math.floor(nb / 2), { kind: 'bird', freq: 30, amp: 1.0, pivot: 0.004 })];
-    this.flutters = Array.from({ length: nb }, () => ({ home: null, ph: rnd() * 100, sp: 0.6 + rnd() * 0.6 }));
+    this.flutters = Array.from({ length: nb }, () => ({ home: null, ph: rnd() * 100, sp: 0.6 + rnd() * 0.6, dead: 0, at: new THREE.Vector3() }));
     // Crabs on the wet sand.
     const nc = mobile ? 10 : 16;
     this.crabs = new Flock(parent, assets, 'fauna/crab', nc, null);
     this.crabState = Array.from({ length: nc }, () => {
       const x = -125 + rnd() * 250;
-      return { x, z: I.shoreZ(x) - 1 - rnd() * 6, dir: rnd() * 6.28, go: 0, wait: rnd() * 3 };
+      return { x, z: I.shoreZ(x) - 1 - rnd() * 6, dir: rnd() * 6.28, go: 0, wait: rnd() * 3, dead: 0 };
     });
     // Reef fish schools in the shallows.
     const kinds = ['fauna/fish_yellow', 'fauna/fish_blue', 'fauna/fish_clown'];
@@ -107,11 +107,41 @@ export class Fauna {
         const x = -100 + rnd() * 200;
         return { cx: x, cz: I.shoreZ(x) + 14 + rnd() * 26, r: 4 + rnd() * 6, w: (0.25 + rnd() * 0.2) * (rnd() < 0.5 ? -1 : 1), ph: rnd() * 6.28 };
       });
-      const offs = Array.from({ length: per * 2 }, () => new THREE.Vector3((rnd() - 0.5) * 3, -rnd() * 0.5, (rnd() - 0.5) * 3));
+      const offs = Array.from({ length: per * 2 }, () => Object.assign(new THREE.Vector3((rnd() - 0.5) * 3, -rnd() * 0.5, (rnd() - 0.5) * 3), { dead: 0, at: new THREE.Vector3() }));
       return { flock, centres, offs, per, si };
     });
     this.p = new THREE.Vector3();
     this.v = new THREE.Vector3();
+  }
+
+  // A swing from p facing f (flat unit vector): small animals in reach and in the arc die. Returns
+  // what was killed: [{ kind: 'crab' | 'fish' | 'butterfly', at }].
+  hitArc(p, f, reach, cosMin) {
+    const out = [];
+    const inArc = (x, y, z, r = 0.2) => {
+      const dx = x - p.x, dz = z - p.z, d = Math.hypot(dx, dz);
+      if (d - r > reach || Math.abs(y - (p.y - 1.0)) > 1.9) return false;
+      return d < 0.5 || (dx * f.x + dz * f.y) / d > cosMin;
+    };
+    this.crabState.forEach((c) => {
+      if (c.dead || !inArc(c.x, this.island.heightAt(c.x, c.z), c.z, 0.25)) return;
+      c.dead = 0.001;
+      out.push({ kind: 'crab', at: new THREE.Vector3(c.x, this.island.heightAt(c.x, c.z), c.z) });
+    });
+    this.flutters.forEach((b) => {
+      if (b.dead || !b.home || !inArc(b.at.x, b.at.y, b.at.z, 0.3)) return;
+      b.dead = 0.001;
+      out.push({ kind: 'butterfly', at: b.at.clone() });
+    });
+    // A blade through a shoal gets one fish (two at most), not the whole school.
+    let fish = 0;
+    for (const sc of this.schools) sc.offs.forEach((o) => {
+      if (o.dead || fish >= 1 + (this.rnd() < 0.3 ? 1 : 0) || !inArc(o.at.x, o.at.y, o.at.z, 0.2)) return;
+      fish++;
+      o.dead = 0.001;
+      out.push({ kind: 'fish', at: o.at.clone() });
+    });
+    return out;
   }
 
   update(t, dt, cam) {
@@ -139,6 +169,16 @@ export class Fauna {
     this.macaws.done(); this.parrots.done();
     // Butterflies: drift around a home spot near the player; move home when left behind.
     this.flutters.forEach((b, i) => {
+      const fl = this.butterflies[i % 2];
+      if (b.dead > 0) {
+        // Swatted: tumbles to the ground, then is gone for a minute.
+        b.dead += dt;
+        const g = Math.max(0.2, I.heightAt(b.at.x, b.at.z)) + 0.02;
+        b.at.y = Math.max(g, b.at.y - dt * 2.5);
+        fl.set(Math.floor(i / 2), b.at, v.set(1, 0, 0), 0.4, b.dead < 20 ? 1.3 : 0.0001);
+        if (b.dead > 60) { b.dead = 0; b.home = null; }
+        return;
+      }
       if (!b.home || b.home.distanceTo(cam) > 22) {
         const a = this.rnd() * 6.28, d = 4 + this.rnd() * 12;
         const x = cam.x + Math.cos(a) * d, z = cam.z + Math.sin(a) * d;
@@ -147,12 +187,23 @@ export class Fauna {
       const s = t * b.sp + b.ph;
       p.set(b.home.x + Math.sin(s * 0.9) * 2.2 + Math.sin(s * 2.3) * 0.5, b.home.y + Math.sin(s * 1.7) * 0.4, b.home.z + Math.cos(s * 0.7) * 2.2 + Math.cos(s * 2.9) * 0.5);
       v.set(Math.cos(s * 0.9) * 2 + Math.cos(s * 2.3) * 1.1, 0, -Math.sin(s * 0.7) * 1.5 - Math.sin(s * 2.9) * 1.4);
-      const fl = this.butterflies[i % 2];
+      b.at.copy(p);
       fl.set(Math.floor(i / 2), p, v, Math.sin(s * 3) * 0.3, 1.3);
     });
     for (const f of this.butterflies) f.done();
     // Crabs: short sideways dashes, then a pause.
     this.crabState.forEach((c, i) => {
+      if (c.dead > 0) {
+        // Dead: lies on its back for a while, then a new crab turns up somewhere on the beach.
+        c.dead += dt;
+        p.set(c.x, I.heightAt(c.x, c.z) + 0.22, c.z);
+        this.crabs.set(i, p, v.set(Math.cos(c.dir), 0, Math.sin(c.dir)), Math.PI, c.dead < 90 ? 1.2 : 0.0001);
+        if (c.dead > 200) { const x = -125 + this.rnd() * 250; Object.assign(c, { x, z: I.shoreZ(x) - 1 - this.rnd() * 6, dead: 0, wait: 1 }); }
+        return;
+      }
+      // Scuttle away from someone coming close.
+      const pdx = c.x - cam.x, pdz = c.z - cam.z;
+      if (Math.hypot(pdx, pdz) < 2.6 && c.wait > 0) { c.wait = 0; c.go = 0.8; c.dir = Math.atan2(pdz, pdx) + (this.rnd() - 0.5) * 0.6; }
       if (c.wait > 0) { c.wait -= dt; if (c.wait <= 0) { c.go = 0.6 + this.rnd() * 1.5; c.dir += (this.rnd() - 0.5) * 2; } }
       else {
         c.go -= dt;
@@ -171,11 +222,20 @@ export class Fauna {
     // Fish: two shoals per kind circling over the sand.
     for (const sc of this.schools) {
       sc.offs.forEach((o, i) => {
+        if (o.dead > 0) {
+          // Belly-up at the surface, then gone; the shoal fills up again later.
+          o.dead += dt;
+          o.at.y = Math.min(0.02, o.at.y + dt * 0.5);
+          sc.flock.set(i, o.at, v.set(1, 0, 0), Math.PI, o.dead < 30 ? 1.2 : 0.0001);
+          if (o.dead > 150) o.dead = 0;
+          return;
+        }
         const c = sc.centres[i < sc.per ? 0 : 1];
         const a = c.ph + t * c.w + o.x * 0.05;
         const x = c.cx + Math.cos(a) * c.r + o.x, z = c.cz + Math.sin(a) * c.r + o.z;
         const depth = -I.heightAt(x, z);
         p.set(x, -Math.min(Math.max(depth * 0.55, 0.25), 2.5) + o.y * 0.3, z);
+        o.at.copy(p);
         v.set(-Math.sin(a) * Math.sign(c.w), 0, Math.cos(a) * Math.sign(c.w));
         sc.flock.set(i, p, v, 0, 1.2);
       });

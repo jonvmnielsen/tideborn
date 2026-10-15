@@ -38,9 +38,16 @@ const LOOT = { crate: [{ rope: 2, banana: 2 }, { fiber: 4 }, { bag_canvas: 1, ro
 const REACH = 2.6, ARC = Math.cos((70 * Math.PI) / 180);
 const SAVE_KEY = 'tideborn-cove-save-1';
 
+// What the small animals give when you kill one.
+const SMALL = {
+  crab: { give: { meat: 1 }, xp: 4, fx: '#c0502a', sfx: ['bitten', 'bitten2'] },
+  fish: { give: { meat: 1 }, xp: 4, fx: '#9fc8d8', sfx: ['flesh1', 'flesh2'] },
+  butterfly: { give: {}, xp: 1, fx: '#f0d070', sfx: ['bitten'] },
+};
+
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character, fauna });
     building.changed = () => { this.dirty = true; };
     creatures.hasFood = (sp) => sp.tame.food.some((f) => this.inv.count(f) > 0);
     this.inv = new Inventory();
@@ -286,6 +293,7 @@ export class Gather {
       this.focus = { who: q, t: 8 };
       this.chips.burst(q.pos.clone().add(new THREE.Vector3(0, 1.2, 0)), club ? '#c8b89a' : '#8a1e1a', 8);
       sfx(club ? ['bitten', 'bitten2'] : ['flesh1', 'flesh2', 'flesh3'], { vol: 0.6, rate: club ? 0.8 : 1 });
+      if (r === 'warn') { this.toast(`${q.name}: "Hey! Hold op — slå mig igen, og det bliver alvor."`, true); continue; }
       if (r === 'out') { this.toast(`${q.name} er slået bevidstløs — bind ham med et reb (E), før han vågner`, false); this.char.gain(40); }
       if (r === 'dead') { this.toast(`${q.name} er død — gennemsøg liget (E)`, true); this.char.gain(25); }
     }
@@ -297,6 +305,14 @@ export class Gather {
       this.chips.burst(c.pos.clone().add(new THREE.Vector3(0, c.sp.height * 0.55, 0)), '#8a1e1a', 10);
       sfx(['flesh1', 'flesh2', 'flesh3'], { vol: 0.6 });
       if (killed) this.toast(`${c.sp.name} er nede — flå den med E`, false);
+    }
+    // Small animals: crabs on the sand, fish in the shallows, butterflies in the air.
+    for (const k of this.fauna?.hitArc(p, this.flat(), REACH + 0.2, ARC) ?? []) {
+      const S = SMALL[k.kind];
+      this.chips.burst(k.at.clone().add(new THREE.Vector3(0, 0.1, 0)), S.fx, 6);
+      sfx(S.sfx, { vol: 0.5, rate: 1.3 });
+      add(S.give);
+      this.char.gain(S.xp);
     }
     for (const s of [...sounds].slice(0, 2)) sfx(s, { vol: 0.55 });
     if (tooBig && this.clock - this.warned > 3) { this.warned = this.clock; this.toast('For stort til macheten — lav en stenøkse', true); }
