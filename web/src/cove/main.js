@@ -16,6 +16,7 @@ import { Building } from './build.js';
 import { Creatures } from './creatures.js';
 import { MUTATIONS } from './breeding.js';
 import { Vitals } from './vitals.js';
+import { Character } from './progress.js';
 import { People } from './followers.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
@@ -88,17 +89,18 @@ async function start() {
   const sx = -30;
   fp.place(sx, island.shoreZ(sx) - 7, params.has('yaw') ? +params.get('yaw') : 0.35);
   // The player's arms (hands.js) and the tools they can hold. userData.grip = the handle point.
-  const tool = (key, grip, turn = 0) => {
+  const tool = (key, grip, turn = 0, scale = 1) => {
     const m = assets[key].scene.clone(true);
     prepareModel(m);
     m.traverse((o) => { if (o.isMesh) { o.castShadow = false; o.frustumCulled = false; } });
     const g = new THREE.Group();
     m.rotation.y = turn; // the axe head faces +x in its model; turn it so the edge leads
+    m.scale.setScalar(scale);
     g.add(m);
-    g.userData.grip = grip;
+    g.userData.grip = grip.clone().multiplyScalar(scale);
     return g;
   };
-  const tools = { machete: tool('props/machete', new THREE.Vector3(-0.004, 0.075, 0)), stone_axe: tool('props/stone_axe', new THREE.Vector3(0, 0.14, 0), Math.PI) };
+  const tools = { machete: tool('props/machete', new THREE.Vector3(-0.004, 0.075, 0)), stone_axe: tool('props/stone_axe', new THREE.Vector3(0, 0.14, 0), Math.PI), club: tool('props/club', new THREE.Vector3(0, 0.1, 0), 0, 0.82) };
   const hands = new Hands(camera, assets, { machete: tools.machete });
   initSfx(assets);
   initSfx({ 'sfx/treefall': { url: 'cove/audio/mw-lumberjack/tree_crack_fall.mp3' } });
@@ -113,7 +115,11 @@ async function start() {
   creatures.add('fox', at(-85, 40), 1);
   creatures.add('fox', at(35, 38), 1);
   // Health; at 0 you black out, drop what you carried and wake in your bed (or on the beach).
+  // Levels and stats (D-025).
+  const character = new Character({ onLevel: (lv) => { gather.toast(`Niveau ${lv}! Du har et point at fordele (C)`, false); sfx('pickup2', { vol: 0.8, rate: 0.7 }); } });
   const vitals = new Vitals({
+    character,
+    onOpenCharacter: () => gather.ui.toggle(true, 'char'),
     onDeath: () => { gather.dropAll(); fp.enabled = false; },
     onRespawn: () => {
       const b = building.spawn;
@@ -129,7 +135,11 @@ async function start() {
   people.creatures = creatures;
   creatures.feared = (x, z) => people.feared(x, z);
   creatures.onBirth = (c, fresh) => { gather.toast(`${c.parents[0]} har født: ${c.name} (${c.sex === 'f' ? 'hun' : 'han'}, generation ${c.gen})${fresh ? ` — en mutation: ${MUTATIONS[fresh].name}!` : ''}`, false); gather.dirty = true; };
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people });
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character });
+  building.costFactor = () => people.costFactor();
+  people.onHeal = (n) => vitals.heal(n);
+  people.onThrall = (q) => { gather.toast(`${q.name} er nu din træl`, false); character.gain(60); gather.dirty = true; };
+  fp.canRun = () => character.stamina > 2;
   people.onPlayerHit = (q, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.6, rate: 1.2 }); fp.pitch += 0.04; };
   people.onJoin = () => { gather.dirty = true; };
   people.onMeal = (q, got) => { if (!got) gather.toast(`${q.name} fik ingen mad (loyalitet ${Math.round(q.loyalty)})`, true); };
@@ -148,10 +158,11 @@ async function start() {
   });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   addEventListener('keydown', (e) => {
-    if (e.code === 'Tab' || e.code === 'KeyI' || e.code === 'KeyB') {
+    if (e.code === 'Tab' || e.code === 'KeyI' || e.code === 'KeyB' || e.code === 'KeyC') {
       e.preventDefault();
-      if (e.code === 'KeyB' && gather.ui.open && gather.ui.tab !== 'build') { gather.ui.tab = 'build'; gather.ui.render(); return; }
-      gather.ui.toggle(undefined, e.code === 'KeyB' ? 'build' : e.code === 'KeyI' || e.code === 'Tab' ? 'bag' : undefined);
+      const tab = e.code === 'KeyB' ? 'build' : e.code === 'KeyC' ? 'char' : 'bag';
+      if (gather.ui.open && gather.ui.tab !== tab && !gather.ui.chest) { gather.ui.tab = tab; gather.ui.render(); return; }
+      gather.ui.toggle(undefined, tab);
       if (!gather.ui.open && !mobile) canvas.requestPointerLock?.();
     }
     if (!fp.enabled) return;
@@ -207,7 +218,8 @@ async function start() {
     const dt = Math.min(0.05, clock.getDelta());
     renderer.info.reset();
     t += dt;
-    fp.pace = gather.inv.pace;
+    fp.pace = gather.inv.pace * character.speedMul;
+    character.update(dt, fp.enabled && fp.sprinting);
     if (fp.enabled) fp.update(dt); else fp.update(0);
     camera.updateMatrixWorld();
     hands.update(dt, { speed: fp.speed, bob: fp.bob });
@@ -227,7 +239,7 @@ async function start() {
     plume.update(t);
     fauna.update(t, dt, p);
     const look = gather.flat();
-    people.update(dt, { player: { x: camera.position.x, z: camera.position.z, alive: vitals.alive, fx: look.x, fz: look.y }, inv: gather.inv });
+    people.update(dt, { player: { x: camera.position.x, y: camera.position.y, z: camera.position.z, alive: vitals.alive, fx: look.x, fz: look.y }, inv: gather.inv });
     if (useBloom) composer.render(); else { renderer.render(scene, camera); hands.draw(renderer, scene); }
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }

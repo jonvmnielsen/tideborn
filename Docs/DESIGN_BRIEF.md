@@ -301,3 +301,16 @@ Parent (this assistant) keeps architecture consistency and refuses scope that br
 ---
 
 *Brief v1 locked to agreed plan. Amend deliberately; don’t silently erode pillars.*
+
+---
+
+## Amendment 2026-10-15 — direction from Jon (v1.2)
+
+**World and tone.** Tideborn is a mysterious, unexplored island that holds many secrets — in the spirit of the giant-scale island of the recent King Kong films (the feeling, not the IP: no Kong, no named creatures from those films). Everything living here is **bigger than normal**: wild, large and varied animals and creatures dominate. Small and exotic animals exist too, but they carry something extra (an unusual size, colour or trait). It is a **wild** island: **no farm animals and no dogs**. The invented "Island Ecology" roster in §5.1 is set aside; known animals, grown large, come first. The story concept (why you are here, the main goal, the end goal) is still open and will be decided with Jon.
+
+**Inventory in units.** Carrying is counted in units, not kilograms (kilograms read as unrealistic whatever the numbers). You start with 100 units; every item has a unit weight; bags and character levels add units.
+
+**Player progression (new §4.7).** The character levels up from what you do (gathering, hunting, fighting, building, crafting, taming). Each level gives a point to spend on stats — health, stamina, carrying (units), melee damage, speed and gathering — so the character can be improved in several directions.
+
+**Followers** — see `FOLLOWERS_RULES.md` amendment v3 (thralls, capture by knocking out with a club).
+

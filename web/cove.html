@@ -73,11 +73,19 @@
     .bp-cost img { width: 22px; height: 22px; }
     .bp-rec button[disabled] { opacity: 0.4; cursor: default; }
     .prompt.bad .prompt-text { color: #ffb49a; }
-    .hp { position: fixed; top: max(62px, calc(env(safe-area-inset-top) + 54px)); left: max(14px, env(safe-area-inset-left)); width: 150px; height: 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.25); overflow: hidden; pointer-events: none; }
+    .vitals { position: fixed; top: max(62px, calc(env(safe-area-inset-top) + 54px)); left: max(14px, env(safe-area-inset-left)); display: flex; align-items: center; gap: 8px; }
+    .lvl { position: relative; width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .lvl b { position: absolute; top: -5px; right: -5px; width: 16px; height: 16px; border-radius: 50%; background: #e9b84a; color: #1a1a1a; font-size: 13px; line-height: 16px; animation: hp-pulse 0.9s infinite alternate; }
+    .bars { display: flex; flex-direction: column; gap: 3px; pointer-events: none; }
+    .hp { position: relative; width: 150px; height: 12px; border-radius: 6px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.25); overflow: hidden; }
     .hp i { display: block; height: 100%; background: linear-gradient(90deg, #b8423a, #e0705a); transition: width 0.2s; }
     .hp span { position: absolute; inset: 0; font-size: 10px; line-height: 12px; text-align: center; font-weight: 700; text-shadow: 0 1px 2px #000; }
     .hp.low i { animation: hp-pulse 0.8s infinite alternate; }
     @keyframes hp-pulse { to { opacity: 0.45; } }
+    .stam, .xp { width: 150px; height: 5px; border-radius: 3px; background: rgba(0, 0, 0, 0.4); overflow: hidden; }
+    .stam i { display: block; height: 100%; background: #e9cf6a; }
+    .stam.empty { outline: 1px solid #e07a4a; }
+    .xp i { display: block; height: 100%; background: #8ac8e8; }
     .hurt { position: fixed; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(150, 10, 0, 0.75) 100%); }
     .death { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: rgba(10, 0, 0, 0.78); z-index: 20; }
     .death[hidden] { display: none; }
@@ -100,6 +108,25 @@
     .bp-meter.loyal b { position: absolute; top: -3px; width: 2px; height: 12px; background: #fff; opacity: 0.8; }
     .bp-tabs button[disabled] { opacity: 0.25; }
     .bp-feed { padding: 4px 10px; font-size: 12px; }
+    .foe { position: fixed; width: 110px; height: 7px; margin: -22px 0 0 -55px; border-radius: 4px; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(255, 255, 255, 0.3); pointer-events: none; }
+    .foe[hidden] { display: none; }
+    .foe i { display: block; height: 100%; border-radius: 3px; background: #d8584a; }
+    .foe b { position: absolute; left: 10%; top: -3px; bottom: -3px; width: 2px; background: rgba(255, 255, 255, 0.5); }
+    .foe.club b { background: #f0d050; box-shadow: 0 0 4px #f0d050; }
+    .foe span { position: absolute; left: 0; right: 0; bottom: 9px; text-align: center; font-size: 11px; font-weight: 600; text-shadow: 0 1px 2px #000; white-space: nowrap; }
+    .char { margin-top: 12px; }
+    .char-head { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; font-size: 13px; }
+    .char-head b { font-size: 18px; }
+    .xpm { margin: 0; }
+    .xpm i { background: #8ac8e8; }
+    .char-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 8px; margin-top: 12px; }
+    .cs { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); font-size: 13px; }
+    .cs .ic { font-size: 20px; text-align: center; opacity: 0.85; }
+    .cs small { opacity: 0.6; }
+    .cs em { display: block; font-style: normal; opacity: 0.85; font-size: 12px; }
+    .cs button { width: 34px; height: 34px; padding: 0; font-size: 18px; font-weight: 700; }
+    .cs button[disabled] { opacity: 0.25; }
+    .badge.thrall { background: #6a4a3a; }
     .lineage { margin-top: 12px; font-size: 12px; }
     .lineage p { margin: 0 0 8px; opacity: 0.8; }
     .stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 4px 16px; }
@@ -141,7 +168,7 @@
     <button type="button" data-time="eftermiddag">Eftermiddag</button>
     <button type="button" data-time="solnedgang">Solnedgang</button>
   </div>
-  <div id="hint" hidden>WASD gå · Shift løb · klik hug / byg · E saml op / åbn · Tab rygsæk · B byg · R drej · Q værktøj</div>
+  <div id="hint" hidden>WASD gå · Shift løb · klik hug / byg · E saml / åbn / bind · Tab rygsæk · B byg · C karakter · R drej · Q våben</div>
   <div id="fps" hidden></div>
   <div id="stick" hidden><div id="knob"></div></div>
 

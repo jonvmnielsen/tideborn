@@ -12,11 +12,11 @@ import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { FAMILY, MUTATIONS, rollWild, inherit, mutate, effective } from './breeding.js';
 
 export const SPECIES = {
-  doe: { name: 'Hind', family: 'deer', sex: 'f', model: 'animal/doe', height: 1.35, hp: 50, walk: 1.3, run: 7.5, kind: 'prey', scare: 13, loot: { meat: 3, hide: 2 }, herd: 4,
-    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer 60 kg for dig' } },
-  stag: { name: 'Kronhjort', family: 'deer', sex: 'm', model: 'animal/stag', height: 2.0, hp: 90, walk: 1.3, run: 7, kind: 'territorial', scare: 9, charge: 6, damage: 14, loot: { meat: 5, hide: 3 },
-    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer 140 kg' } },
-  fox: { name: 'Ræv', model: 'animal/fox', height: 0.55, hp: 25, walk: 1.6, run: 6.5, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 } },
+  doe: { name: 'Hind', family: 'deer', sex: 'f', model: 'animal/doe', height: 2.3, hp: 60, walk: 1.6, run: 9, xp: 20, kind: 'prey', scare: 13, loot: { meat: 5, hide: 3 }, herd: 4,
+    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer for dig' } },
+  stag: { name: 'Kæmpehjort', family: 'deer', sex: 'm', model: 'animal/stag', height: 3.4, hp: 140, walk: 1.6, run: 8.5, xp: 45, kind: 'territorial', scare: 11, charge: 8, damage: 20, loot: { meat: 9, hide: 5 },
+    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer meget for dig' } },
+  fox: { name: 'Ildræv', model: 'animal/fox', height: 0.7, hp: 25, walk: 1.6, run: 7, xp: 10, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 }, tint: [1.5, 0.75, 0.45] },
 };
 
 const UP = new THREE.Vector3(0, 1, 0);
@@ -87,7 +87,7 @@ class Creature {
   look() {
     const grown = 0.45 + 0.55 * Math.min(1, this.maturity ?? 1);
     const sc = [1, 1, 1];
-    let tint = null;
+    let tint = this.sp.tint ? [...this.sp.tint] : null;
     for (const id of this.mutations ?? []) {
       const m = MUTATIONS[id];
       if (m.scale) m.scale.forEach((v, i) => { sc[i] *= v; });
@@ -118,10 +118,11 @@ class Creature {
     this.speed += (speed - this.speed) * Math.min(1, dt * 5);
     if (this.speed < 0.05) return;
     let best = null;
+    const stuck = W.blocked(this.pos.x, this.pos.z, this.sp.height * 0.25);
     for (const turn of [0, 0.5, -0.5, 1.1, -1.1, 1.8, -1.8]) {
       const a = Math.atan2(dir.x, dir.z) + turn;
       const nx = this.pos.x + Math.sin(a) * this.speed * dt, nz = this.pos.z + Math.cos(a) * this.speed * dt;
-      if (W.island.heightAt(nx, nz) < 0.25 || W.blocked(nx, nz, this.sp.height * 0.25)) continue;
+      if (W.island.heightAt(nx, nz) < 0.25 || (!stuck && W.blocked(nx, nz, this.sp.height * 0.25))) continue;
       if (W.player && Math.hypot(nx - W.player.x, nz - W.player.z) < this.reach * 0.8 && Math.hypot(nx - W.player.x, nz - W.player.z) < Math.hypot(this.pos.x - W.player.x, this.pos.z - W.player.z)) continue;
       best = { a, nx, nz };
       break;

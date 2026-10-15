@@ -96,7 +96,8 @@ export class FirstPerson {
     fx += this.move.x; fz += this.move.y;
     const l = Math.hypot(fx, fz);
     if (l > 1) { fx /= l; fz /= l; }
-    const run = this.pace > 0.5 && (k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95);
+    const run = this.pace > 0.5 && (this.canRun?.() ?? true) && (k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95);
+    this.sprinting = run && Math.hypot(fx, fz) > 0.1;
     const depth = this.depthAt(this.pos.x, this.pos.z);
     const wade = 1 - Math.min(0.6, Math.max(0, depth) * 0.5);
     const want = (run ? RUN : WALK) * Math.min(1, Math.hypot(fx, fz)) * wade * this.pace;

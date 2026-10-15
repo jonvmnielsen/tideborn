@@ -581,7 +581,6 @@
         "Walk_Carry_Loop",
         "Idle_FoldArms_Loop",
         "Yes",
-        "Idle_No",
         "Melee_Hook",
         "Hit_Knockback",
         "Chest_Open"
@@ -614,6 +613,14 @@
     {
       "id": "quaternius-outfits-fantasy/characters/female_ranger",
       "as": "char/ranger_f"
+    },
+    {
+      "id": "forge-lowpoly/club",
+      "as": "props/club"
+    },
+    {
+      "id": "forge-lowpoly/captive_post",
+      "as": "build/captive_post"
     }
   ],
   "audio": [

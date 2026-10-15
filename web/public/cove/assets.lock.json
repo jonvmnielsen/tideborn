@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
   "libraryCommit": "4f5baf5",
-  "synced": "2026-10-14T22:20:21.472Z",
+  "synced": "2026-10-15T08:08:42.135Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -1134,7 +1134,6 @@
         "Walk_Carry_Loop",
         "Idle_FoldArms_Loop",
         "Yes",
-        "Idle_No",
         "Melee_Hook",
         "Hit_Knockback",
         "Chest_Open"
@@ -1193,6 +1192,22 @@
       "file": "char/ranger_f.glb",
       "bytes": 989888,
       "sha": "77621bc4ee55",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "props/club": {
+      "id": "forge-lowpoly/club",
+      "file": "props/club.glb",
+      "bytes": 14056,
+      "sha": "8b58522c0c51",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "build/captive_post": {
+      "id": "forge-lowpoly/captive_post",
+      "file": "build/captive_post.glb",
+      "bytes": 17108,
+      "sha": "7bddeb65534e",
       "license": "CC0-1.0",
       "kind": "model"
     }

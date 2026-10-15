@@ -8,7 +8,7 @@
 // Pairing: two tame adults of one species, a female and a male, close together. She carries for a
 // few minutes, then a fawn is born tame beside her; it grows to an adult over ten minutes.
 
-// Wild range and breeding cap per stat, per family. Carry is in kg (males carry half again).
+// Wild range and breeding cap per stat, per family. Carry is in units (males carry half again).
 export const FAMILY = {
   deer: {
     name: 'Krondyr',
@@ -17,7 +17,7 @@ export const FAMILY = {
       power: { label: 'Kraft', min: 20, max: 40, cap: 65 },
       speed: { label: 'Fart', min: 6.0, max: 8.0, cap: 9.8, dec: 1 },
       stamina: { label: 'Udholdenhed', min: 40, max: 60, cap: 90 },
-      carry: { label: 'Bæreevne', min: 45, max: 75, cap: 130, unit: 'kg' },
+      carry: { label: 'Bæreevne', min: 70, max: 120, cap: 220, unit: 'units' },
       wits: { label: 'Kløgt', min: 20, max: 45, cap: 80 },
     },
     gestation: 180, cooldown: { f: 300, m: 120 }, grow: 600,

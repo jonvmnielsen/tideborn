@@ -1,40 +1,54 @@
-// People of the cove and the follower layer (D-023, Docs/FOLLOWERS_RULES.md). Two ways to get
-// people on your side, and the way you got them is for good:
-//   Ally (earn)  — rescue Ida, who lies hurt on the far beach (bring her food), or help Mads fix his
-//                  boat (bring rope and wood). Allies start at loyalty 60 and can reach 95; only an
-//                  ally will walk with you (and fight what attacks you).
-//   Bound (force) — the two raiders on the west headland attack anyone who comes near their camp.
-//                  Beat one down and bind them with a rope before they get up. Bound start at 25,
-//                  can reach 65, and work 50 % harder for food alone — but if they go hungry and
-//                  their loyalty falls below 15, they run back to the raiders.
-// Roles: Følg (allies), Saml (gathers near where you posted them and puts it in the nearest chest),
-// Vagt (guards their post and fights animals and raiders that come near; a bound guard also keeps
-// animals away), Hvil. Every few minutes each follower eats — from a chest near their post, or from
-// your bag when they walk with you — and loyalty follows whether they were fed.
+// People of the island and the follower layer (D-023, D-025, Docs/FOLLOWERS_RULES.md v3). Two
+// ways to get people on your side, and how you got them is for good:
+//   Allieret (earn) — rescue Ida, who lies hurt on the far beach (bring her food), or help Mads fix
+//                  his boat (bring rope and wood). Allies follow you and fight for you, do every job
+//                  well and each has a skill of their own (Ida heals you, Mads makes building
+//                  cheaper). They eat, and their loyalty follows whether they're fed.
+//   Træl (force)  — raiders camp on the west headland and attack anyone who comes near. A blade kills
+//                  them at 0. A club knocks them out when a blow leaves them under 10 % — a narrow
+//                  margin. Bind the unconscious one with a rope, wake them, lead them on the rope to
+//                  a captive post in your camp; a minute at the post and they are your træl. Trælle
+//                  never leave and never eat — but they only do simple work at a post (gather,
+//                  guard), slower and weaker than an ally, and never follow you.
+// Roles: Følg (allies), Saml (gathers near the post into the nearest chest), Vagt, Hvil.
+// The dead leave something to search; new raiders turn up at the camp after a while.
 import * as THREE from 'three';
 import { makeCastaway } from './npc.js';
 
-const MEAL = 300;            // seconds between meals
+const MEAL = 300;            // seconds between an ally's meals
+const OUT = 60;              // seconds unconscious
+const BREAK = 60;            // seconds at the captive post
 const FOOD = ['meat_cooked', 'banana', 'coconut', 'meat'];
-const LOOK = {
+const KNOCKOUT = 0.1;        // a club blow that leaves less than this share of health knocks out
+const LOOKS = {
   ida: { outfit: 'char/peasant_f', body: 'char/body_female', parts: ['char/hair_long', 'char/eyebrows_female'], hair: '#3a2418' },
   mads: { outfit: 'char/ranger', parts: ['char/hair_beard', 'char/eyebrows'], hair: '#2a1e16' },
   jens: { outfit: 'char/peasant', parts: ['char/hair_beard', 'char/hair_parted', 'char/eyebrows'], hair: '#5a3a22' },
-  rask: { outfit: 'char/ranger', parts: ['char/hair_buzzed', 'char/eyebrows'], hair: '#1a1410' },
-  vibe: { outfit: 'char/ranger_f', body: 'char/body_female', parts: ['char/hair_buns', 'char/eyebrows_female'], hair: '#6a2a14' },
+  raider_m1: { outfit: 'char/ranger', parts: ['char/hair_buzzed', 'char/eyebrows'], hair: '#1a1410' },
+  raider_m2: { outfit: 'char/peasant', parts: ['char/hair_beard', 'char/hair_buzzed', 'char/eyebrows'], hair: '#4a2a14' },
+  raider_f1: { outfit: 'char/ranger_f', body: 'char/body_female', parts: ['char/hair_buns', 'char/eyebrows_female'], hair: '#6a2a14' },
+  raider_f2: { outfit: 'char/peasant_f', body: 'char/body_female', parts: ['char/hair_long', 'char/eyebrows_female'], hair: '#1c1612' },
+};
+const RAIDERS = [['Rask', 'raider_m1'], ['Vibe', 'raider_f1'], ['Bo', 'raider_m2'], ['Ragna', 'raider_f2'], ['Kaj', 'raider_m1'], ['Sus', 'raider_f1'], ['Ebbe', 'raider_m2'], ['Dorte', 'raider_f2']];
+// Allies' own skills.
+export const SKILLS = {
+  ida: { name: 'Helbreder', note: 'Heler dig, når hun er tæt på' },
+  mads: { name: 'Tømrer', note: 'Alt du bygger koster 25 % mindre' },
 };
 export const ROLE_NAMES = { follow: 'Følger dig', gather: 'Samler', guard: 'Vagt', rest: 'Hviler' };
 const _v = new THREE.Vector3();
 
 class Person {
-  constructor(world, key, name, at, setup) {
+  constructor(world, key, name, look, at, setup) {
     this.w = world;
     this.key = key;
     this.name = name;
-    this.char = makeCastaway(world.assets, LOOK[key]);
+    this.lookKey = look;
+    this.char = makeCastaway(world.assets, LOOKS[look]);
     world.scene.add(this.char.root);
     this.pos = at.clone();
     this.yaw = 0;
+    this.maxHp = 70;
     this.hp = 70;
     this.speed = 0;
     this.t = 0;
@@ -45,22 +59,26 @@ class Person {
     this.place();
   }
 
-  get ceiling() { return this.side === 'ally' ? 95 : this.side === 'bound' ? 65 : 0; }
-  get follower() { return this.side === 'ally' || this.side === 'bound'; }
+  get follower() { return this.side === 'ally' || this.side === 'thrall'; }
+  get ceiling() { return this.side === 'ally' ? 100 : 0; }
+  // Ally output falls off when they're unhappy; trælle always do the same, basic work.
+  get output() { return this.side === 'ally' ? (this.loyalty >= 30 ? 1.6 : 1.1) : 1; }
   anim(name, fade = 0.3) { this.char.play(name, fade); }
 
-  // Hit by a follower (raiders only take it; the others are on your side or not fighting).
-  hurt(n) { if (this.side === 'hostile' && this.state !== 'down' && this.state !== 'standup') this.w.hit(this, n); return false; }
+  // Hit by one of your followers (only raiders take it).
+  hurt(n) { if (this.side === 'hostile' && ['camp', 'attack', 'return', 'standup'].includes(this.state)) this.w.hit(this, n, false); return false; }
   get reach() { return 1.3; }
 
   step(dt, dir, speed) {
     const W = this.w;
     this.speed += (speed - this.speed) * Math.min(1, dt * 6);
     if (this.speed < 0.05) return;
+    // Standing inside something already (a bush, after a fall)? Then just walk out of it.
+    const stuck = W.blocked(this.pos.x, this.pos.z, 0.3, this.pos.y);
     for (const turn of [0, 0.5, -0.5, 1.1, -1.1, 1.8, -1.8]) {
       const a = Math.atan2(dir.x, dir.z) + turn;
       const nx = this.pos.x + Math.sin(a) * this.speed * dt, nz = this.pos.z + Math.cos(a) * this.speed * dt;
-      if (W.island.heightAt(nx, nz) < -0.3 || W.blocked(nx, nz, 0.3, this.pos.y)) continue;
+      if (W.island.heightAt(nx, nz) < -0.3 || (!stuck && W.blocked(nx, nz, 0.3, this.pos.y))) continue;
       this.pos.x = nx; this.pos.z = nz;
       let d = a - this.yaw;
       d = Math.atan2(Math.sin(d), Math.cos(d));
@@ -90,7 +108,6 @@ class Person {
     this.char.root.rotation.y = this.yaw;
   }
 
-  // A punch at the target; damage lands mid-swing.
   swing(dt, target, dmg, onHit) {
     if (this.punch == null) { this.punch = 0; this.anim(Math.random() < 0.5 ? 'Punch_Jab' : 'Punch_Cross', 0.1); }
     this.punch += dt;
@@ -98,6 +115,9 @@ class Person {
     if (!this.landed && this.punch > 0.35) { this.landed = true; onHit(dmg); }
     if (this.punch > 0.9) { this.punch = null; this.landed = false; }
   }
+
+  // Lying still (unconscious, bound or dead): the end of the fall.
+  lie() { this.anim('Death01', 0.1); }
 
   update(dt, ctx) {
     this.char.mixer.update(dt);
@@ -109,12 +129,11 @@ class Person {
       case 'mending': this.anim('Fixing_Kneeling'); break;
       case 'getup':
         this.anim('LayToIdle', 0.1);
-        if (this.t < 0) { this.state = 'cheer'; this.t = 1.6; this.anim('Yes', 0.2); }
+        if (this.t < 0) { this.state = this.side === 'captive' ? 'led' : 'cheer'; this.t = 1.6; if (this.state === 'cheer') this.anim('Yes', 0.2); }
         break;
       case 'cheer': if (this.t < 0) this.state = 'work'; break;
       case 'ambient': this.ambient(dt); break;
       case 'camp':
-        // Raiders: idle round their fire; anyone close to the camp is attacked.
         this.anim(this.sit ? 'Sitting_Idle_Loop' : 'Idle_FoldArms_Loop');
         if (P.alive && dist < 13 && Math.hypot(P.x - this.post.x, P.z - this.post.z) < 22) { this.state = 'attack'; this.anim('Jog_Fwd_Loop', 0.2); }
         break;
@@ -126,18 +145,30 @@ class Person {
       case 'return':
         if (this.goTo(dt, this.post.x, this.post.z, 1)) { this.state = 'camp'; this.yaw = this.campYaw ?? this.yaw; }
         break;
-      case 'down':
+      case 'out': // unconscious: wakes up angry if nobody binds them
+        this.lie();
         if (this.t < 0) { this.state = 'standup'; this.t = 2.4; this.anim('LayToIdle', 0.1); }
         break;
       case 'standup':
-        if (this.t < 0) { this.hp = 40; this.state = P.alive && dist < 12 ? 'attack' : 'return'; }
+        if (this.t < 0) { this.hp = Math.max(this.hp, this.maxHp * 0.4); this.state = P.alive && dist < 12 ? 'attack' : 'return'; }
         break;
-      case 'flee':
-        if (this.goTo(dt, this.post.x, this.post.z, 1.5, true)) { this.state = 'camp'; }
+      case 'bound': this.lie(); break; // bound and unconscious until you wake them
+      case 'dead': this.lie(); if (this.t < -300) this.w.remove(this); break;
+      case 'led': {
+        // On the rope: walks a couple of metres behind you.
+        if (!P.alive) { this.anim('Idle_Loop'); break; }
+        if (dist > 2.6) this.goTo(dt, P.x - (P.fx ?? 0) * 1.8, P.z - (P.fz ?? 0) * 1.8, 1.0, dist > 7);
+        else { this.speed = 0; this.anim('Idle_Loop'); this.face(P.x, P.z, dt, 3); }
         break;
-      case 'work': this.work(dt, ctx, dist, dx, dz); break;
+      }
+      case 'staked': // at the captive post, kneeling, until broken
+        this.anim('Fixing_Kneeling');
+        if (this.stake) this.face(this.stake.x, this.stake.z, dt, 4);
+        if (this.t < 0) this.w.makeThrall(this);
+        break;
+      case 'work': this.work(dt, ctx, dist); break;
     }
-    if (this.follower && this.state === 'work') this.upkeep(dt, ctx);
+    if (this.side === 'ally' && this.state === 'work') this.upkeep(dt, ctx);
     this.place();
   }
 
@@ -148,23 +179,21 @@ class Person {
     if (this.goTo(dt, tx, tz, 0.4)) { this.leg = (this.leg + 1) % path.length; this.wait = 3 + Math.random() * 4; }
   }
 
-  // Following, gathering, guarding or resting.
-  work(dt, ctx, dist, dx, dz) {
-    const W = this.w, P = ctx.player;
-    // Anything attacking you (when walking with you) or coming near the post (guard) gets punched.
-    const threat = this.role === 'follow' || this.role === 'guard' ? W.threatNear(this.role === 'follow' ? P : this.post, this.role === 'follow' ? 10 : 16) : null;
+  work(dt, ctx, dist) {
+    const W = this.w, P = ctx.player, ally = this.side === 'ally';
+    const fights = (this.role === 'follow' || this.role === 'guard');
+    const threat = fights ? W.threatNear(this.role === 'follow' ? P : this.post, this.role === 'follow' ? 10 : ally ? 16 : 9) : null;
     if (threat && P.alive) {
       const tp = threat.pos;
       if (Math.hypot(tp.x - this.pos.x, tp.z - this.pos.z) > (threat.reach ?? 1.4) * 0.8 + 0.6 && this.punch == null) this.goTo(dt, tp.x, tp.z, 1.2, true);
-      else this.swing(dt, tp, this.side === 'bound' ? 9 : 8, (n) => threat.hurt?.(n, this.pos));
+      else this.swing(dt, tp, ally ? 10 : 5, (n) => threat.hurt?.(n, this.pos));
       return;
     }
     this.punch = null;
     if (this.role === 'follow') {
       if (!P.alive) { this.anim('Idle_Loop'); return; }
       if (dist > 60) this.pos.copy(W.spot(new THREE.Vector3(P.x, 0, P.z), 4));
-      // Each follower has its own place behind you, so they don't stand in one another.
-      const k = this.w.list.filter((q) => q.follower && q.role === 'follow').indexOf(this);
+      const k = W.list.filter((q) => q.side === 'ally' && q.role === 'follow').indexOf(this);
       const side = k % 2 ? 1 : -1, back = 2.6 + Math.floor(k / 2) * 1.4;
       const fx = P.x - (P.fx ?? 0) * back + (P.fz ?? 0) * side * 1.3, fz = P.z - (P.fz ?? 0) * back - (P.fx ?? 0) * side * 1.3;
       const dslot = Math.hypot(fx - this.pos.x, fz - this.pos.z);
@@ -190,19 +219,19 @@ class Person {
       this.job = n ? { x: n.x, z: n.z, phase: 'go' } : { x: this.post.x + 2, z: this.post.z + 2, phase: 'go' };
     }
     const j = this.job;
-    if (j.phase === 'go') { if (this.goTo(dt, j.x, j.z, 1.4)) { j.phase = 'chop'; j.t = 14; } }
+    if (j.phase === 'go') { if (this.goTo(dt, j.x, j.z, 1.4)) { j.phase = 'chop'; j.t = ally ? 12 : 16; } }
     else if (j.phase === 'chop') { this.anim('TreeChopping_Loop'); this.face(j.x, j.z, dt); j.t -= dt; if (j.t < 0) { j.phase = 'back'; this.carrying = true; } }
     else if (j.phase === 'back') {
       if (this.goTo(dt, this.post.x, this.post.z, 1.0)) {
         this.carrying = false;
-        const k = this.side === 'bound' ? 1.5 : 1;
-        W.deliver(this, { wood: Math.round(2 * k), fiber: Math.round(3 * k), palm_leaf: Math.round(1 * k), bamboo: Math.round(1 * k) });
+        const k = this.output;
+        W.deliver(this, { wood: Math.round(2 * k), fiber: Math.round(2 * k), palm_leaf: Math.round(1 * k), bamboo: Math.round(1 * k) });
         this.job = null;
       }
     }
   }
 
-  // Meals: from a chest near the post, or your bag when they walk with you.
+  // Allies eat every few minutes — from a chest near their post, or your bag when they walk with you.
   upkeep(dt, ctx) {
     this.meal -= dt;
     if (this.meal > 0) return;
@@ -210,7 +239,6 @@ class Person {
     const got = this.w.takeFood(this, ctx);
     this.loyalty = Math.max(0, Math.min(this.ceiling, this.loyalty + (got ? 6 : -12)));
     this.w.onMeal?.(this, got);
-    if (this.side === 'bound' && this.loyalty < 15) this.w.escape(this);
   }
 }
 
@@ -218,17 +246,16 @@ export class People {
   constructor({ scene, assets, island, flora, building, camp }) {
     Object.assign(this, { scene, assets, island, flora, building });
     this.list = [];
+    this.raiderN = 0;
+    this.respawnT = 0;
     const I = island, at = (x, z) => new THREE.Vector3(x, I.heightAt(x, z), z);
-    // Jens walks the beach by the camp (ambient); Mads mends his boat and wants help.
-    const jens = new Person(this, 'jens', 'Jens', at(camp.x + 8, camp.z - 9), { side: 'neutral', state: 'ambient', path: [[camp.x + 8, camp.z - 9], [camp.x + 34, camp.z - 11], [camp.x + 22, camp.z - 16]], leg: 0, wait: 2 });
+    const jens = new Person(this, 'jens', 'Jens', 'jens', at(camp.x + 8, camp.z - 9), { side: 'neutral', state: 'ambient', path: [[camp.x + 8, camp.z - 9], [camp.x + 34, camp.z - 11], [camp.x + 22, camp.z - 16]], leg: 0, wait: 2 });
     const mx = camp.x + 3.5, mz = camp.z - 2.5;
-    const mads = new Person(this, 'mads', 'Mads', at(mx, mz), { side: 'neutral', state: 'mending', need: { rope: 2, wood: 6 }, ask: 'Hjælp mig med at få båden tæt — 2 reb og 6 træ — så går jeg med dig.' });
+    const mads = new Person(this, 'mads', 'Mads', 'mads', at(mx, mz), { side: 'neutral', state: 'mending', need: { rope: 2, wood: 6 }, ask: 'Hjælp mig med at få båden tæt — 2 reb og 6 træ — så går jeg med dig.' });
     mads.yaw = -2.2;
-    // Ida lies hurt among the rocks on the far (east) beach.
     const ix = 95, iz = I.shoreZ(95) - 5;
-    const ida = new Person(this, 'ida', 'Ida', at(ix, iz), { side: 'neutral', state: 'injured', need: { food: 3 }, ask: 'Ida er udmattet og såret. Hun har brug for mad — giv hende tre måltider.' });
+    const ida = new Person(this, 'ida', 'Ida', 'ida', at(ix, iz), { side: 'neutral', state: 'injured', need: { food: 3 }, ask: 'Ida er udmattet og såret. Hun har brug for mad — giv hende tre måltider.' });
     ida.yaw = 1.2;
-    // The raiders' camp on the west headland: a lean-to and a fire.
     // The raiders' camp on the west headland: the most open, flattest spot in that stretch.
     let rx = -125, rz = I.shoreZ(-125) - 22, best = Infinity;
     for (let x = -160; x <= -95; x += 5) for (let back = 14; back <= 40; back += 4) {
@@ -240,11 +267,31 @@ export class People {
       if (score < best) { best = score; rx = x; rz = z; }
     }
     this.raidCamp = at(rx, rz);
-    const rask = new Person(this, 'rask', 'Rask', at(rx + 2, rz + 1.5), { side: 'hostile', state: 'camp', campYaw: -0.6 });
-    const vibe = new Person(this, 'vibe', 'Vibe', at(rx - 1.8, rz + 1), { side: 'hostile', state: 'camp', sit: true, campYaw: 0.8 });
-    rask.yaw = rask.campYaw; vibe.yaw = vibe.campYaw;
-    this.list.push(jens, mads, ida, rask, vibe);
+    this.list.push(jens, mads, ida);
+    this.addRaider([2, 1.5], -0.6, false);
+    this.addRaider([-1.8, 1], 0.8, true);
     this.campProps(rx, rz);
+    // The rope from your hand to a led captive.
+    const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    this.rope = new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0xc4a26a }));
+    this.rope.frustumCulled = false;
+    this.rope.visible = false;
+    scene.add(this.rope);
+  }
+
+  addRaider(off, yaw, sit) {
+    const [name, look] = RAIDERS[this.raiderN % RAIDERS.length];
+    const key = `raider${this.raiderN++}`;
+    const c = this.raidCamp;
+    const q = new Person(this, key, name, look, new THREE.Vector3(c.x + off[0], 0, c.z + off[1]), { side: 'hostile', state: 'camp', sit, campYaw: yaw });
+    q.yaw = yaw;
+    this.list.push(q);
+    return q;
+  }
+
+  remove(q) {
+    q.char.root.removeFromParent();
+    this.list = this.list.filter((p) => p !== q);
   }
 
   campProps(x, z) {
@@ -273,7 +320,6 @@ export class People {
     return c.clone();
   }
 
-  // Something growing near a post to work at.
   workSpot(post) {
     const near = this.flora.nodesNear(post.x, post.z).filter((n) => ['palm', 'palm_young', 'bush', 'bamboo', 'treefern', 'banana', 'leafy'].includes(n.kind) && Math.hypot(n.x - post.x, n.z - post.z) < 14);
     return near.length ? near[Math.floor(Math.random() * near.length)] : null;
@@ -287,8 +333,8 @@ export class People {
 
   deliver(person, items) {
     const chest = this.chestNear(person.post);
-    if (chest) { for (const [k, n] of Object.entries(items)) chest.storage[k] = (chest.storage[k] ?? 0) + n; this.onDeliver?.(person, items, chest); }
-    else this.onDeliver?.(person, items, null);
+    if (chest) for (const [k, n] of Object.entries(items)) chest.storage[k] = (chest.storage[k] ?? 0) + n;
+    this.onDeliver?.(person, items, chest);
   }
 
   takeFood(person, ctx) {
@@ -298,48 +344,61 @@ export class People {
     return null;
   }
 
-  escape(p) {
-    p.side = 'hostile';
-    p.state = 'flee';
-    p.post = this.raidCamp.clone();
-    this.onEscape?.(p);
-  }
-
-  // Animals or raiders that are going for you (or near a post).
   threatNear(at, r) {
-    const out = [];
-    for (const c of this.creatures?.list ?? []) if (!c.dead && !c.tamed && (c.state === 'chase' || c.state === 'bite') && Math.hypot(c.pos.x - at.x, c.pos.z - at.z) < r) out.push(c);
-    for (const q of this.list) if (q.side === 'hostile' && q.state === 'attack' && Math.hypot(q.pos.x - at.x, q.pos.z - at.z) < r) out.push(q);
-    return out[0] ?? null;
+    for (const c of this.creatures?.list ?? []) if (!c.dead && !c.tamed && (c.state === 'chase' || c.state === 'bite') && Math.hypot(c.pos.x - at.x, c.pos.z - at.z) < r) return c;
+    for (const q of this.list) if (q.side === 'hostile' && q.state === 'attack' && Math.hypot(q.pos.x - at.x, q.pos.z - at.z) < r) return q;
+    return null;
   }
 
-  // A bound guard keeps animals from charging near their post.
-  feared(x, z) { return this.list.some((q) => q.side === 'bound' && q.role === 'guard' && Math.hypot(q.pos.x - x, q.pos.z - z) < 12); }
+  // A træl on guard keeps animals from charging near their post.
+  feared(x, z) { return this.list.some((q) => q.follower && q.role === 'guard' && Math.hypot(q.pos.x - x, q.pos.z - z) < 12); }
+
+  ally(key) { const q = this.list.find((p) => p.key === key); return q?.side === 'ally' && q.loyalty >= 30 ? q : null; }
+
+  // Building costs less while Mads (carpenter) is your ally.
+  costFactor() { return this.ally('mads') ? 0.75 : 1; }
 
   update(dt, ctx) {
-    for (const q of this.list) {
-      const d = Math.hypot(q.pos.x - ctx.player.x, q.pos.z - ctx.player.z);
+    const P = ctx.player;
+    for (const q of [...this.list]) {
+      const d = Math.hypot(q.pos.x - P.x, q.pos.z - P.z);
       q.char.root.visible = d < 150;
-      if (d > 170 && !q.follower) continue;
+      if (d > 170 && !q.follower && q.state !== 'led') continue;
       q.update(dt, ctx);
     }
+    // Ida heals you when she's near.
+    const ida = this.ally('ida');
+    if (ida && P.alive && Math.hypot(ida.pos.x - P.x, ida.pos.z - P.z) < 7) this.onHeal?.(2.5 * dt);
+    // The rope to a led captive.
+    const led = this.list.find((q) => q.state === 'led');
+    this.rope.visible = !!led;
+    if (led) {
+      const a = this.rope.geometry.attributes.position;
+      a.setXYZ(0, P.x + (P.fz ?? 0) * 0.25 + (P.fx ?? 0) * 0.3, (P.y ?? led.pos.y + 1.6) - 0.55, P.z - (P.fx ?? 0) * 0.25 + (P.fz ?? 0) * 0.3);
+      a.setXYZ(1, led.pos.x, led.pos.y + 1.0, led.pos.z);
+      a.needsUpdate = true;
+    }
+    // New raiders turn up at the camp when there are fewer than two.
+    const raiders = this.list.filter((q) => q.side === 'hostile' && q.state !== 'dead').length;
+    if (raiders < 2) { this.respawnT += dt; if (this.respawnT > 480) { this.respawnT = 0; this.addRaider([Math.random() * 4 - 2, 1.5], Math.random() * 2 - 1, Math.random() < 0.5); } }
+    else this.respawnT = 0;
   }
 
-  // A hostile in the arc of your swing.
   inArc(p, f, reach, cosMin) {
     return this.list.filter((q) => {
-      if (q.side !== 'hostile' || q.state === 'down' || q.state === 'standup') return false;
+      if (q.side !== 'hostile' && q.side !== 'captive') return false;
+      if (q.state === 'dead') return false;
       const dx = q.pos.x - p.x, dz = q.pos.z - p.z, d = Math.hypot(dx, dz);
       if (d - 0.3 > reach) return false;
       return d < 0.6 || (dx * f.x + dz * f.y) / d > cosMin;
     });
   }
 
-  // Someone in front of you to talk to, rescue, bind or give orders.
   personNear(p, f, reach = 3.0) {
     let best = null, bd = Infinity;
     for (const q of this.list) {
-      if (q.side === 'hostile' && q.state !== 'down') continue;
+      if (q.side === 'hostile' && !['out', 'dead'].includes(q.state)) continue;
+      if (q.state === 'dead' && q.searched) continue;
       const dx = q.pos.x - p.x, dz = q.pos.z - p.z, d = Math.hypot(dx, dz);
       if (d > reach + 0.4) continue;
       const cos = (dx * f.x + dz * f.y) / Math.max(0.01, d);
@@ -349,17 +408,39 @@ export class People {
     return best;
   }
 
-  // Your swing lands on a raider.
-  hit(q, n) {
+  // Your blow lands. Blades kill at 0; a club blow that leaves them under 10 % knocks them out
+  // instead — but one that takes them to 0 still kills. Returns 'out', 'dead' or null.
+  hit(q, n, blunt) {
+    if (q.state === 'dead') return null;
+    const down = ['out', 'bound', 'led', 'staked'].includes(q.state);
+    if (down && !blunt) return this.kill(q);
+    if (down) return null;
     q.hp -= n;
-    if (q.hp <= 0) { q.state = 'down'; q.t = 45; q.punch = null; q.anim('Death01', 0.1); return true; }
+    if (q.hp <= 0) return this.kill(q);
+    if (blunt && q.hp <= q.maxHp * KNOCKOUT) { q.state = 'out'; q.t = OUT; q.punch = null; q.anim('Death01', 0.1); return 'out'; }
     q.anim(Math.random() < 0.5 ? 'Hit_Chest' : 'Hit_Head', 0.05);
     q.punch = null;
     if (q.state === 'camp' || q.state === 'return') q.state = 'attack';
-    return false;
+    return null;
   }
 
-  // Earn: hand over what they asked for. Returns a message.
+  kill(q) {
+    q.state = 'dead';
+    q.side = 'hostile';
+    q.hp = 0;
+    q.t = 0;
+    q.punch = null;
+    q.anim('Death01', 0.1);
+    return 'dead';
+  }
+
+  // Search the dead.
+  search(q) {
+    q.searched = true;
+    return { rope: 1, meat_cooked: 1, fiber: 3, stone: 2 };
+  }
+
+  // Earn: hand over what they asked for.
   give(q, inv) {
     if (q.need.food) {
       const f = FOOD.find((k) => inv.count(k) > 0);
@@ -369,32 +450,61 @@ export class People {
       if (q.fed < q.need.food) return { text: `${q.name} spiser (${q.fed}/${q.need.food})`, item: f };
       this.join(q, 'ally');
       q.state = 'getup'; q.t = 2.4;
-      return { text: `${q.name} kommer på benene: "Tak. Jeg står i gæld til dig." — hun er din allierede`, good: true };
+      return { text: `${q.name} kommer på benene: "Tak. Jeg står i gæld til dig." — hun er din allierede (${SKILLS.ida.name})`, good: true, xp: 40 };
     }
     const missing = Object.entries(q.need).filter(([k, n]) => inv.count(k) < n);
     if (missing.length) return { warn: true, text: `${q.name}: "${q.ask}"` };
     for (const [k, n] of Object.entries(q.need)) inv.remove(k, n);
     this.join(q, 'ally');
     q.state = 'cheer'; q.t = 1.6; q.anim('Yes', 0.2);
-    return { text: `${q.name}: "Godt arbejde — jeg er med." — han er din allierede`, good: true };
+    return { text: `${q.name}: "Godt arbejde — jeg er med." — han er din allierede (${SKILLS.mads.name})`, good: true, xp: 40 };
   }
 
-  // Force: bind a beaten raider with a rope.
+  // Force, step 1: bind the unconscious with a rope (they stay out until you wake them).
   bind(q, inv) {
-    if (q.state !== 'down') return null;
+    if (q.state !== 'out') return null;
     if (inv.count('rope') < 1) return { warn: true, text: 'Du skal bruge et reb for at binde dem' };
     inv.remove('rope', 1);
-    this.join(q, 'bound');
+    q.state = 'bound';
+    q.side = 'captive';
+    return { text: `${q.name} er bundet. Væk dem (E) og før dem til en fangepæl i din lejr.`, good: true };
+  }
+
+  // Step 2: wake them; they get up and follow you on the rope. Only one at a time.
+  wake(q) {
+    if (this.list.some((p) => p.state === 'led')) return { warn: true, text: 'Du fører allerede en fange' };
     q.state = 'getup'; q.t = 2.4;
-    return { text: `${q.name} er bundet. Bundne arbejder hårdt for mad, men stikker af, hvis de sulter.`, good: true };
+    return { text: `${q.name} vågner — bundet og i reb bag dig.`, good: true };
+  }
+
+  // Step 3: tie them to a captive post; after a while they're your træl.
+  stake(q, post) {
+    q.state = 'staked';
+    q.t = BREAK;
+    q.stake = post;
+    q.pos.set(post.x + Math.sin(post.rot) * 0.9, 0, post.z + Math.cos(post.rot) * 0.9);
+    post.captive = q;
+    return { text: `${q.name} er bundet til pælen. Om et minut er de din træl.`, good: true };
+  }
+
+  makeThrall(q) {
+    const post = q.stake;
+    if (post) post.captive = null;
+    q.stake = null;
+    q.side = 'thrall';
+    q.state = 'work';
+    q.role = 'gather';
+    q.post = q.pos.clone();
+    q.hp = q.maxHp;
+    this.onThrall?.(q);
   }
 
   join(q, side) {
     q.side = side;
-    q.loyalty = side === 'ally' ? 60 : 25;
-    q.role = side === 'ally' ? 'follow' : 'gather';
+    q.loyalty = 60;
+    q.role = 'follow';
     q.post = q.pos.clone();
-    q.hp = 70;
+    q.hp = q.maxHp;
     q.meal = MEAL;
     this.onJoin?.(q);
   }
@@ -409,17 +519,38 @@ export class People {
   }
 
   serialize() {
-    return this.list.map((q) => ({ k: q.key, side: q.side, state: q.state === 'getup' || q.state === 'cheer' ? 'work' : q.state, l: Math.round(q.loyalty), role: q.role, post: q.post && [+q.post.x.toFixed(2), +q.post.z.toFixed(2)], pos: [+q.pos.x.toFixed(2), +q.pos.z.toFixed(2)], fed: q.fed, meal: Math.round(q.meal) }));
+    return {
+      n: this.raiderN,
+      list: this.list.map((q) => ({ k: q.key, name: q.name, look: q.lookKey, side: q.side, state: ['getup', 'cheer'].includes(q.state) ? (q.side === 'captive' ? 'led' : 'work') : q.state, l: Math.round(q.loyalty), role: q.role, post: q.post && [+q.post.x.toFixed(2), +q.post.z.toFixed(2)], pos: [+q.pos.x.toFixed(2), +q.pos.z.toFixed(2)], fed: q.fed, meal: Math.round(q.meal), t: Math.round(q.t), searched: q.searched ? 1 : 0, sit: q.sit ? 1 : 0, yaw: +(q.campYaw ?? 0).toFixed(2) })),
+    };
   }
 
-  restore(list) {
+  restore(data) {
+    if (!data) return;
+    const list = Array.isArray(data) ? data : data.list;
+    // Old saves (D-023): "bound" people become trælle.
     for (const o of list ?? []) {
-      const q = this.list.find((p) => p.key === o.k);
+      if (o.side === 'bound') o.side = 'thrall';
+      let q = this.list.find((p) => p.key === o.k);
+      if (!q && o.look) {
+        q = new Person(this, o.k, o.name, o.look, new THREE.Vector3(o.pos[0], 0, o.pos[1]), { side: o.side, sit: !!o.sit, campYaw: o.yaw });
+        this.list.push(q);
+      }
       if (!q) continue;
-      Object.assign(q, { side: o.side, state: o.state === 'down' || o.state === 'standup' || o.state === 'attack' ? 'return' : o.state, loyalty: o.l ?? 0, role: o.role, fed: o.fed, meal: o.meal ?? MEAL });
+      const state = ['out', 'standup', 'attack'].includes(o.state) ? 'return' : o.state === 'staked' ? 'led' : o.state;
+      Object.assign(q, { side: o.side, state, loyalty: o.l ?? 0, role: o.role, fed: o.fed, meal: o.meal ?? MEAL, searched: !!o.searched });
       if (o.post) q.post = new THREE.Vector3(o.post[0], this.island.heightAt(o.post[0], o.post[1]), o.post[1]);
-      if (o.pos && q.follower) q.pos.set(o.pos[0], this.island.heightAt(o.pos[0], o.pos[1]), o.pos[1]);
+      if (o.pos && (q.follower || ['bound', 'led', 'dead'].includes(state))) q.pos.set(o.pos[0], this.island.heightAt(o.pos[0], o.pos[1]), o.pos[1]);
+      if (state === 'dead') q.t = o.t ?? 0;
       q.place();
+    }
+    // Raiders from an old save that no longer exist in the list are dropped; keep numbering going.
+    if (!Array.isArray(data)) this.raiderN = Math.max(this.raiderN, data.n ?? 0);
+    const keys = new Set((list ?? []).map((o) => o.k));
+    if (!Array.isArray(data)) for (const q of [...this.list]) if (q.side === 'hostile' && q.key.startsWith('raider') && !keys.has(q.key)) this.remove(q);
+    if (Array.isArray(data)) {
+      // Old saves keyed raiders 'rask' / 'vibe'; map them onto the first two raiders.
+      for (const [old, i] of [['rask', 0], ['vibe', 1]]) { const o = list.find((x) => x.k === old); const q = this.list.find((p) => p.key === `raider${i}`); if (o && q && o.side !== 'hostile') { Object.assign(q, { side: o.side === 'bound' ? 'thrall' : o.side, state: o.state === 'flee' ? 'return' : 'work', role: o.role ?? 'gather' }); if (q.follower && o.pos) { q.pos.set(o.pos[0], 0, o.pos[1]); q.post = q.pos.clone(); } q.place(); } }
     }
   }
 }

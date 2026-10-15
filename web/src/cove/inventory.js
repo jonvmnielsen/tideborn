@@ -1,45 +1,47 @@
-// What the castaway carries (D-020, after ARK): you can always pick things up — nothing is
-// refused. Resources are light (a log 0.5 kg, a handful of fibre 0.01 kg) and you carry 100 kg
-// before it starts to tell; above 60 % of what you can carry you walk slower, above 100 % you
-// trudge and can't run. Bags add to what you carry — a palm-leaf pouch and a bamboo basket can be
-// made, a canvas backpack has to be found (washed up in a crate). The best bag you own is the one
-// you wear. The panel (Tab / I, or the bag button on a phone) shows contents, load and recipes.
+// What the castaway carries (D-020, D-025): counted in units, not kilograms. You carry 100 units,
+// bags and the Bæreevne stat add more. Nothing is refused: above 60 % of what you can carry you
+// walk slower, above 100 % you trudge and can't run. A palm-leaf pouch, a bamboo basket and a hide
+// pack can be made; a canvas backpack has to be found (washed up in a crate). The best bag you own
+// is the one you wear. The panel (Tab / I, or the bag button on a phone) shows contents and recipes.
 
 export const ITEMS = {
-  wood: { name: 'Træ', model: 'item/wood', kg: 0.5 },
-  palm_leaf: { name: 'Palmeblade', model: 'item/palm_leaf', kg: 0.05 },
-  fiber: { name: 'Fibre', model: 'item/fiber', kg: 0.01 },
-  bamboo: { name: 'Bambus', model: 'item/bamboo_poles', kg: 0.5 },
-  stone: { name: 'Sten', model: 'item/stone', kg: 0.5 },
-  coconut: { name: 'Kokosnødder', model: 'item/coconut', kg: 0.25, food: 12 },
-  banana: { name: 'Bananer', model: 'item/bananas', kg: 0.1, food: 8 },
-  meat: { name: 'Råt kød', model: 'item/meat', kg: 0.25, food: 6 },
-  meat_cooked: { name: 'Stegt kød', model: 'item/meat_cooked', kg: 0.2, food: 30 },
-  hide: { name: 'Skind', model: 'item/hide', kg: 0.3 },
-  rope: { name: 'Reb', model: 'item/rope', kg: 0.05 },
-  machete: { name: 'Machete', model: 'props/machete', kg: 1, tool: 'machete' },
-  stone_axe: { name: 'Stenøkse', model: 'props/stone_axe', kg: 2, tool: 'axe' },
-  bag_leaf: { name: 'Palmebladstaske', model: 'item/bag_leaf', kg: 0.5, bag: 30 },
-  bag_basket: { name: 'Bambuskurv', model: 'item/bag_basket', kg: 1.5, bag: 75 },
-  bag_hide: { name: 'Skindrygsæk', model: 'item/bag_hide', kg: 1.2, bag: 110 },
-  bag_canvas: { name: 'Lærredsrygsæk', model: 'item/bag_canvas', kg: 1, bag: 150 },
-  lean_to: { name: 'Læ (byggesæt)', model: 'build/lean_to', kg: 4, build: true }, // old saves; the lean-to is now built from the Byg tab
+  wood: { name: 'Træ', model: 'item/wood', w: 1 },
+  palm_leaf: { name: 'Palmeblade', model: 'item/palm_leaf', w: 0.2 },
+  fiber: { name: 'Fibre', model: 'item/fiber', w: 0.1 },
+  bamboo: { name: 'Bambus', model: 'item/bamboo_poles', w: 1 },
+  stone: { name: 'Sten', model: 'item/stone', w: 1 },
+  coconut: { name: 'Kokosnødder', model: 'item/coconut', w: 0.5, food: 12 },
+  banana: { name: 'Bananer', model: 'item/bananas', w: 0.2, food: 8 },
+  meat: { name: 'Råt kød', model: 'item/meat', w: 0.5, food: 6 },
+  meat_cooked: { name: 'Stegt kød', model: 'item/meat_cooked', w: 0.5, food: 30 },
+  hide: { name: 'Skind', model: 'item/hide', w: 1 },
+  rope: { name: 'Reb', model: 'item/rope', w: 0.2 },
+  machete: { name: 'Machete', model: 'props/machete', w: 3, tool: 'machete' },
+  stone_axe: { name: 'Stenøkse', model: 'props/stone_axe', w: 4, tool: 'axe' },
+  club: { name: 'Kølle', model: 'props/club', w: 4, tool: 'club' },
+  bag_leaf: { name: 'Palmebladstaske', model: 'item/bag_leaf', w: 1, bag: 30 },
+  bag_basket: { name: 'Bambuskurv', model: 'item/bag_basket', w: 2, bag: 60 },
+  bag_hide: { name: 'Skindrygsæk', model: 'item/bag_hide', w: 2, bag: 90 },
+  bag_canvas: { name: 'Lærredsrygsæk', model: 'item/bag_canvas', w: 2, bag: 120 },
+  lean_to: { name: 'Læ (byggesæt)', model: 'build/lean_to', w: 8, build: true }, // old saves; the lean-to is now built from the Byg tab
 };
 
 export const RECIPES = [
   { id: 'rope', n: 1, cost: { fiber: 4 }, note: 'Snoet af plantefibre' },
   { id: 'stone_axe', n: 1, cost: { stone: 1, wood: 1, rope: 1 }, note: 'Fælder de store træer' },
-  { id: 'bag_leaf', n: 1, cost: { palm_leaf: 6, fiber: 4 }, note: '+30 kg at bære' },
-  { id: 'bag_basket', n: 1, cost: { bamboo: 4, fiber: 6, rope: 1 }, note: '+75 kg at bære' },
-  { id: 'bag_hide', n: 1, cost: { hide: 4, rope: 2, fiber: 4 }, note: '+110 kg at bære' },
+  { id: 'club', n: 1, cost: { wood: 3, stone: 1, rope: 1 }, note: 'Slår folk bevidstløse i stedet for at dræbe' },
+  { id: 'bag_leaf', n: 1, cost: { palm_leaf: 6, fiber: 4 }, note: '+30 units' },
+  { id: 'bag_basket', n: 1, cost: { bamboo: 4, fiber: 6, rope: 1 }, note: '+60 units' },
+  { id: 'bag_hide', n: 1, cost: { hide: 4, rope: 2, fiber: 4 }, note: '+90 units' },
   { id: 'meat_cooked', n: 1, cost: { meat: 1 }, station: 'campfire', note: 'Steg det ved et bål' },
 ];
 
-export const BASE_KG = 100;
+export const BASE_UNITS = 100;
 export const SLOW_AT = 0.6; // share of capacity where walking starts to slow
 
 export class Inventory {
   constructor() {
+    this.bonus = () => 0; // extra units from the character's Bæreevne
     this.items = { machete: 1 };
     this.tool = 'machete';
     this.listeners = [];
@@ -53,12 +55,12 @@ export class Inventory {
     return best;
   }
 
-  get capacity() { return BASE_KG + (this.bag ? ITEMS[this.bag].bag : 0); }
+  get capacity() { return BASE_UNITS + this.bonus() + (this.bag ? ITEMS[this.bag].bag : 0); }
 
   get load() {
-    let kg = 0;
-    for (const [id, n] of Object.entries(this.items)) kg += (ITEMS[id]?.kg ?? 0) * n;
-    return kg;
+    let u = 0;
+    for (const [id, n] of Object.entries(this.items)) u += (ITEMS[id]?.w ?? 0) * n;
+    return u;
   }
 
   // How heavily laden you are: 0 = free, 1 = at capacity, above 1 = overloaded.

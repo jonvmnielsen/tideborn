@@ -41,6 +41,7 @@ export const PIECES = [
   { id: 'torch', name: 'Fakkel', model: 'build/torch', cost: { wood: 1, fiber: 3 }, snap: 'free', size: [0.3, 0.3], step: 0.25, fire: 'small' },
   { id: 'bed', name: 'Seng', model: 'build/bed', cost: { bamboo: 4, palm_leaf: 8, fiber: 4 }, snap: 'free', size: [1.3, 2.25], step: 0.25, use: 'bed', note: 'Her vågner du' },
   { id: 'chest', name: 'Kiste', model: 'build/chest', cost: { wood: 8, rope: 1 }, snap: 'free', size: [1.26, 0.7], step: 0.25, use: 'chest', note: 'Opbevaring' },
+  { id: 'captive_post', name: 'Fangepæl', model: 'build/captive_post', cost: { wood: 4, rope: 2 }, snap: 'free', size: [0.6, 0.6], step: 0.25, use: 'post', note: 'Her bliver fanger til trælle' },
   { id: 'lean_to', name: 'Læ', model: 'build/lean_to', cost: { bamboo: 6, palm_leaf: 10, rope: 2 }, snap: 'free', size: [3.2, 2.6], step: 0.5, pass: true },
 ];
 export const PIECE = Object.fromEntries(PIECES.map((p) => [p.id, p]));
@@ -469,7 +470,13 @@ export class Building {
   // A lean-to made earlier as a kit (an item in the bag) pays for itself.
   kit(id, inv) { return id === 'lean_to' && inv.count('lean_to') > 0; }
 
-  canPay(id, inv) { return this.kit(id, inv) || Object.entries(PIECE[id].cost).every(([k, n]) => inv.count(k) >= n); }
+  // What a piece costs now (Mads, the carpenter, makes everything 25 % cheaper while he's with you).
+  costOf(id) {
+    const f = this.costFactor?.() ?? 1;
+    return Object.fromEntries(Object.entries(PIECE[id].cost).map(([k, n]) => [k, Math.max(1, Math.round(n * f))]));
+  }
+
+  canPay(id, inv) { return this.kit(id, inv) || Object.entries(this.costOf(id)).every(([k, n]) => inv.count(k) >= n); }
 
   // Place the ghost (if it can go there and you can pay). Returns a message or null.
   commit(inv) {
@@ -477,7 +484,7 @@ export class Building {
     if (!g?.plan) return null;
     if (!g.plan.ok) return { warn: true, text: g.plan.reason ?? 'Kan ikke bygges her' };
     if (this.kit(g.id, inv)) inv.remove('lean_to', 1);
-    else for (const [k, n] of Object.entries(PIECE[g.id].cost)) inv.remove(k, n);
+    else for (const [k, n] of Object.entries(this.costOf(g.id))) inv.remove(k, n);
     this.place(g.id, g.plan);
     this.changed();
     return { text: `${PIECE[g.id].name} bygget` };
@@ -491,7 +498,7 @@ export class Building {
     if (why) return { warn: true, text: why };
     this.mark(null);
     this.remove(p);
-    inv.add({ ...PIECE[p.id].cost });
+    inv.add(this.costOf(p.id));
     if (p.storage) inv.add(p.storage);
     this.changed();
     return { text: `${PIECE[p.id].name} revet ned — materialerne er tilbage i rygsækken` };
@@ -564,7 +571,7 @@ export class Building {
       this.addBox(piece, x, z, G / 2, 0.15, rot, y + 2.58, y + 2.85);
     } else if (!PIECE[id].pass) {
       const [w, d] = PIECE[id].size;
-      const top = { palisade: 2.4, pillar: H, campfire: 0.5, torch: 1.7, bed: 0.5, chest: 0.75 }[id] ?? 1;
+      const top = { palisade: 2.4, pillar: H, campfire: 0.5, torch: 1.7, bed: 0.5, chest: 0.75, captive_post: 2.1 }[id] ?? 1;
       this.addBox(piece, x, z, w / 2, d / 2, rot, y - 0.2, y + top);
     }
     const def = PIECE[id];

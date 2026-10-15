@@ -222,3 +222,31 @@ Prove:
 ---
 
 *Addendum v2 — locked identities, Hire with wages, benefits both ways, never gate the main path.*
+
+---
+
+## Amendment v3 — 2026-10-15 (Jon)
+
+Replaces the Bound loyalty/escape/upkeep rules above; the dual path stays.
+
+**Name.** The force path is called **træl** (plural trælle) — the old Danish word for an unfree servant, the root of English "thrall". (Proposed to Jon; alternatives: fange, tjener.)
+
+**Trælle never leave and are never fed.** Once in your service they stay for good. The cost of the force path is not upkeep or escape risk but **what they can do**:
+
+| | Træl (force) | Allieret (earn) |
+|---|---|---|
+| Follows you, fights for you | No | Yes |
+| Roles | Simple labour at a post: gather, guard | All roles, plus their own skill |
+| Gathering | Basic yield | Higher yield |
+| Guarding | Weak | Strong |
+| Loyalty / upkeep | None — they just stay | Loyalty matters; they eat |
+| Special skill | None | Each ally has one (e.g. a healer, a carpenter) |
+
+**Capture is a skill, not automatic.** Beating someone does not bind them:
+- **Sharp weapons** (machete, axe, spear) kill at 0.
+- **A club** (blunt) knocks them out instead: when a club blow would take them below **10 %** of their health they fall unconscious rather than die — a narrow margin, so overdoing it with a blade, or a fight that turns, still kills them.
+- An unconscious enemy wakes after a while. In that window you **bind** them (rope), **wake** them, and **lead** them on the rope back to your camp, where a captive post turns them into a træl.
+- Dead enemies leave their belongings.
+
+**Starting numbers:** knockout below 10 % with blunt damage; unconscious ~60 s; conversion at the captive post ~60 s.
+
