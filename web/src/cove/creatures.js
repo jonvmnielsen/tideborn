@@ -1,23 +1,23 @@
-// Land animals of the cove (D-021): real, known animals with skinned models and their own clips
-// (Quaternius, CC0). Each species is data — how big, how fast, how tough, how it behaves:
+// Land animals of the cove (D-021, D-026): real, known animals with skinned models and their own
+// clips. Each species is data (species.js) — how big, how fast, how tough, how it behaves:
 //   prey      grazes and wanders near its home; bolts when you come close or hit it
 //   hostile   wanders; hunts you when you come within its range (wider at night), bites, gives up
 //             when you get far from its home or it is badly hurt
 //   territorial  like prey, but charges if you come too close, then turns away
+//   hunter    a pack animal of the night: prowls near its den after dusk; when it finds you it and
+//             its pack-mates circle you at a distance and take turns darting in to bite. It keeps
+//             out of the light of fires and torches, runs when badly hurt, and leaves at dawn.
 // A swing that catches an animal in its arc hurts it (it flinches, bleeds a little); at 0 it falls
 // over and lies as a carcass you can butcher (E / tap) for meat and hide. Dead animals come back
 // after a while, somewhere near their home.
 import * as THREE from 'three';
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 import { FAMILY, MUTATIONS, rollWild, inherit, mutate, effective } from './breeding.js';
+import { SPECIES } from './species.js';
 
-export const SPECIES = {
-  doe: { name: 'Hind', family: 'deer', sex: 'f', model: 'animal/doe', height: 2.3, hp: 60, walk: 1.6, run: 9, xp: 20, kind: 'prey', scare: 13, loot: { meat: 5, hide: 3 }, herd: 4,
-    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer for dig' } },
-  stag: { name: 'Kæmpehjort', family: 'deer', sex: 'm', model: 'animal/stag', height: 3.4, hp: 140, walk: 1.6, run: 8.5, xp: 45, kind: 'territorial', scare: 11, charge: 8, damage: 20, loot: { meat: 9, hide: 5 },
-    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer meget for dig' } },
-  fox: { name: 'Ildræv', model: 'animal/fox', height: 0.7, hp: 25, walk: 1.6, run: 7, xp: 10, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 }, tint: [1.5, 0.75, 0.45] },
-};
+export { SPECIES };
+// Body radius (collisions, hits) and how far its mouth reaches.
+const radius = (sp) => sp.radius ?? sp.height * 0.32;
 
 const UP = new THREE.Vector3(0, 1, 0);
 const NAMES = ['Freja', 'Ronja', 'Sigga', 'Kvik', 'Luna', 'Tove', 'Birk', 'Odin', 'Mynte', 'Saga', 'Rap', 'Loke'];
@@ -44,17 +44,25 @@ class Creature {
     this.body.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; } });
     this.baseScale = world.scaleFor(sp);
     this.body.scale.setScalar(this.baseScale);
-    this.root.add(this.body);
+    // A pivot turns models that don't face +z.
+    this.pivot = new THREE.Group();
+    this.pivot.rotation.y = sp.yaw ?? 0;
+    this.pivot.add(this.body);
+    this.root.add(this.pivot);
     world.root.add(this.root);
+    if (sp.eyes) this.eyes = world.eyeshine(sp, this.root);
     this.mixer = new THREE.AnimationMixer(this.body);
     const clips = src.animations ?? [];
+    const C = sp.clips ?? {};
+    const pick = (key, ...defaults) => clipNamed(clips, ...(C[key] ?? []), ...defaults);
     this.clips = {
-      idle: clipNamed(clips, 'idle'), walk: clipNamed(clips, 'walk'), run: clipNamed(clips, 'run', 'gallop'),
-      eat: clipNamed(clips, 'eat', 'eating'), attack: clipNamed(clips, 'attack'), death: clipNamed(clips, 'death', 'die'),
+      idle: pick('idle', 'idle'), walk: pick('walk', 'walk'), run: pick('run', 'run', 'gallop'),
+      eat: pick('eat', 'eat', 'eating'), attack: pick('attack', 'attack', 'bite'), death: pick('death', 'death', 'die'),
+      hit: pick('hit', 'hit', 'hurt', 'damage'),
     };
     this.current = null;
     // How close its mouth gets: about a body length from its middle.
-    this.reach = sp.reach ?? sp.height * 0.95 + 0.4;
+    this.reach = sp.reach ?? (sp.length ? sp.length * 0.55 : sp.height * 0.95) + 0.4;
     this.reset();
   }
 
@@ -77,8 +85,21 @@ class Creature {
     this.flinch = 0;
     this.speed = 0;
     this.root.visible = true;
+    this.hidden = false;
     this.body.rotation.set(0, 0, 0);
     this.play('idle');
+    // Night animals start in their den by day; hunters go straight to prowling.
+    if (this.sp.active === 'night' && !(this.w.night?.() ?? false)) this.sleepDen();
+    else if (this.sp.kind === 'hunter') { this.state = 'prowl'; this.goal = this.w.spot(this.home, 25); }
+  }
+
+  // Out of sight in its den (night animals by day).
+  sleepDen() {
+    this.state = 'den';
+    this.hidden = true;
+    this.root.visible = false;
+    this.pos.copy(this.w.spot(this.home, 6));
+    this.hp = this.maxHp;
   }
 
   get maxHp() { return this.stats ? Math.round(this.stats.vitality * (this.sp.hp / 50)) : this.sp.hp; }
@@ -105,6 +126,9 @@ class Creature {
     if (!clip) return;
     const a = this.mixer.clipAction(clip);
     if (this.current === a) return;
+    const once = name === 'death' || name === 'hit';
+    a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat);
+    a.clampWhenFinished = once;
     a.reset().setEffectiveWeight(1);
     if (fade > 0) a.fadeIn(fade);
     a.play();
@@ -118,11 +142,11 @@ class Creature {
     this.speed += (speed - this.speed) * Math.min(1, dt * 5);
     if (this.speed < 0.05) return;
     let best = null;
-    const stuck = W.blocked(this.pos.x, this.pos.z, this.sp.height * 0.25);
+    const stuck = W.blocked(this.pos.x, this.pos.z, radius(this.sp) * 0.8);
     for (const turn of [0, 0.5, -0.5, 1.1, -1.1, 1.8, -1.8]) {
       const a = Math.atan2(dir.x, dir.z) + turn;
       const nx = this.pos.x + Math.sin(a) * this.speed * dt, nz = this.pos.z + Math.cos(a) * this.speed * dt;
-      if (W.island.heightAt(nx, nz) < 0.25 || (!stuck && W.blocked(nx, nz, this.sp.height * 0.25))) continue;
+      if (W.island.heightAt(nx, nz) < 0.25 || (!stuck && W.blocked(nx, nz, radius(this.sp) * 0.8))) continue;
       if (W.player && Math.hypot(nx - W.player.x, nz - W.player.z) < this.reach * 0.8 && Math.hypot(nx - W.player.x, nz - W.player.z) < Math.hypot(this.pos.x - W.player.x, this.pos.z - W.player.z)) continue;
       best = { a, nx, nz };
       break;
@@ -137,11 +161,17 @@ class Creature {
   update(dt, player) {
     const sp = this.sp, W = this.w;
     this.mixer.update(dt * (this.state === 'flee' || this.state === 'chase' ? 1.1 : 1));
+    if (this.hidden) { if (sp.active === 'night' && W.night?.()) this.wake(); return; }
     if (this.dead) {
-      // Procedural fall onto its side (the clips have no death), then lie still.
-      this.fall = Math.min(1, this.fall + dt * 2.2);
-      this.body.rotation.z = (Math.PI / 2) * (1 - (1 - this.fall) ** 3);
-      if (this.current) this.current.timeScale = Math.max(0, 1 - this.fall * 2);
+      if (this.clips.death) {
+        // Its own death clip, held on the last frame.
+        this.fall = Math.min(1, this.fall + dt / Math.max(0.3, this.clips.death.duration));
+      } else {
+        // Procedural fall onto its side, then lie still.
+        this.fall = Math.min(1, this.fall + dt * 2.2);
+        this.body.rotation.z = (Math.PI / 2) * (1 - (1 - this.fall) ** 3);
+        if (this.current) this.current.timeScale = Math.max(0, 1 - this.fall * 2);
+      }
       this.t += dt;
       if (this.t > (this.butchered ? 8 : 240)) { this.root.visible = false; }
       if (this.t > W.respawn) this.reset();
@@ -152,6 +182,7 @@ class Creature {
     const away = _v.set(-dx, 0, -dz).normalize();
     this.t -= dt;
     if (this.tamed) { this.updateTame(dt, player, dx, dz, dist); this.place(); return; }
+    if (sp.kind === 'hunter') { this.updateHunter(dt, player, dx, dz, dist); this.place(); return; }
     // Taming: walk (don't run) toward it with food it likes in your bag, and it lets you come close.
     this.calm = Math.max(0, this.calm - dt);
     const tolerant = sp.tame && player.alive && ((player.speed < 3.4 && W.hasFood?.(sp)) || this.calm > 0);
@@ -215,6 +246,93 @@ class Creature {
     if ((this.state === 'walk' || this.state === 'flee' || this.state === 'chase') && this.speed > 0.1 && this.current?.getClip() !== (this.state === 'walk' ? this.clips.walk : this.clips.run)) this.play(this.state === 'walk' ? 'walk' : 'run');
     this.place();
   }
+
+  // Night animal leaves its den at dusk.
+  wake() {
+    this.hidden = false;
+    this.root.visible = true;
+    this.state = 'prowl';
+    this.t = 0;
+    this.goal = this.w.spot(this.home, 25);
+    this.play('walk');
+  }
+
+  // The night hunter (see the top of this file).
+  updateHunter(dt, player, dx, dz, dist) {
+    const sp = this.sp, W = this.w;
+    const night = W.night?.() ?? false;
+    if (this.eyes) this.eyes.visible = !this.dead && (W.dark?.() ?? 1) > 0.4;
+    const fromHome = this.pos.distanceTo(this.home);
+    const toPlayer = _v.set(dx, 0, dz).normalize();
+    this.flinch = Math.max(0, this.flinch - dt * 4);
+    // Dawn, or badly hurt: back to the den.
+    if (this.state !== 'home' && (!night || this.hp < this.maxHp * 0.3)) { this.state = 'home'; this.body.rotation.x = 0; this.play('run'); }
+    // The light of a fire: it won't stand in it, and it won't come in after you.
+    const fire = W.fireAt?.(this.pos.x, this.pos.z, sp.fire ?? 0);
+    const playerLit = W.fireAt?.(player.x, player.z, (sp.fire ?? 0) - 1.5);
+    const sees = player.alive && dist < sp.sense * (night ? 1 : 0.6) && fromHome < sp.leash;
+    switch (this.state) {
+      case 'home': {
+        const g = _v.set(this.home.x - this.pos.x, 0, this.home.z - this.pos.z);
+        if (g.length() < 3) {
+          this.hp = Math.min(this.maxHp, this.hp + dt * 2); // licks its wounds
+          if (!night) this.sleepDen(); else if (this.hp >= this.maxHp * 0.6) { this.state = 'prowl'; this.goal = W.spot(this.home, 30); }
+          else { this.step(dt, toPlayer, 0); this.play('idle'); }
+          break;
+        }
+        this.step(dt, g.normalize(), this.hp < this.maxHp * 0.3 ? sp.run : sp.walk * 2);
+        if (!night && dist > 60) this.sleepDen(); // out of sight: gone
+        break;
+      }
+      case 'prowl': {
+        if (sees && !playerLit) { this.state = 'circle'; this.t = 3.5 + this.slot() * 2.5; this.play('run'); break; }
+        const g = _v.set(this.goal.x - this.pos.x, 0, this.goal.z - this.pos.z);
+        if (g.length() < 1 || this.t < -10) { this.goal = W.spot(this.home, 30); this.t = 0; }
+        this.step(dt, g.normalize(), sp.walk);
+        if (this.speed > 0.1) this.play('walk');
+        break;
+      }
+      case 'circle': {
+        // Keep a ring round you, each pack-mate at its own angle; slowly drifting round.
+        if (!sees) { this.state = 'prowl'; this.goal = W.spot(this.home, 30); this.play('walk'); break; }
+        const n = this.pack().length, k = this.slot();
+        const ring = Math.max(8, playerLit ? (sp.fire ?? 0) + 2 : 9);
+        const a = (W.clock ?? 0) * 0.18 + (k / Math.max(1, n)) * Math.PI * 2 + this.home.x * 0.37;
+        const gx = player.x + Math.sin(a) * ring, gz = player.z + Math.cos(a) * ring;
+        const g = _v.set(gx - this.pos.x, 0, gz - this.pos.z);
+        const far = g.length();
+        if (far > 0.8) this.step(dt, g.normalize(), far > 6 ? sp.run : sp.walk * 2.2);
+        else { this.step(dt, toPlayer, 0); this.face(dx, dz, dt); }
+        this.play(far > 6 ? 'run' : far > 0.8 ? 'walk' : 'idle');
+        // Its turn to dart in — one at a time, never into the light.
+        if (this.t < 0 && !playerLit && !this.pack().some((o) => o !== this && (o.state === 'dart' || o.state === 'bite'))) { this.state = 'dart'; this.play('run', 0.1); }
+        break;
+      }
+      case 'dart':
+        if (playerLit || !player.alive) { this.state = 'back'; this.t = 1.5; break; }
+        if (dist < this.reach) { this.state = 'bite'; this.t = 0.55; this.bit = false; this.play(this.clips.attack ? 'attack' : 'idle', 0.1); break; }
+        this.step(dt, toPlayer, sp.run * 1.15);
+        break;
+      case 'bite': {
+        const u = 1 - this.t / 0.55;
+        this.body.rotation.x = Math.sin(Math.min(1, u) * Math.PI) * -0.25;
+        if (!this.bit && u > 0.45) { this.bit = true; if (dist < this.reach + 0.7) W.onBite?.(this, sp.damage ?? 10); }
+        if (this.t < 0) { this.body.rotation.x = 0; this.state = 'back'; this.t = 1.2; this.play('run'); }
+        break;
+      }
+      case 'back': // peel away out to the ring again
+        this.step(dt, _v.set(-dx, 0, -dz).normalize(), sp.run);
+        if (this.t < 0) { this.state = 'circle'; this.t = (sp.bite ?? 1.6) * (1.5 + this.pack().length) * (0.7 + Math.random() * 0.6); }
+        break;
+    }
+    // Standing in firelight: get out of it.
+    if (fire && this.state !== 'home') { const f = _v.set(this.pos.x - fire.x, 0, this.pos.z - fire.z).normalize(); this.step(dt, f, sp.run); if (this.state === 'dart' || this.state === 'bite') { this.state = 'back'; this.t = 1; } }
+  }
+
+  // Its pack: the living hunters sharing its den, and its place among them.
+  pack() { return this.w.list.filter((o) => o.sp === this.sp && !o.dead && !o.hidden && o.home === this.home && ['circle', 'dart', 'bite', 'back'].includes(o.state)); }
+  slot() { const p = this.w.list.filter((o) => o.sp === this.sp && o.home === this.home); return Math.max(0, p.indexOf(this)); }
+  face(dx, dz, dt) { let d = Math.atan2(dx, dz) - this.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yaw += d * Math.min(1, dt * 5); }
 
   // A tame animal follows you a few metres behind, or stays where you told it to.
   updateTame(dt, player, dx, dz, dist) {
@@ -282,10 +400,12 @@ class Creature {
       this.dead = true;
       this.t = 0;
       this.state = 'dead';
-      this.play('idle', 0.1);
+      this.play(this.clips.death ? 'death' : 'idle', 0.1);
+      if (this.eyes) this.eyes.visible = false;
       return true;
     }
     const sp = this.sp;
+    if (sp.kind === 'hunter') { if (this.state !== 'home') { this.state = 'back'; this.t = 1.2; this.play('run'); } return false; }
     if (sp.kind === 'prey') { this.state = 'flee'; this.t = 5; this.play('run'); }
     else if (sp.kind === 'territorial' || sp.kind === 'hostile') { this.state = 'chase'; this.t = 5; this.play('run'); }
     return false;
@@ -309,10 +429,41 @@ export class Creatures {
     if (!this.scales.has(sp.model)) {
       const o = cloneSkinned(this.assets[sp.model].scene);
       o.updateMatrixWorld(true);
-      const box = new THREE.Box3().setFromObject(o, true);
-      this.scales.set(sp.model, sp.height / Math.max(0.01, box.max.y - box.min.y));
+      this.scales.set(sp.model, new THREE.Box3().setFromObject(o, true));
     }
-    return this.scales.get(sp.model);
+    const box = this.scales.get(sp.model);
+    if (sp.length) return sp.length / Math.max(0.01, box.max.x - box.min.x, box.max.z - box.min.z);
+    return sp.height / Math.max(0.01, box.max.y - box.min.y);
+  }
+
+  // Eyeshine: two soft glints where its eyes are (front top of the body), seen at night.
+  eyeshine(sp, root) {
+    if (!this.eyeTex) {
+      const c = document.createElement('canvas'); c.width = c.height = 32;
+      const g = c.getContext('2d'), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+      r.addColorStop(0, 'rgba(255,255,255,1)'); r.addColorStop(0.25, 'rgba(255,255,255,0.8)'); r.addColorStop(1, 'rgba(255,255,255,0)');
+      g.fillStyle = r; g.fillRect(0, 0, 32, 32);
+      this.eyeTex = new THREE.CanvasTexture(c);
+    }
+    const box = this.scales.get(sp.model), s = this.scaleFor(sp);
+    const grp = new THREE.Group();
+    const mat = new THREE.SpriteMaterial({ map: this.eyeTex, color: new THREE.Color(...sp.eyes).multiplyScalar(3), blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true });
+    for (const side of [-1, 1]) {
+      const e = new THREE.Sprite(mat);
+      e.scale.setScalar(sp.height * 0.09);
+      e.position.set(side * sp.height * 0.07, box.max.y * s * 0.86, box.max.z * s * 0.93);
+      grp.add(e);
+    }
+    grp.rotation.y = sp.yaw ?? 0;
+    root.add(grp);
+    return grp;
+  }
+
+  // A burning fire or torch within r of (x, z), if any (fires come from the building kit).
+  fireAt(x, z, r) {
+    if (!(r > 0)) return null;
+    for (const f of this.fires?.() ?? []) if (Math.hypot(f.x - x, f.z - z) < r * (f.fire === 'big' ? 1 : 0.7)) return f;
+    return null;
   }
 
   blocked(x, z, r) {
@@ -326,7 +477,7 @@ export class Creatures {
 
   // The player can't walk through a living animal.
   blocksPlayer(x, z, r) {
-    for (const c of this.list) if (!c.dead && Math.hypot(c.pos.x - x, c.pos.z - z) < r + c.sp.height * 0.32) return true;
+    for (const c of this.list) if (!c.dead && !c.hidden && Math.hypot(c.pos.x - x, c.pos.z - z) < r + radius(c.sp)) return true;
     return false;
   }
 
@@ -341,26 +492,30 @@ export class Creatures {
   }
 
   add(kind, home, n = 1) {
-    for (let i = 0; i < n; i++) this.list.push(new Creature(this, SPECIES[kind], this.list.length, home));
+    const sp = SPECIES[kind];
+    if (!sp || !this.assets[sp.model]) { console.info(`[tideborn] ${kind}: model ${sp?.model} not synced yet — skipped`); return; }
+    // Ids follow the spawn table, so a save matches the same animals after a reload.
+    for (let i = 0; i < n; i++) this.list.push(new Creature(this, sp, this.list.length, home));
   }
 
   update(dt, player) {
     this.player = player;
+    this.clock = (this.clock ?? 0) + dt;
     for (const c of this.list) {
       const d = Math.hypot(c.pos.x - player.x, c.pos.z - player.z);
       c.root.visible = c.root.visible && d < 140;
-      if (d > 160 && !c.dead) continue; // far away: frozen
+      if (d > 160 && !c.dead && !c.hidden && c.sp.kind !== 'hunter') continue; // far away: frozen
       c.update(dt, player);
-      if (d < 140 && !(c.dead && c.t > (c.butchered ? 8 : 240))) c.root.visible = true;
+      if (d < 140 && !c.hidden && !(c.dead && c.t > (c.butchered ? 8 : 240))) c.root.visible = true;
     }
   }
 
   // Animals caught by a swing from p facing f (a flat unit vector) within reach and the arc.
   inArc(p, f, reach, cosMin) {
     return this.list.filter((c) => {
-      if (c.dead || c.tamed) return false;
+      if (c.dead || c.tamed || c.hidden) return false;
       const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
-      const r = c.sp.height * 0.45;
+      const r = radius(c.sp) * 1.4;
       if (d - r > reach) return false;
       return d < r + 0.3 || (dx * f.x + dz * f.y) / d > cosMin;
     });
@@ -372,7 +527,7 @@ export class Creatures {
     for (const c of this.list) {
       if (!c.dead || c.butchered || c.fall < 1) continue;
       const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
-      if (d > reach + c.sp.height * 0.4) continue;
+      if (d > reach + radius(c.sp) * 1.25) continue;
       const cos = (dx * f.x + dz * f.y) / Math.max(0.01, d);
       if (cos < 0.6 && d > 1) continue;
       if (d < bd) { bd = d; best = c; }
@@ -384,9 +539,9 @@ export class Creatures {
   animalNear(p, f, reach = 2.8) {
     let best = null, bd = Infinity;
     for (const c of this.list) {
-      if (c.dead || (!c.tamed && !c.sp.tame)) continue;
+      if (c.dead || c.hidden || (!c.tamed && !c.sp.tame)) continue;
       const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
-      if (d > reach + c.sp.height * 0.4) continue;
+      if (d > reach + radius(c.sp) * 1.25) continue;
       const cos = (dx * f.x + dz * f.y) / Math.max(0.01, d);
       if (cos < 0.7 && d > 1.2) continue;
       if (d < bd) { bd = d; best = c; }

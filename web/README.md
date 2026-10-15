@@ -5,7 +5,7 @@ Tideborn i browseren, bygget med three.js efter designet i `../Docs/`. Kører p�
 **Spil:** https://jonvmnielsen.github.io/tideborn/
 Start forfra med en tom gemning: https://jonvmnielsen.github.io/tideborn/?reset
 
-**Stemningstest (ny retning: tropisk vulkanø i stiliseret low poly, førsteperson):** https://jonvmnielsen.github.io/tideborn/cove.html — knapperne øverst skifter tidspunkt; `?fps` viser billeder pr. sekund.
+**Stemningstest (ny retning: tropisk vulkanø i stiliseret low poly, førsteperson):** https://jonvmnielsen.github.io/tideborn/cove.html — døgnet går rundt (20 min); `?times` viser knapper der skifter tidspunkt, `?t=nat` starter om natten; `?fps` viser billeder pr. sekund. Dyrene er data i `src/cove/species.js`.
 
 ## Sådan spiller du
 

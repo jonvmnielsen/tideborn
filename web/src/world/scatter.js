@@ -52,6 +52,10 @@ class LodSet {
     this.nearOf = new Int32Array(n).fill(-1);
     this.owner = [];
     this.nearCount = 0;
+    // opts.farThin = { dist, keep }: beyond dist only that share of the far versions is drawn
+    // (phones; the silhouette of a forest reads the same with half the trees).
+    this.thinned = new Uint8Array(n);
+    this.keepHash = Float32Array.from({ length: n }, (_, i) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1);
   }
 
   write(parts, slot, m) {
@@ -65,7 +69,7 @@ class LodSet {
     this.cur[i] = m ? m.clone() : null;
     const s = this.nearOf[i];
     if (s >= 0) this.write(this.near, s, this.cur[i]);
-    else this.write(this.far, i, this.cur[i]);
+    else this.write(this.far, i, this.thinned?.[i] ? null : this.cur[i]);
   }
 
   update(x, z, radius) {
@@ -99,6 +103,15 @@ class LodSet {
       this.write(this.far, i, null);
     }
     for (const p of this.near) p.im.count = this.nearCount;
+    const T = this.opts.farThin;
+    if (T && this.farKey) {
+      const t2 = T.dist * T.dist;
+      for (let i = 0; i < this.px.length; i++) {
+        if (this.nearOf[i] >= 0) { this.thinned[i] = 0; continue; }
+        const thin = this.keepHash[i] > T.keep && (this.px[i] - x) ** 2 + (this.pz[i] - z) ** 2 > t2 ? 1 : 0;
+        if (thin !== this.thinned[i]) { this.thinned[i] = thin; this.write(this.far, i, thin ? null : this.cur[i]); }
+      }
+    }
   }
 }
 

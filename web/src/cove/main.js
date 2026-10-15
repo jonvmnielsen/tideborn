@@ -20,6 +20,8 @@ import { Character } from './progress.js';
 import { People } from './followers.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
+import { DayNight } from './daynight.js';
+import { SPAWNS } from './species.js';
 import { Flora } from './flora.js';
 import { FirstPerson } from './fps.js';
 import { startSound, initSfx, sfx } from './sound.js';
@@ -51,7 +53,8 @@ scene.fog = new THREE.FogExp2(0xb4cbdc, mobile ? 0.0014 : 0.0009);
 const camera = new THREE.PerspectiveCamera(mobile ? 72 : 68, innerWidth / innerHeight, 0.08, 20000);
 scene.add(camera);
 
-const TIMES = { morgen: [12, 95], middag: [62, 160], eftermiddag: [30, 230], solnedgang: [4, 262] };
+// Named times for tests and the ?t= link parameter (hours).
+const TIMES = { morgen: 7, middag: 12.5, eftermiddag: 15.5, solnedgang: 18.4, nat: 23 };
 
 async function start() {
   const assets = await loadAssets((p) => { ui.fill.style.width = `${Math.round(p * 85)}%`; }, 'cove');
@@ -67,6 +70,7 @@ async function start() {
   const ocean = createOcean({ depth, mobile });
   scene.add(ocean);
   const sky = new CoveSky(scene, renderer, { mobile });
+  const dayNight = new DayNight(sky, { hour: params.get('t') in TIMES ? TIMES[params.get('t')] : params.has('t') ? +params.get('t') : 8.5 });
   for (const l of [sky.sun, sky.hemi]) l.layers.enable(VIEW_LAYER); // the arms are lit like the world
   const flora = new Flora(scene, assets, island, { mobile });
   const fauna = new Fauna(scene, assets, island, { mobile });
@@ -109,11 +113,10 @@ async function start() {
   // jungle edge. Known animals only.
   const creatures = new Creatures({ scene, assets, island, flora, building });
   const at = (x, back) => new THREE.Vector3(x, 0, island.shoreZ(x) - back);
-  creatures.add('doe', at(-10, 31), 4);
-  creatures.add('stag', at(-4, 33), 1);
-  creatures.add('doe', at(70, 32), 3);
-  creatures.add('fox', at(-85, 40), 1);
-  creatures.add('fox', at(35, 38), 1);
+  creatures.night = () => dayNight.night;
+  creatures.fires = () => building.pieces.filter((q) => q.fire);
+  creatures.dark = () => dayNight.dark;
+  for (const s of SPAWNS) creatures.add(s.kind, at(...s.at), s.n);
   // Health; at 0 you black out, drop what you carried and wake in your bed (or on the beach).
   // Levels and stats (D-025).
   const character = new Character({ onLevel: (lv) => { gather.toast(`Niveau ${lv}! Du har et point at fordele (C)`, false); sfx('pickup2', { vol: 0.8, rate: 0.7 }); } });
@@ -131,11 +134,11 @@ async function start() {
   });
   creatures.onBite = (c, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.7 }); fp.pitch += 0.05; };
   // People (D-023): Jens and Mads at the camp, Ida hurt on the east beach, raiders on the west headland.
-  const people = new People({ scene, assets, island, flora, building, camp: flora.camp });
+  const people = new People({ scene, assets, island, flora, building, camp: flora.camp, mobile });
   people.creatures = creatures;
   creatures.feared = (x, z) => people.feared(x, z);
   creatures.onBirth = (c, fresh) => { gather.toast(`${c.parents[0]} har født: ${c.name} (${c.sex === 'f' ? 'hun' : 'han'}, generation ${c.gen})${fresh ? ` — en mutation: ${MUTATIONS[fresh].name}!` : ''}`, false); gather.dirty = true; };
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna });
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight });
   building.costFactor = () => people.costFactor();
   people.onHeal = (n) => vitals.heal(n);
   people.onThrall = (q) => { gather.toast(`${q.name} er nu din træl`, false); character.gain(60); gather.dirty = true; };
@@ -172,15 +175,15 @@ async function start() {
     if (e.code === 'Escape' && building.mode) building.stop();
   });
 
-  let time = params.get('t') in TIMES ? params.get('t') : 'eftermiddag';
-  creatures.night = () => time === 'solnedgang';
-  const setTime = (name) => {
-    time = name;
-    sky.setSun(...TIMES[name]);
-    for (const b of document.querySelectorAll('[data-time]')) b.classList.toggle('on', b.dataset.time === name);
-  };
-  setTime(time);
+  // The day goes round (daynight.js). The clock shows top centre; the old time buttons are kept
+  // for testing (?times) and jump the clock.
+  if (params.has('t')) dayNight.set(params.get('t') in TIMES ? TIMES[params.get('t')] : +params.get('t'));
+  const setTime = (name) => dayNight.set(TIMES[name] ?? +name);
+  const times = document.querySelector('.times');
+  times.classList.toggle('debug', params.has('times'));
   for (const b of document.querySelectorAll('[data-time]')) b.addEventListener('click', (e) => { e.stopPropagation(); setTime(b.dataset.time); });
+  const clockEl = document.querySelector('.clock');
+  let shown = '';
 
   // Bloom makes the lava, sun glints and foam glow a little (the stylized look leans on it).
   const rt = new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: mobile ? 2 : 4 });
@@ -210,6 +213,9 @@ async function start() {
     startSound('cove/audio');
   };
   ui.start.addEventListener('click', go);
+  // Models under CC BY (D-014 in game-assets) must be credited: the start card links the list.
+  fetch('cove/CREDITS.md', { method: 'HEAD' }).then((r) => { if (r.ok) document.querySelector('#start .credits').hidden = false; }).catch(() => {});
+  document.querySelector('#start .credits a').addEventListener('click', (e) => e.stopPropagation());
   canvas.addEventListener('click', () => { if (!mobile && fp.enabled) canvas.requestPointerLock?.(); });
 
   const clock = new THREE.Clock();
@@ -225,6 +231,9 @@ async function start() {
     hands.update(dt, { speed: fp.speed, bob: fp.bob });
     gather.update(dt);
     building.update(dt, t, gather.inv);
+    dayNight.update(dt);
+    const ck = `${dayNight.night ? '☾' : '☀'} ${dayNight.clock}`;
+    if (ck !== shown) { shown = ck; clockEl.textContent = ck; }
     vitals.update(dt);
     creatures.update(dt, { x: camera.position.x, z: camera.position.z, alive: vitals.alive, speed: fp.speed });
     // Footsteps on every other bob peak.
@@ -240,13 +249,15 @@ async function start() {
     fauna.update(t, dt, p);
     const look = gather.flat();
     people.update(dt, { player: { x: camera.position.x, y: camera.position.y, z: camera.position.z, alive: vitals.alive, fx: look.x, fz: look.y }, inv: gather.inv });
+    // Phones: the sun's shadow map is redrawn every other frame (it is a quarter of the triangles).
+    if (mobile) { renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = (window.__cove.frames & 1) === 0; }
     if (useBloom) composer.render(); else { renderer.render(scene, camera); hands.draw(renderer, scene); }
     frames++; acc += dt; window.__cove.frames++;
     if (acc > 1) { window.__cove.fps = Math.round(frames / acc); if (!ui.fps.hidden) ui.fps.textContent = `${window.__cove.fps} fps`; frames = 0; acc = 0; }
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, people, island, flora, fauna, sky, plume, setTime, go };
+  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, people, island, flora, fauna, sky, plume, setTime, go, dayNight };
   loop();
 }
 

@@ -97,7 +97,7 @@ export class Flora {
     for (const k of [...plants, ...ROCKS, ...PROPS]) prepareModel(assets[k].scene);
     for (const k of plants) windFor(assets, k);
     // Far versions sit outside the sun's shadow box anyway: no shadow pass for them.
-    this.treeOpts = mobile ? { nearRadius: 45, nearCap: 55, farShadow: false } : { nearRadius: 55, nearCap: 70, farShadow: false };
+    this.treeOpts = mobile ? { nearRadius: 45, nearCap: 55, farShadow: false, farThin: { dist: 120, keep: 0.5 } } : { nearRadius: 55, nearCap: 70, farShadow: false };
     // Only trees cast shadows: the understory sits in their shade anyway (and halves the cost).
     this.plantOpts = { maxDist: mobile ? 28 : 45, castShadow: false };
     this.grassOpts = { maxDist: mobile ? 22 : 38, castShadow: false };

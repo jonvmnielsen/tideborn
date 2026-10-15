@@ -243,7 +243,8 @@ class Person {
 }
 
 export class People {
-  constructor({ scene, assets, island, flora, building, camp }) {
+  constructor({ scene, assets, island, flora, building, camp, mobile = false }) {
+    this.mobile = mobile;
     Object.assign(this, { scene, assets, island, flora, building });
     this.list = [];
     this.raiderN = 0;
@@ -345,7 +346,7 @@ export class People {
   }
 
   threatNear(at, r) {
-    for (const c of this.creatures?.list ?? []) if (!c.dead && !c.tamed && (c.state === 'chase' || c.state === 'bite') && Math.hypot(c.pos.x - at.x, c.pos.z - at.z) < r) return c;
+    for (const c of this.creatures?.list ?? []) if (!c.dead && !c.tamed && ['chase', 'bite', 'dart', 'circle'].includes(c.state) && !c.hidden && Math.hypot(c.pos.x - at.x, c.pos.z - at.z) < r) return c;
     for (const q of this.list) if (q.side === 'hostile' && q.state === 'attack' && Math.hypot(q.pos.x - at.x, q.pos.z - at.z) < r) return q;
     return null;
   }
@@ -362,7 +363,11 @@ export class People {
     const P = ctx.player;
     for (const q of [...this.list]) {
       const d = Math.hypot(q.pos.x - P.x, q.pos.z - P.z);
-      q.char.root.visible = d < 150;
+      // Each person is 20–37k triangles: drawn to 75 m on phones (150 m on computers), and only
+      // the ones near you cast shadows.
+      q.char.root.visible = d < (this.mobile ? 75 : 150);
+      const shade = d < 32;
+      if (shade !== q.shade) { q.shade = shade; q.char.root.traverse((o) => { if (o.isMesh) o.castShadow = shade; }); }
       if (d > 170 && !q.follower && q.state !== 'led') continue;
       q.update(dt, ctx);
     }

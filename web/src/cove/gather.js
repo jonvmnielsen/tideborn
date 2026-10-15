@@ -46,8 +46,8 @@ const SMALL = {
 };
 
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character, fauna });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character, fauna, dayNight });
     building.changed = () => { this.dirty = true; };
     creatures.hasFood = (sp) => sp.tame.food.some((f) => this.inv.count(f) > 0);
     this.inv = new Inventory();
@@ -237,7 +237,7 @@ export class Gather {
   use(p) {
     if (p.id === 'door' || p.id === 'gate') { this.build.toggle(p); sfx('wood1', { vol: 0.4, rate: p.open ? 0.8 : 1.1 }); return; }
     if (p.id === 'chest') { this.ui.chest = p; this.ui.toggle(true); sfx('crate', { vol: 0.4 }); return; }
-    if (p.id === 'bed') { this.build.spawn = p; this.dirty = true; this.toast('Din seng — her vågner du', false, 'b:bed'); }
+    if (p.id === 'bed') { this.build.spawn = p; this.dirty = true; if (!this.sleep()) this.toast('Din seng — her vågner du', false, 'b:bed'); }
     if (p.id === 'captive_post') {
       const led = this.people.list.find((q) => q.state === 'led' && Math.hypot(q.pos.x - p.x, q.pos.z - p.z) < 6);
       if (p.captive) this.toast(`${p.captive.name} brydes ved pælen — ${Math.ceil(p.captive.t)} s endnu`, false);
@@ -317,6 +317,23 @@ export class Gather {
     for (const s of [...sounds].slice(0, 2)) sfx(s, { vol: 0.55 });
     if (tooBig && this.clock - this.warned > 3) { this.warned = this.clock; this.toast('For stort til macheten — lav en stenøkse', true); }
     if (Object.keys(gained).length) this.receive(this.char.boost(gained));
+  }
+
+  // Sleep in your bed through the night — not with something hunting you close by.
+  sleep() {
+    const D = this.dayNight;
+    if (!D?.night) return false;
+    const p = this.camera.position;
+    const hunted = this.creatures.list.some((c) => !c.dead && !c.tamed && !c.hidden && ['chase', 'bite', 'dart', 'circle'].includes(c.state) && c.pos.distanceTo(p) < 30)
+      || this.people.threatNear(p, 30);
+    if (hunted) { this.toast('Du kan ikke sove, mens noget jager dig', true); return true; }
+    D.set(6.25);
+    this.vitals.heal(this.vitals.max);
+    this.char.stamina = this.char.maxStamina;
+    this.ui.fade?.();
+    this.toast('Du sov til solopgang', false);
+    this.dirty = true;
+    return true;
   }
 
   spend(n) {
@@ -510,7 +527,7 @@ export class Gather {
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
       piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
-      vitals: this.vitals.toJSON(), char: this.char.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(), people: this.people.serialize(),
+      hour: this.dayNight?.toJSON(), vitals: this.vitals.toJSON(), char: this.char.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(), people: this.people.serialize(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -537,6 +554,7 @@ export class Gather {
     for (const s of data.shelters ?? []) this.addShelter(s.x, s.z, s.rot);
     this.build.restore(data.build);
     this.char.load_(data.char);
+    this.dayNight?.load_(data.hour);
     this.vitals.load_(data.vitals);
     this.creatures.restore(data.dead, data.tame);
     this.people.restore(data.people);
@@ -847,7 +865,7 @@ class GatherUi {
     if (u) {
       this.cross.classList.add('on');
       this.prompt.hidden = this.open;
-      this.promptText.textContent = u.id === 'chest' ? 'Åbn kisten' : u.id === 'bed' ? (b.spawn === u ? 'Din seng' : 'Gør sengen til dit hjem') : u.id === 'captive_post' ? (u.captive ? `${u.captive.name} brydes` : 'Fangepæl') : `${u.open ? 'Luk' : 'Åbn'} ${u.id === 'door' ? 'døren' : 'porten'}`;
+      this.promptText.textContent = u.id === 'chest' ? 'Åbn kisten' : u.id === 'bed' ? (this.g.dayNight?.night ? 'Sov til morgen' : b.spawn === u ? 'Din seng' : 'Gør sengen til dit hjem') : u.id === 'captive_post' ? (u.captive ? `${u.captive.name} brydes` : 'Fangepæl') : `${u.open ? 'Luk' : 'Åbn'} ${u.id === 'door' ? 'døren' : 'porten'}`;
       this.promptKey.textContent = g.mobile ? '' : 'E';
       this.bar.hidden = true;
       if (this.act) this.act.textContent = u.id === 'bed' ? 'Sov' : u.id === 'chest' || !u.open ? 'Åbn' : 'Luk';

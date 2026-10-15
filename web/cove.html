@@ -22,6 +22,10 @@
     .times { position: fixed; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: flex; gap: 6px; }
     .times button { padding: 6px 12px; font-size: 13px; }
     .times button.on { background: rgba(233, 217, 176, 0.9); color: #10222c; border-color: transparent; }
+    .times button { display: none; }
+    .credits { margin-top: 10px; font-size: 12px; } .credits a { color: #e9d9b0; }
+    .times.debug button { display: inline-block; }
+    .times .clock { padding: 5px 12px; border-radius: 999px; background: rgba(10, 20, 26, 0.45); color: #f1e8d2; font-size: 13px; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; pointer-events: none; }
     #hint { position: fixed; bottom: max(14px, env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); font-size: 12px; opacity: 0.7; text-shadow: 0 1px 3px #000; white-space: nowrap; }
     #hint[hidden] { display: none; }
     #fps { position: fixed; right: 10px; bottom: 10px; font: 12px ui-monospace, monospace; text-shadow: 0 1px 2px #000; }
@@ -163,10 +167,12 @@
 <body>
   <canvas id="view" aria-label="Tropisk bugt"></canvas>
   <div class="times">
+    <span class="clock"></span>
     <button type="button" data-time="morgen">Morgen</button>
     <button type="button" data-time="middag">Middag</button>
     <button type="button" data-time="eftermiddag">Eftermiddag</button>
     <button type="button" data-time="solnedgang">Solnedgang</button>
+    <button type="button" data-time="nat">Nat</button>
   </div>
   <div id="hint" hidden>WASD gå · Shift løb · klik hug / byg · E saml / åbn / bind · Tab rygsæk · B byg · C karakter · R drej · Q våben</div>
   <div id="fps" hidden></div>
@@ -185,6 +191,7 @@
       <p class="sub">Stemningstest: tropisk strand i førsteperson</p>
       <button class="go" type="button">Gå i land</button>
       <p class="keys">Computer: WASD og mus, klik for at hugge, E for at samle op · Telefon: venstre tommel går, højre kigger, knappen hugger og samler</p>
+      <p class="credits" hidden><a href="cove/CREDITS.md" target="_blank" rel="noopener">Krediteringer</a></p>
     </div>
   </div>
   <script type="module" src="./src/cove/main.js"></script>
