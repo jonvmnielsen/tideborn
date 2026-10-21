@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
-  "libraryCommit": "4f5baf5",
-  "synced": "2026-10-15T08:08:42.135Z",
+  "libraryCommit": "781c633",
+  "synced": "2026-10-21T15:13:12.455Z",
   "assets": {
     "tree/palm_tall_a": {
       "id": "forge-lowpoly/palm_tall_a",
@@ -1068,6 +1068,14 @@
       "file": "animal/fox.glb",
       "bytes": 190944,
       "sha": "3bf396d08f19",
+      "license": "CC0-1.0",
+      "kind": "model"
+    },
+    "animal/raptor": {
+      "id": "quaternius-dinosaurs/characters/velociraptor",
+      "file": "animal/raptor.glb",
+      "bytes": 138276,
+      "sha": "10d3520fc841",
       "license": "CC0-1.0",
       "kind": "model"
     },

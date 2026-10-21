@@ -31,9 +31,10 @@ export const SPECIES = {
   fox: { name: 'Ildræv', model: 'animal/fox', height: 0.7, hp: 25, walk: 1.6, run: 7, xp: 10, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 }, tint: [1.5, 0.75, 0.45] },
   // Night hunter (Design Brief §3.2 threat): packs come out of the jungle after dark, circle you
   // and dart in to bite; they won't come into the light of a fire or torch, and they slink off at
-  // dawn. Played by a big dark fox until the raptor model is in (then: model 'animal/raptor').
-  stalker: { name: 'Skyggeræv', model: 'animal/fox', height: 1.5, hp: 45, walk: 2.2, run: 10.5, xp: 30, kind: 'hunter', active: 'night', sense: 34, leash: 90, damage: 7, bite: 1.6, fire: 11, eyes: [0.95, 0.7, 0.25],
-    loot: { meat: 3, hide: 2 }, tint: [0.32, 0.3, 0.36] },
+  // dawn. Model: Quaternius' velociraptor (CC0) until the Sketchfab one is in — only `model` (and
+  // maybe `clips`) changes then.
+  stalker: { name: 'Natraptor', model: 'animal/raptor', height: 1.7, length: 4.2, radius: 0.6, hp: 50, walk: 2.4, run: 11, xp: 30, kind: 'hunter', active: 'night', sense: 34, leash: 90, damage: 8, bite: 1.6, fire: 11, eyes: [0.95, 0.75, 0.3],
+    loot: { meat: 4, hide: 2 } },
 };
 
 // Where they live. at: [x, metres back from the shore at that x] — the island's south coast runs

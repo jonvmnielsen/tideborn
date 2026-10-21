@@ -25,7 +25,9 @@ const _v = new THREE.Vector3();
 
 function clipNamed(clips, ...names) {
   for (const n of names) { const c = clips.find((k) => k.name.toLowerCase() === n); if (c) return c; }
-  for (const n of names) { const c = clips.find((k) => k.name.toLowerCase().includes(n)); if (c) return c; }
+  // Then by word: "Velociraptor_Run" has the word "run" ("Death" doesn't contain the word "eat").
+  const words = (k) => k.name.toLowerCase().split(/[^a-z0-9]+/);
+  for (const n of names) { const c = clips.find((k) => words(k).some((w) => w.startsWith(n))); if (c) return c; }
   return null;
 }
 
@@ -50,7 +52,11 @@ class Creature {
     this.pivot.add(this.body);
     this.root.add(this.pivot);
     world.root.add(this.root);
-    if (sp.eyes) this.eyes = world.eyeshine(sp, this.root);
+    if (sp.eyes) {
+      this.eyes = world.eyeshine(sp, this.root);
+      // Eyes follow the head bone when the model has one.
+      this.body.traverse((o) => { if (!this.headBone && o.isBone && /head/i.test(o.name)) this.headBone = o; });
+    }
     this.mixer = new THREE.AnimationMixer(this.body);
     const clips = src.animations ?? [];
     const C = sp.clips ?? {};
@@ -261,7 +267,17 @@ class Creature {
   updateHunter(dt, player, dx, dz, dist) {
     const sp = this.sp, W = this.w;
     const night = W.night?.() ?? false;
-    if (this.eyes) this.eyes.visible = !this.dead && (W.dark?.() ?? 1) > 0.4;
+    if (this.eyes) {
+      this.eyes.visible = !this.dead && (W.dark?.() ?? 1) > 0.4;
+      if (this.eyes.visible && this.headBone) {
+        // A little up and forward of the head bone's origin (the bone sits at the neck end).
+        this.root.updateMatrixWorld(true);
+        this.headBone.getWorldPosition(this.eyes.position);
+        this.root.worldToLocal(this.eyes.position);
+        this.eyes.position.y += sp.height * 0.05;
+        this.eyes.position.z += sp.height * 0.08;
+      }
+    }
     const fromHome = this.pos.distanceTo(this.home);
     const toPlayer = _v.set(dx, 0, dz).normalize();
     this.flinch = Math.max(0, this.flinch - dt * 4);
@@ -330,8 +346,8 @@ class Creature {
   }
 
   // Its pack: the living hunters sharing its den, and its place among them.
-  pack() { return this.w.list.filter((o) => o.sp === this.sp && !o.dead && !o.hidden && o.home === this.home && ['circle', 'dart', 'bite', 'back'].includes(o.state)); }
-  slot() { const p = this.w.list.filter((o) => o.sp === this.sp && o.home === this.home); return Math.max(0, p.indexOf(this)); }
+  pack() { return this.w.list.filter((o) => o.sp === this.sp && !o.dead && !o.hidden && o.home.equals(this.home) && ['circle', 'dart', 'bite', 'back'].includes(o.state)); }
+  slot() { const p = this.w.list.filter((o) => o.sp === this.sp && o.home.equals(this.home)); return Math.max(0, p.indexOf(this)); }
   face(dx, dz, dt) { let d = Math.atan2(dx, dz) - this.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yaw += d * Math.min(1, dt * 5); }
 
   // A tame animal follows you a few metres behind, or stays where you told it to.
@@ -450,11 +466,11 @@ export class Creatures {
     const mat = new THREE.SpriteMaterial({ map: this.eyeTex, color: new THREE.Color(...sp.eyes).multiplyScalar(3), blending: THREE.AdditiveBlending, depthWrite: false, fog: false, transparent: true });
     for (const side of [-1, 1]) {
       const e = new THREE.Sprite(mat);
-      e.scale.setScalar(sp.height * 0.09);
-      e.position.set(side * sp.height * 0.07, box.max.y * s * 0.86, box.max.z * s * 0.93);
+      e.scale.setScalar(sp.height * 0.08);
+      e.position.set(side * sp.height * 0.06, 0, 0);
       grp.add(e);
     }
-    grp.rotation.y = sp.yaw ?? 0;
+    grp.position.set(0, box.max.y * s * 0.86, box.max.z * s * 0.93).applyAxisAngle(UP, sp.yaw ?? 0);
     root.add(grp);
     return grp;
   }

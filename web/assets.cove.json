@@ -547,6 +547,10 @@
       "as": "animal/fox"
     },
     {
+      "id": "quaternius-dinosaurs/characters/velociraptor",
+      "as": "animal/raptor"
+    },
+    {
       "id": "forge-lowpoly/meat",
       "as": "item/meat"
     },
