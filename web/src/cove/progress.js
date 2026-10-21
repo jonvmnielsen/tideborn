@@ -77,7 +77,7 @@ export class Character {
   update(dt, sprinting) {
     if (sprinting) { this.stamina = Math.max(0, this.stamina - 11 * dt); this.rest = 0; }
     else this.rest += dt;
-    if (this.rest > 0.8) this.stamina = Math.min(this.maxStamina, this.stamina + 22 * dt);
+    if (this.rest > 0.8) this.stamina = Math.min(this.maxStamina, this.stamina + 22 * dt * (this.regenMul ?? 1));
   }
 
   changed() { for (const f of this.listeners) f(); }

@@ -21,10 +21,12 @@ import { People } from './followers.js';
 import { createOcean } from './ocean.js';
 import { CoveSky } from './sky.js';
 import { DayNight } from './daynight.js';
+
 import { SPAWNS } from './species.js';
+import { IslandMap } from './map.js';
 import { Flora } from './flora.js';
 import { FirstPerson } from './fps.js';
-import { startSound, initSfx, sfx } from './sound.js';
+import { startSound, initSfx, sfx, setNight } from './sound.js';
 
 const params = new URLSearchParams(location.search);
 const mobile = matchMedia('(pointer: coarse)').matches || params.has('mobile');
@@ -132,13 +134,33 @@ async function start() {
       if (!mobile) canvas.requestPointerLock?.();
     },
   });
+  vitals.onHungry = () => gather.toast('Du er sulten — spis noget (frugt, eller kød stegt over et bål)', true);
   creatures.onBite = (c, n) => { vitals.hurt(n); sfx(['bitten', 'bitten2'], { vol: 0.7 }); fp.pitch += 0.05; };
   // People (D-023): Jens and Mads at the camp, Ida hurt on the east beach, raiders on the west headland.
   const people = new People({ scene, assets, island, flora, building, camp: flora.camp, mobile });
   people.creatures = creatures;
   creatures.feared = (x, z) => people.feared(x, z);
   creatures.onBirth = (c, fresh) => { gather.toast(`${c.parents[0]} har født: ${c.name} (${c.sex === 'f' ? 'hun' : 'han'}, generation ${c.gen})${fresh ? ` — en mutation: ${MUTATIONS[fresh].name}!` : ''}`, false); gather.dirty = true; };
-  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight });
+  const islandMap = new IslandMap({ island, mobile });
+  islandMap.places = [
+    { name: 'Vulkanen', x: VOLCANO.x, z: VOLCANO.z, r: VOLCANO.base * 0.75 },
+    { name: 'Strandlejren', x: flora.camp.x, z: flora.camp.z, r: 30 },
+    { name: 'Røverlejren', x: people.raidCamp.x, z: people.raidCamp.z, r: 40 },
+  ];
+  // The island map (M / "Kort"): fills in as you explore; finding a place gives experience.
+  islandMap.onFound = (pl) => { gather.toast(`Opdaget: ${pl.name}`, false); character.gain(15); gather.dirty = true; };
+  islandMap.onToggle = (on) => {
+    fp.enabled = !on && !gather.ui.open && vitals.alive;
+    if (on) document.exitPointerLock?.(); else if (!mobile) canvas.requestPointerLock?.();
+  };
+  islandMap.markers = () => ({
+    you: { x: camera.position.x, z: camera.position.z, yaw: fp.yaw },
+    home: building.spawn,
+    fires: building.pieces.filter((q) => q.fire),
+    animals: creatures.list.filter((c) => c.tamed && !c.dead).map((c) => ({ x: c.pos.x, z: c.pos.z, name: c.name })),
+    people: people.list.filter((q) => q.follower).map((q) => ({ x: q.pos.x, z: q.pos.z, name: q.name, ally: q.side === 'ally' })),
+  });
+  const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight, map: islandMap });
   gather.fp = fp;
   building.costFactor = () => people.costFactor();
   people.onHeal = (n) => vitals.heal(n);
@@ -169,6 +191,7 @@ async function start() {
       gather.ui.toggle(undefined, tab);
       if (!gather.ui.open && !mobile) canvas.requestPointerLock?.();
     }
+    if (e.code === 'KeyM' && vitals.alive) { islandMap.toggle(); return; }
     if (!fp.enabled) return;
     if (e.code === 'KeyE') gather.interact();
     if (e.code === 'KeyQ' || e.code === 'Digit1' || e.code === 'Digit2') gather.cycleTool();
@@ -233,6 +256,7 @@ async function start() {
     gather.update(dt);
     building.update(dt, t, gather.inv);
     dayNight.update(dt);
+    setNight(dayNight.dark);
     const ck = `${dayNight.night ? '☾' : '☀'} ${dayNight.clock}`;
     if (ck !== shown) { shown = ck; clockEl.textContent = ck; }
     vitals.update(dt);
@@ -248,6 +272,8 @@ async function start() {
     flora.update(p.x, p.z, t);
     plume.update(t);
     fauna.update(t, dt, p);
+    islandMap.update(dt, p);
+    if (islandMap.changed) { islandMap.changed = false; gather.dirty = true; }
     const look = gather.flat();
     people.update(dt, { player: { x: camera.position.x, y: camera.position.y, z: camera.position.z, alive: vitals.alive, fx: look.x, fz: look.y }, inv: gather.inv });
     // Phones: the sun's shadow map is redrawn every other frame (it is a quarter of the triangles).
@@ -258,7 +284,7 @@ async function start() {
     requestAnimationFrame(loop);
   };
   ui.fps.hidden = !params.has('fps');
-  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, people, island, flora, fauna, sky, plume, setTime, go, dayNight };
+  window.__cove = { VIEW, building, creatures, vitals, fps: 0, frames: 0, scene, camera, renderer, fp, hands, gather, tools, people, island, flora, fauna, sky, plume, setTime, go, dayNight, map: islandMap };
   loop();
 }
 

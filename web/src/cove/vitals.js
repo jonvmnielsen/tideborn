@@ -3,10 +3,16 @@
 // faster when you eat. At 0 you black out: what you carried — except tools and bag — stays in a
 // pile where you fell, and you wake in your bed (or on the beach). Top left: health, stamina and
 // the experience bar with your level (a "+" shows when you have points to spend: C / the panel).
+// Hunger (Design Brief §2: light survival pressure, never the star): you get hungry over about two
+// days of island time (40 minutes). Under a quarter full, health no longer comes back by itself
+// and stamina recovers slower; when empty you slowly lose health — but hunger alone never takes
+// you below a quarter of it. Eating fills you up (cooked meat most), sleeping uses some.
+export const FULL_SECONDS = 2400;
 export class Vitals {
   constructor({ character, onDeath, onRespawn, onOpenCharacter }) {
     this.char = character;
     this.hp = character.maxHp;
+    this.food = 80;
     this.alive = true;
     this.since = 99; // seconds since you were last hurt
     this.onDeath = onDeath;
@@ -22,6 +28,8 @@ export class Vitals {
     this.label = el('span', '', this.bar);
     this.stam = el('div', 'stam', bars);
     this.stamFill = el('i', '', this.stam);
+    this.foodBar = el('div', 'food', bars);
+    this.foodFill = el('i', '', this.foodBar);
     this.xpBar = el('div', 'xp', bars);
     this.xpFill = el('i', '', this.xpBar);
     this.flash = el('div', 'hurt');
@@ -50,8 +58,13 @@ export class Vitals {
 
   heal(n) { if (this.alive) { this.hp = Math.min(this.max, this.hp + n); this.render(); } }
 
+  eat(n) { this.food = Math.min(100, this.food + n); this.render(); }
+  // Time passes without you (sleeping): hunger goes on.
+  starve(seconds) { this.food = Math.max(0, this.food - (100 * seconds) / FULL_SECONDS); this.render(); }
+
   respawn() {
     this.hp = this.max * 0.6;
+    this.food = Math.max(this.food, 50);
     this.alive = true;
     this.since = 99;
     this.char.stamina = this.char.maxStamina;
@@ -64,7 +77,13 @@ export class Vitals {
     this.since += dt;
     const o = parseFloat(this.flash.style.opacity || '0');
     if (o > 0) this.flash.style.opacity = String(Math.max(0, o - dt * 1.6));
-    if (this.alive && this.since > 8 && this.hp < this.max) this.hp = Math.min(this.max, this.hp + dt * 0.5);
+    if (this.alive) this.food = Math.max(0, this.food - (100 * dt) / FULL_SECONDS);
+    const hungry = this.food < 25;
+    this.char.regenMul = hungry ? 0.6 : 1;
+    if (this.alive && !hungry && this.since > 8 && this.hp < this.max) this.hp = Math.min(this.max, this.hp + dt * 0.5);
+    if (this.alive && this.food <= 0 && this.hp > this.max * 0.25) this.hp = Math.max(this.max * 0.25, this.hp - dt * 0.25);
+    if (hungry && !this.warned) { this.warned = true; this.onHungry?.(); }
+    if (!hungry) this.warned = false;
     this.render();
   }
 
@@ -75,11 +94,13 @@ export class Vitals {
     this.bar.classList.toggle('low', this.hp < this.max * 0.3);
     this.stamFill.style.width = `${(c.stamina / c.maxStamina) * 100}%`;
     this.stam.classList.toggle('empty', c.stamina < 5);
+    this.foodFill.style.width = `${this.food}%`;
+    this.foodBar.classList.toggle('low', this.food < 25);
     this.xpFill.style.width = `${Math.min(100, (c.xp / (c.need?.() ?? 1)) * 100)}%`;
     const lv = `${c.level}${c.points ? '<b>+</b>' : ''}`;
     if (lv !== this.lv) { this.lv = lv; this.levelBtn.innerHTML = lv; }
   }
 
-  toJSON() { return { hp: Math.round(this.hp) }; }
-  load_(d) { if (d?.hp) { this.hp = Math.min(this.max, Math.max(20, d.hp)); this.render(); } }
+  toJSON() { return { hp: Math.round(this.hp), food: Math.round(this.food) }; }
+  load_(d) { if (d?.hp) this.hp = Math.min(this.max, Math.max(20, d.hp)); if (typeof d?.food === 'number') this.food = d.food; this.render(); }
 }

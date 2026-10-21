@@ -1,7 +1,7 @@
 {
   "library": "jonvmnielsen/game-assets",
   "libraryCommit": "781c633",
-  "synced": "2026-10-21T15:13:12.455Z",
+  "synced": "2026-10-21T15:57:48.792Z",
   "licenses": {
     "sonniss-gdc": {
       "name": "Sonniss #GameAudioGDC Bundle License",
@@ -12,6 +12,11 @@
   },
   "sounds": {
     "jse-forest/forest_day": {
+      "seconds": 45.04,
+      "bytes": 540779,
+      "license": "sonniss-gdc"
+    },
+    "jse-forest/forest_night_owls": {
       "seconds": 45.04,
       "bytes": 540779,
       "license": "sonniss-gdc"

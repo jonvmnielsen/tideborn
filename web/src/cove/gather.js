@@ -46,8 +46,8 @@ const SMALL = {
 };
 
 export class Gather {
-  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight }) {
-    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character, fauna, dayNight });
+  constructor({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight, map }) {
+    Object.assign(this, { scene, camera, assets, flora, island, hands, mobile, tools, build: building, creatures, vitals, people, char: character, fauna, dayNight, map });
     building.changed = () => { this.dirty = true; };
     creatures.hasFood = (sp) => sp.tame.food.some((f) => this.inv.count(f) > 0);
     this.inv = new Inventory();
@@ -189,9 +189,12 @@ export class Gather {
     const f = ITEMS[id]?.food;
     if (!f || !this.inv.count(id)) return;
     this.inv.remove(id, 1);
-    this.vitals.heal(f);
+    // Food fills you up (cooked meat most) and heals a little.
+    const full = Math.round(f * 1.6), heal = Math.round(f * 0.5);
+    this.vitals.eat(full);
+    this.vitals.heal(heal);
     sfx('pickup', { vol: 0.5, rate: 0.8 });
-    this.toast(`Spiste ${ITEMS[id].name.toLowerCase()} (+${f} liv)`, false, id);
+    this.toast(`Spiste ${ITEMS[id].name.toLowerCase()} (+${full} mæthed, +${heal} liv)`, false, id);
   }
 
   // You blacked out: everything but tools and bags stays in a pile where you fell.
@@ -367,7 +370,9 @@ export class Gather {
     const hunted = this.creatures.list.some((c) => !c.dead && !c.tamed && !c.hidden && ['chase', 'bite', 'dart', 'circle'].includes(c.state) && c.pos.distanceTo(p) < 30)
       || this.people.threatNear(p, 30);
     if (hunted) { this.toast('Du kan ikke sove, mens noget jager dig', true); return true; }
+    const slept = ((6.25 - D.hour + 24) % 24) * (1200 / 24); // real seconds of island time skipped
     D.set(6.25);
+    this.vitals.starve(slept);
     this.vitals.heal(this.vitals.max);
     this.char.stamina = this.char.maxStamina;
     this.ui.fade?.();
@@ -567,7 +572,7 @@ export class Gather {
       cut: [...this.cut].filter(([id]) => typeof id === 'number'),
       cover: [...this.coverCut], opened: [...this.flora.byId.values()].filter((n) => n.opened).map((n) => n.id),
       piles: this.piles.map((p) => ({ x: p.x, z: p.z, items: p.items })), build: this.build.serialize(),
-      hour: this.dayNight?.toJSON(), vitals: this.vitals.toJSON(), char: this.char.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(), people: this.people.serialize(),
+      hour: this.dayNight?.toJSON(), map: this.map?.toJSON(), vitals: this.vitals.toJSON(), char: this.char.toJSON(), dead: this.creatures.serialize(), tame: this.creatures.serializeTame(), people: this.people.serialize(),
     };
     try { localStorage.setItem(SAVE_KEY, JSON.stringify(data)); } catch { /* private mode: no saving */ }
   }
@@ -595,6 +600,7 @@ export class Gather {
     this.build.restore(data.build);
     this.char.load_(data.char);
     this.dayNight?.load_(data.hour);
+    this.map?.load_(data.map);
     this.vitals.load_(data.vitals);
     this.creatures.restore(data.dead, data.tame);
     this.people.restore(data.people);
@@ -639,6 +645,7 @@ class GatherUi {
     const tap = (b, f) => { b.addEventListener('click', (e) => { e.stopPropagation(); f(); }); b.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); f(); }, { passive: false }); };
     tap(this.bagBtn, () => this.toggle());
     tap(this.toolBtn, () => g.cycleTool());
+    if (g.map) { this.mapBtn = el('button', 'hud-btn map', this.hud, 'Kort'); tap(this.mapBtn, () => g.map.toggle()); }
     this.rideBtn = el('button', 'hud-btn ride', this.hud, 'Stig af');
     this.rideBtn.hidden = true;
     tap(this.rideBtn, () => g.dismount());

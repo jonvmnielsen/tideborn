@@ -1,8 +1,11 @@
 // Ambient sound for the cove: surf made from filtered noise (slow swells), the library's
 // forest-day and soft-wind loops (Sonniss GDC, via game-assets) kept low under it, and
 // synthesized tropical birds — whistles, trills, parrot squawks and gull cries — at random.
+// At night (setNight) the day forest and the birds fade out and a night forest with owls fades in.
 let started = false;
 let ctx = null, master = null;
+let night = 0; // 0 day … 1 night
+const beds = {}; // ambience loops by name → gain node
 const sfxUrls = {}, sfxBufs = {};
 
 // Short effect clips (assets of kind "audio", keys "sfx/…"), decoded once sound has started.
@@ -70,7 +73,7 @@ export async function startSound(base) {
   lfo.connect(lfo2).connect(lp.frequency);
   lfo.start();
 
-  for (const [file, vol] of [['jse-forest/forest_day.mp3', 0.22], ['ksl-countryside/wind_soft.mp3', 0.25]]) {
+  for (const [file, vol, when] of [['jse-forest/forest_day.mp3', 0.22, 'day'], ['ksl-countryside/wind_soft.mp3', 0.25], ['jse-forest/forest_night_owls.mp3', 0.3, 'night']]) {
     try {
       const data = await (await fetch(`${base}/${file}`)).arrayBuffer();
       const b = await ctx.decodeAudioData(data);
@@ -78,7 +81,8 @@ export async function startSound(base) {
       src.buffer = b;
       src.loop = true;
       const g = ctx.createGain();
-      g.gain.value = vol;
+      g.gain.value = when === 'day' ? vol * (1 - night) : when === 'night' ? vol * night : vol;
+      if (when) beds[when] = { g, vol };
       src.connect(g).connect(master);
       src.start();
     } catch {
@@ -86,6 +90,16 @@ export async function startSound(base) {
     }
   }
   birds(ctx, master);
+}
+
+// 0 = day, 1 = night: crossfades the forest beds (called as the light changes).
+export function setNight(n) {
+  if (Math.abs(n - night) < 0.02) return;
+  night = n;
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  if (beds.day) beds.day.g.gain.setTargetAtTime(beds.day.vol * (1 - n), t, 1.5);
+  if (beds.night) beds.night.g.gain.setTargetAtTime(beds.night.vol * n, t, 1.5);
 }
 
 function birds(ctx, out) {
@@ -132,7 +146,8 @@ function birds(ctx, out) {
   ];
   const next = () => {
     const pan = Math.random() * 1.6 - 0.8;
-    calls[Math.floor(Math.random() * calls.length)](ctx.currentTime + 0.05, pan);
+    // Birds sing by day; at night only now and then a lone hoot.
+    if (Math.random() > night * 0.95) calls[night > 0.5 ? 5 : Math.floor(Math.random() * calls.length)](ctx.currentTime + 0.05, pan);
     setTimeout(next, 900 + Math.random() * 3200);
   };
   next();
