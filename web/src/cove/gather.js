@@ -10,7 +10,7 @@ import { sfx } from './sound.js';
 import { ITEMS, RECIPES, Inventory, BASE_UNITS, SLOW_AT } from './inventory.js';
 import { PIECES, PIECE } from './build.js';
 import { ROLE_NAMES, SKILLS } from './followers.js';
-import { FAMILY, MUTATIONS } from './breeding.js';
+import { FAMILY, MUTATIONS, effective } from './breeding.js';
 import { STATS } from './progress.js';
 
 // cut: hits with { machete, axe } (0 = can't); give: items; fall: seconds to topple;
@@ -226,6 +226,7 @@ export class Gather {
   }
 
   interact() {
+    if (this.riding) return this.dismount();
     if (this.pickTarget) { if (this.hands.pickup()) this.pending = this.pickTarget; return; }
     if (this.carcass) { if (this.hands.pickup()) this.pending = { carcass: this.carcass }; return; }
     if (this.animal) return this.useAnimal(this.animal);
@@ -244,6 +245,45 @@ export class Gather {
       else if (led) this.say(this.people.stake(led, p));
       else this.toast('Fangepæl: slå en røver bevidstløs med en kølle, bind og væk dem, og før dem herhen', false);
     }
+  }
+
+  // Riding (Design Brief §3.2: tame utility you feel in the body). A grown tame hind or giant
+  // stag carries you: you see from its back, it runs much faster than you and doesn't use your
+  // stamina, and it can't go into water deeper than its chest. E (or "Stig af") gets you down.
+  mount(c) {
+    const R = c.sp.tame?.ride;
+    if (!R || !c.tamed || c.maturity < 1) return false;
+    if (this.riding) this.dismount();
+    this.ui.toggle(false);
+    const fp = this.fp;
+    const run = (c.stats ? effective(c).run : c.sp.run) * 0.92;
+    fp.mount = { eye: R.eye, walk: R.walk, run: Math.max(R.run, run), radius: 0.7, ahead: (R.seat ?? 0.8) + 0.6 };
+    fp.place(c.pos.x, c.pos.z, fp.yaw);
+    c.ridden = true;
+    c.lastX = fp.pos.x; c.lastZ = fp.pos.z;
+    c.yaw = Math.atan2(-Math.sin(fp.yaw), -Math.cos(fp.yaw));
+    this.riding = c;
+    sfx('pickup2', { vol: 0.4, rate: 0.7 });
+    this.toast(this.mobile ? `Du rider på ${c.name} — "Stig af" øverst` : `Du rider på ${c.name} — E stiger af`, false, 'ride');
+    return true;
+  }
+
+  dismount() {
+    const c = this.riding, fp = this.fp;
+    if (!c) return;
+    c.ridden = false;
+    c.mode = 'stay';
+    c.state = 'idle'; c.t = 2; c.play('idle');
+    this.riding = null;
+    fp.mount = null;
+    // Step down beside it (left side, or wherever there's room).
+    for (const side of [1, -1, 2, -2]) {
+      const a = c.yaw + side * Math.PI / 2, d = 1.4 + Math.abs(side) * 0.4;
+      const x = c.pos.x + Math.sin(a) * d, z = c.pos.z + Math.cos(a) * d;
+      if (!this.flora.blocked(x, z, 0.4)) { fp.place(x, z, fp.yaw); break; }
+    }
+    this.toast(`${c.name} bliver her`, false, 'ride');
+    this.dirty = true;
   }
 
   useAnimal(c) {
@@ -599,6 +639,9 @@ class GatherUi {
     const tap = (b, f) => { b.addEventListener('click', (e) => { e.stopPropagation(); f(); }); b.addEventListener('touchstart', (e) => { e.preventDefault(); e.stopPropagation(); f(); }, { passive: false }); };
     tap(this.bagBtn, () => this.toggle());
     tap(this.toolBtn, () => g.cycleTool());
+    this.rideBtn = el('button', 'hud-btn ride', this.hud, 'Stig af');
+    this.rideBtn.hidden = true;
+    tap(this.rideBtn, () => g.dismount());
     if (g.mobile) {
       this.act = el('button', 'act-btn', document.body, 'Hug');
       tap(this.act, () => g.act());
@@ -694,7 +737,7 @@ class GatherUi {
     this.panel.innerHTML = `
       <div class="bp-head"><h2>${animal ? `${animal.name} · ${animal.sp.name.toLowerCase()}` : 'Kiste'}</h2><button class="bp-close" type="button">Luk</button></div>
       ${animal ? `<div class="bp-load"><div class="bp-meter"><i style="width:${Math.min(100, (load / cap) * 100)}%"></i></div><span>Sadeltasker: ${load.toFixed(1)} / ${cap} units</span></div>
-      <div class="bp-tabs"><button data-mode="follow" class="${animal.mode === 'follow' ? 'on' : ''}">Følg mig</button><button data-mode="stay" class="${animal.mode === 'stay' ? 'on' : ''}">Bliv her</button>${this.pairButton(animal)}</div>
+      <div class="bp-tabs">${animal.sp.tame?.ride ? `<button data-ride ${animal.maturity < 1 ? 'disabled title="For ung til at bære dig"' : ''}>Rid</button>` : ''}<button data-mode="follow" class="${animal.mode === 'follow' ? 'on' : ''}">Følg mig</button><button data-mode="stay" class="${animal.mode === 'stay' ? 'on' : ''}">Bliv her</button>${this.pairButton(animal)}</div>
       ${this.lineage(animal)}` : ''}
       <p class="bp-foot">Tryk på en bunke for at flytte den over.</p>
       <div class="bp-cols">
@@ -702,6 +745,7 @@ class GatherUi {
         <section><h3>${animal ? 'I sadeltaskerne' : 'I kisten'}</h3><div class="bp-grid">${boxItems.map(([id, n]) => cell(id, n, 'out')).join('') || '<p class="bp-empty">Tom</p>'}</div></section>
       </div>`;
     this.panel.querySelector('.bp-close').onclick = () => this.toggle(false);
+    this.panel.querySelector('[data-ride]')?.addEventListener('click', () => this.g.mount(animal));
     this.panel.querySelector('[data-pair]')?.addEventListener('click', () => {
       const mate = this.g.creatures.mateFor(animal);
       if (!mate) return;
@@ -812,6 +856,7 @@ class GatherUi {
   update() {
     this.foeBar();
     const g = this.g, b = g.build, t = g.target;
+    this.rideBtn.hidden = !g.riding;
     const k = t ? KINDS[t.kind] : null;
     this.buildBar.hidden = !b.mode || this.open;
     if (b.mode) {

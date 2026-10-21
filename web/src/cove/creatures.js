@@ -135,7 +135,7 @@ class Creature {
     const once = name === 'death' || name === 'hit';
     a.setLoop(once ? THREE.LoopOnce : THREE.LoopRepeat);
     a.clampWhenFinished = once;
-    a.reset().setEffectiveWeight(1);
+    a.reset().setEffectiveWeight(1).setEffectiveTimeScale(1);
     if (fade > 0) a.fadeIn(fade);
     a.play();
     if (this.current) { if (fade > 0) this.current.fadeOut(fade); else this.current.stop(); }
@@ -353,6 +353,7 @@ class Creature {
   // A tame animal follows you a few metres behind, or stays where you told it to.
   updateTame(dt, player, dx, dz, dist) {
     const sp = this.sp;
+    if (this.ridden) { this.updateRidden(dt, player); return; }
     if (this.maturity < 1) {
       this.maturity = Math.min(1, this.maturity + dt / (FAMILY[sp.family].grow * effective(this).growMul));
       this.look();
@@ -377,6 +378,22 @@ class Creature {
     }
     // Face you when you're close.
     if (dist < 5) { let d = Math.atan2(dx, dz) - this.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yaw += d * Math.min(1, dt * 2); }
+  }
+
+  // Ridden: it walks where you steer, under you (your eyes over its shoulders).
+  updateRidden(dt, player) {
+    const dx = player.x - this.lastX, dz = player.z - this.lastZ;
+    const v = Math.hypot(dx, dz) / Math.max(1e-3, dt);
+    this.lastX = player.x; this.lastZ = player.z;
+    this.speed += (v - this.speed) * Math.min(1, dt * 6);
+    if (v > 0.3) { let d = Math.atan2(dx, dz) - this.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); this.yaw += d * Math.min(1, dt * 8); }
+    // You sit on its back, behind the shoulders: its middle is `seat` metres ahead of your eyes.
+    const ahead = this.sp.tame.ride?.seat ?? 0.8;
+    this.pos.set(player.x + Math.sin(this.yaw) * ahead, 0, player.z + Math.cos(this.yaw) * ahead);
+    const run = this.speed > (this.sp.tame.ride?.walk ?? 3) + 0.8;
+    this.play(this.speed < 0.4 ? 'idle' : run ? 'run' : 'walk', 0.2);
+    if (this.current) this.current.timeScale = this.speed < 0.4 ? 1 : Math.min(1.6, Math.max(0.6, this.speed / (run ? this.sp.run * 0.9 : this.sp.walk * 1.4)));
+    this.state = 'ridden';
   }
 
   // One feeding. Returns 'tamed' when this was the last one.
@@ -493,7 +510,7 @@ export class Creatures {
 
   // The player can't walk through a living animal.
   blocksPlayer(x, z, r) {
-    for (const c of this.list) if (!c.dead && !c.hidden && Math.hypot(c.pos.x - x, c.pos.z - z) < r + radius(c.sp)) return true;
+    for (const c of this.list) if (!c.dead && !c.hidden && !c.ridden && Math.hypot(c.pos.x - x, c.pos.z - z) < r + radius(c.sp)) return true;
     return false;
   }
 
@@ -555,7 +572,7 @@ export class Creatures {
   animalNear(p, f, reach = 2.8) {
     let best = null, bd = Infinity;
     for (const c of this.list) {
-      if (c.dead || c.hidden || (!c.tamed && !c.sp.tame)) continue;
+      if (c.dead || c.hidden || c.ridden || (!c.tamed && !c.sp.tame)) continue;
       const dx = c.pos.x - p.x, dz = c.pos.z - p.z, d = Math.hypot(dx, dz);
       if (d > reach + radius(c.sp) * 1.25) continue;
       const cos = (dx * f.x + dz * f.y) / Math.max(0.01, d);

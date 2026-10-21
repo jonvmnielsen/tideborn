@@ -20,14 +20,16 @@
 //   damage, bite (s between bites), fire (m it keeps from a burning fire or torch; hunters)
 //   eyes      RGB of eyeshine — the glint of its eyes in the dark (night animals)
 //   loot, xp, herd
-//   tame      { food: [...], feeds, carry, use } — can be tamed by feeding
+//   tame      { food: [...], feeds, carry, use, ride } — can be tamed by feeding; ride = { eye, walk,
+//             run, seat }: a grown tame one can be ridden (eye height, speeds, and how far its middle is
+//             ahead of your eyes — metres, m/s)
 //   family    breeding family (breeding.js); sex 'f' | 'm'
 
 export const SPECIES = {
   doe: { name: 'Hind', family: 'deer', sex: 'f', model: 'animal/doe', height: 2.3, hp: 60, walk: 1.6, run: 9, xp: 20, kind: 'prey', scare: 13, loot: { meat: 5, hide: 3 }, herd: 4,
-    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer for dig' } },
+    tame: { food: ['banana', 'coconut'], feeds: 4, carry: 60, use: 'Pakdyr: bærer for dig og kan rides', ride: { eye: 2.5, walk: 3.4, run: 8.5, seat: 0.7 } } },
   stag: { name: 'Kæmpehjort', family: 'deer', sex: 'm', model: 'animal/stag', height: 3.4, hp: 140, walk: 1.6, run: 8.5, xp: 45, kind: 'territorial', scare: 11, charge: 8, damage: 20, loot: { meat: 9, hide: 5 },
-    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer meget for dig' } },
+    tame: { food: ['banana', 'coconut'], feeds: 7, carry: 140, use: 'Stærkt pakdyr: bærer meget for dig og kan rides', ride: { eye: 3.2, walk: 3.6, run: 9.5, seat: 1.0 } } },
   fox: { name: 'Ildræv', model: 'animal/fox', height: 0.7, hp: 25, walk: 1.6, run: 7, xp: 10, kind: 'prey', scare: 9, loot: { meat: 1, hide: 1 }, tint: [1.5, 0.75, 0.45] },
   // Night hunter (Design Brief §3.2 threat): packs come out of the jungle after dark, circle you
   // and dart in to bite; they won't come into the light of a fire or torch, and they slink off at

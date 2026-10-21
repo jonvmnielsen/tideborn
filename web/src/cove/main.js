@@ -123,7 +123,7 @@ async function start() {
   const vitals = new Vitals({
     character,
     onOpenCharacter: () => gather.ui.toggle(true, 'char'),
-    onDeath: () => { gather.dropAll(); fp.enabled = false; },
+    onDeath: () => { gather.dismount(); gather.dropAll(); fp.enabled = false; },
     onRespawn: () => {
       const b = building.spawn;
       if (b) fp.place(b.x + Math.sin(b.rot) * 1.2, b.z + Math.cos(b.rot) * 1.2, b.rot, b.y + 0.2);
@@ -139,6 +139,7 @@ async function start() {
   creatures.feared = (x, z) => people.feared(x, z);
   creatures.onBirth = (c, fresh) => { gather.toast(`${c.parents[0]} har født: ${c.name} (${c.sex === 'f' ? 'hun' : 'han'}, generation ${c.gen})${fresh ? ` — en mutation: ${MUTATIONS[fresh].name}!` : ''}`, false); gather.dirty = true; };
   const gather = new Gather({ scene, camera, assets, flora, island, hands, mobile, tools, building, creatures, vitals, people, character, fauna, dayNight });
+  gather.fp = fp;
   building.costFactor = () => people.costFactor();
   people.onHeal = (n) => vitals.heal(n);
   people.onThrall = (q) => { gather.toast(`${q.name} er nu din træl`, false); character.gain(60); gather.dirty = true; };

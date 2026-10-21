@@ -47,6 +47,8 @@
     .hud-btn { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; font-size: 13px; font-weight: 600; }
     .hud-btn img { width: 34px; height: 34px; }
     .hud-btn.tool { padding: 4px; }
+    .hud-btn.ride { position: fixed; right: max(12px, env(safe-area-inset-right)); top: calc(max(56px, calc(env(safe-area-inset-top) + 48px)) + 52px); padding: 8px 16px; }
+    .hud-btn[hidden] { display: none; }
     .hud-btn.full { border-color: #f0b070; color: #ffd9a8; }
     .hud-btn.heavy { border-color: #e8d48a; }
     .bagpanel { position: fixed; inset: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); max-width: 860px; margin: auto; max-height: 640px; overflow: auto; padding: 18px 20px; border-radius: 16px; background: rgba(14, 30, 36, 0.92); border: 1px solid rgba(255, 255, 255, 0.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); touch-action: pan-y; user-select: none; }

@@ -3,6 +3,7 @@
 import * as THREE from 'three';
 
 const EYE = 1.68, WALK = 3.0, RUN = 5.6;
+// On a mount: mount = { eye, walk, run, radius } (set by gather.js while you ride).
 
 export class FirstPerson {
   constructor(camera, dom, { ground, blocked, depthAt }) {
@@ -74,9 +75,11 @@ export class FirstPerson {
   }
 
   place(x, z, yaw, feet) {
-    this.pos.set(x, this.ground(x, z, feet) + EYE, z);
+    this.pos.set(x, this.ground(x, z, feet) + this.eye, z);
     this.yaw = yaw;
   }
+
+  get eye() { return this.mount?.eye ?? EYE; }
 
   // A tool held in the right hand, low in view (e.g. the machete).
   hold(obj) {
@@ -96,11 +99,12 @@ export class FirstPerson {
     fx += this.move.x; fz += this.move.y;
     const l = Math.hypot(fx, fz);
     if (l > 1) { fx /= l; fz /= l; }
-    const run = this.pace > 0.5 && (this.canRun?.() ?? true) && (k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95);
-    this.sprinting = run && Math.hypot(fx, fz) > 0.1;
+    const M = this.mount, EYE = this.eye, WALK = M?.walk ?? 3.0, RUN = M?.run ?? 5.6;
+    const run = (M || this.pace > 0.5) && (M || (this.canRun?.() ?? true)) && (k.has('ShiftLeft') || k.has('ShiftRight') || Math.hypot(this.move.x, this.move.y) > 0.95);
+    this.sprinting = !M && run && Math.hypot(fx, fz) > 0.1;
     const depth = this.depthAt(this.pos.x, this.pos.z);
     const wade = 1 - Math.min(0.6, Math.max(0, depth) * 0.5);
-    const want = (run ? RUN : WALK) * Math.min(1, Math.hypot(fx, fz)) * wade * this.pace;
+    const want = (run ? RUN : WALK) * Math.min(1, Math.hypot(fx, fz)) * wade * (M ? 1 : this.pace);
     this.speed += (want - this.speed) * Math.min(1, dt * 8);
     if (l > 0.01) {
       const s = Math.sin(this.yaw), c = Math.cos(this.yaw);
@@ -109,7 +113,9 @@ export class FirstPerson {
       const nx = this.pos.x + vx * this.speed * dt, nz = this.pos.z + vz * this.speed * dt;
       // Slide along obstacles; stop at chest-deep water.
       const feet = this.pos.y - EYE;
-      const ok = (x, z) => !this.blocked(x, z, 0.35, feet) && this.depthAt(x, z) < 1.15;
+      const ok = (x, z) => !this.blocked(x, z, M?.radius ?? 0.35, feet) && this.depthAt(x, z) < (M ? 0.9 : 1.15)
+        // a mount's chest is ahead of you: that has to fit too
+        && (!M?.ahead || !this.blocked(x + vx * M.ahead, z + vz * M.ahead, M.radius, feet));
       if (ok(nx, nz)) { this.pos.x = nx; this.pos.z = nz; }
       else if (ok(nx, this.pos.z)) this.pos.x = nx;
       else if (ok(this.pos.x, nz)) this.pos.z = nz;
