@@ -1,0 +1,1 @@
+name=V5d_Verify ok=True alt=2780698 src=C:\Users\User\Desktop\AI\Grok\Tideborn\Saved\Screenshots\WindowsEditor\V5d_Overview_1790356757.png

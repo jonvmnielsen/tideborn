@@ -1,0 +1,2 @@
+name=TidebornCoveVerify ok=False target=0 auto=0
+TARGET=2596261

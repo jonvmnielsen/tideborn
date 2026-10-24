@@ -1,0 +1,7 @@
+removed center TidebornEnv_Boulder_extra_02 at 800,950
+removed TidebornEnv_Boulder_extra_02
+removed center TidebornEnv_Boulder_extra_04 at 1000,720
+removed TidebornEnv_Boulder_extra_04
+removed TidebornEnv_Boulder_extra_03
+removed=5
+DONE

@@ -1,0 +1,8 @@
+SM_BurrHound.fbx -> ['/Game/Tideborn/Meshes/SM_BurrHound.SM_BurrHound']
+SM_Foundation.fbx -> ['/Game/Tideborn/Meshes/SM_Foundation.SM_Foundation']
+SM_KelpBack.fbx -> ['/Game/Tideborn/Meshes/SM_KelpBack.SM_KelpBack']
+SM_PathPost.fbx -> ['/Game/Tideborn/Meshes/SM_PathPost.SM_PathPost']
+SM_ShoreGate.fbx -> ['/Game/Tideborn/Meshes/SM_ShoreGate.SM_ShoreGate']
+SM_StoneCluster.fbx -> ['/Game/Tideborn/Meshes/SM_StoneCluster.SM_StoneCluster']
+SM_WoodStump.fbx -> ['/Game/Tideborn/Meshes/SM_WoodStump.SM_WoodStump']
+assets=/Game/Tideborn/Meshes/M_BurrHide.M_BurrHide; /Game/Tideborn/Meshes/M_BurrSpike.M_BurrSpike; /Game/Tideborn/Meshes/M_GateStone.M_GateStone; /Game/Tideborn/Meshes/M_GateWood.M_GateWood; /Game/Tideborn/Meshes/M_KelpBody.M_KelpBody; /Game/Tideborn/Meshes/M_KelpFrond.M_KelpFrond; /Game/Tideborn/Meshes/M_Plank.M_Plank; /Game/Tideborn/Meshes/M_Post.M_Post; /Game/Tideborn/Meshes/M_Stone.M_Stone; /Game/Tideborn/Meshes/M_WoodBark.M_WoodBark; /Game/Tideborn/Meshes/SM_BurrHound.SM_BurrHound; /Game/Tideborn/Meshes/SM_Foundation.SM_Foundation; /Game/Tideborn/Meshes/SM_KelpBack.SM_KelpBack; /Game/Tideborn/Meshes/SM_PathPost.SM_PathPost; /Game/Tideborn/Meshes/SM_ShoreGate.SM_ShoreGate; /Game/Tideborn/Meshes/SM_StoneCluster.SM_StoneCluster; /Game/Tideborn/Meshes/SM_WoodStump.SM_WoodStump

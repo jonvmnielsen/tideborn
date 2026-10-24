@@ -1,0 +1,57 @@
+rm shot TidebornCoveOverview.png
+rm shot TidebornCoveSide.png
+rm shot TidebornCoveVerify.png
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+destroy  (env)
+M_Tideborn_Sand +diffuse
+M_Tideborn_Ground +diffuse
+M_Tideborn_RockBoulder +diffuse
+M_Tideborn_Bark +diffuse
+M_Tideborn_Wood +diffuse
+water M_Tideborn_WaterSimple
+Boulder r=183.1
+Trunk r=305.1
+Stone r=180.9
+shot TidebornCoveVerify
+shot TidebornCoveOverview
+shot TidebornCoveSide
+--- counts ---
+destroyed=34
+planes=8
+props=30
+moved=7
+mats=8
+mat_apply=304
+DONE

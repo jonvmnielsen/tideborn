@@ -1,0 +1,7 @@
+sand 700..2300
+ocean -2000..200
+shallows -200..800
+TidebornEnv_SandBase cover Y [700..2300] z=98
+TidebornEnv_Ocean cover Y [-2000..200] z=101
+TidebornEnv_Shallows cover Y [-200..800] z=102
+DONE

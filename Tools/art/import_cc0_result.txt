@@ -1,0 +1,32 @@
+RockShore: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_coast_sand_rocks_02\coast_sand_rocks_02_Diffuse.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_coast_sand_rocks_02\coast_sand_rocks_02_nor_gl.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_coast_sand_rocks_02\coast_sand_rocks_02_Rough.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_RockShore
+RockBoulder: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_rock_boulder_dry\rock_boulder_dry_Diffuse.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_rock_boulder_dry\rock_boulder_dry_nor_gl.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_rock_boulder_dry\rock_boulder_dry_Rough.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_RockBoulder
+Sand: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_sand_01\sand_01_Diffuse.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_sand_01\sand_01_nor_gl.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_sand_01\sand_01_Rough.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_Sand
+Bark: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_bark_brown_02\bark_brown_02_Diffuse.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_bark_brown_02\bark_brown_02_nor_gl.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_bark_brown_02\bark_brown_02_Rough.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_Bark
+Wood: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_wood_table_001\wood_table_001_Diffuse.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_wood_table_001\wood_table_001_nor_gl.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\PH_wood_table_001\wood_table_001_Rough.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_Wood
+Ground: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Ground037\Ground037_2K-JPG_Color.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Ground037\Ground037_2K-JPG_NormalGL.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Ground037\Ground037_2K-JPG_Roughness.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_Ground
+WoodACG: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Wood062\Wood062_2K-JPG_Color.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Wood062\Wood062_2K-JPG_NormalGL.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Wood062\Wood062_2K-JPG_Roughness.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_WoodACG
+BarkACG: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Bark001\Bark001_2K-JPG_Color.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Bark001\Bark001_2K-JPG_NormalGL.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Bark001\Bark001_2K-JPG_Roughness.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_BarkACG
+RockACG: bc=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Rock023\Rock023_2K-JPG_Color.jpg nrm=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Rock023\Rock023_2K-JPG_NormalGL.jpg rough=C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\textures\ACG_Rock023\Rock023_2K-JPG_Roughness.jpg
+material /Game/Tideborn/Art/Materials/M_Tideborn_RockACG
+HDRI imported /Game/Tideborn/Art/HDRI/PH_industrial_sunset_puresky.PH_industrial_sunset_puresky
+lighting tweaked (directional/skylight/fog)
+fbx boulder_01_1k.fbx -> ['/Game/Tideborn/Art/Meshes/boulder_01_1k.boulder_01_1k']
+fbx coast_land_rocks_02_1k.fbx -> ['/Game/Tideborn/Art/Meshes/coast_land_rocks_02_1k.coast_land_rocks_02_1k']
+fbx coast_land_rocks_03_1k.fbx -> ['/Game/Tideborn/Art/Meshes/coast_land_rocks_03_1k.coast_land_rocks_03_1k']
+fbx dead_tree_trunk_1k.fbx -> ['/Game/Tideborn/Art/Meshes/dead_tree_trunk_1k.dead_tree_trunk_1k']
+placed TidebornArt_0 at (1300.0, 1310.0, 92.01260375976562)
+placed TidebornArt_1 at (1500.0, 1010.0, 92.01260375976562)
+placed TidebornArt_2 at (1700.0, 1260.0, 92.01260375976562)
+placed TidebornArt_3 at (1400.0, 1510.0, 92.01260375976562)
+applied mat to Tideborn_Gather_Stone_A
+applied mat to Tideborn_Gather_Wood_B
+applied mat to Tideborn_P2_ShoreGate
+applied mat to Tideborn_Gather_Wood_A

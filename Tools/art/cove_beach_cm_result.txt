@@ -1,0 +1,15 @@
+beach size=(9000,11000,740)
+x trunk
+x trunk
+x TidebornEnv_WaterMesh
+x TidebornEnv_Beach
+x trunk
+x trunk
+x TidebornEnv_Ocean
+x trunk
+x TidebornEnv_Ground
+x TidebornEnv_SandBase
+x trunk
+beach 1:1
+water 1:1
+DONE

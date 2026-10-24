@@ -1,0 +1,9 @@
+x TidebornEnv_Dune_2
+x TidebornEnv_Dune_0
+x TidebornEnv_Ocean
+x TidebornEnv_Shallows
+x TidebornEnv_Dune_1
+plane TidebornEnv_Sand_Lip
+plane TidebornEnv_Shallows
+plane TidebornEnv_Ocean
+DONE

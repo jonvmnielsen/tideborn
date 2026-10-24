@@ -1,0 +1,38 @@
+destroy TidebornArt_3 (old art place dead_tree_trunk_1k)
+destroy TidebornArt_2 (coast_land_rocks coast_land_rocks_03_1k)
+destroy TidebornArt_0 (old art place boulder_01_1k)
+destroy TidebornArt_1 (coast_land_rocks coast_land_rocks_02_1k)
+=== AFTER ===
+TidebornEnv_Boulder_02 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Trunk_15 ['dead_tree_trunk_1k->M_Tideborn_Bark']
+TidebornEnv_Shallows ['Plane->M_Tideborn_WaterSimple']
+TidebornEnv_Boulder_07 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Sand_0 ['Plane->M_Tideborn_Sand']
+Tideborn_Gather_Stone_A ['SM_WoodStump->M_Tideborn_RockBoulder']
+TidebornEnv_Boulder_06 ['boulder_01_1k->M_Tideborn_RockBoulder']
+Tideborn_Gather_Wood_B ['SM_WoodStump->M_Tideborn_Bark']
+TidebornEnv_Sand_2 ['Plane->M_Tideborn_Sand']
+TidebornEnv_Boulder_09 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Boulder_04 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Sand_3 ['Plane->M_Tideborn_Sand']
+TidebornEnv_Boulder_03 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Boulder_10 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Ocean ['Plane->M_Tideborn_WaterSimple']
+TidebornEnv_Trunk_16 ['dead_tree_trunk_1k->M_Tideborn_Bark']
+TidebornEnv_Ground ['Plane->M_Tideborn_Ground']
+Tideborn_P2_ShoreGate ['SM_ShoreGate->M_Tideborn_GateSolid']
+TidebornEnv_Boulder_01 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Trunk_17 ['dead_tree_trunk_1k->M_Tideborn_Bark']
+Tideborn_Gather_Wood_A ['SM_WoodStump->M_Tideborn_Bark']
+Tideborn_P2_KelpBack ['SM_KelpBack->M_Tideborn_CreatureSolid']
+TidebornEnv_Boulder_13 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Boulder_12 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Trunk_14 ['dead_tree_trunk_1k->M_Tideborn_Bark']
+TidebornEnv_Boulder_00 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Sand_1 ['Plane->M_Tideborn_Sand']
+Tideborn_P2_BurrHound ['SM_BurrHound->M_Tideborn_CreatureSolid']
+TidebornEnv_Boulder_08 ['boulder_01_1k->M_Tideborn_RockBoulder']
+PlayerStart []
+TidebornEnv_Boulder_11 ['boulder_01_1k->M_Tideborn_RockBoulder']
+TidebornEnv_Boulder_05 ['boulder_01_1k->M_Tideborn_RockBoulder']
+destroyed=4 DONE

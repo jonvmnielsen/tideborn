@@ -1,0 +1,59 @@
+sand WARM beige solid 0.82/0.66/0.42 (no cool tex)
+mat MI_Tideborn_SandWarm rgb=(0.82,0.66,0.42)
+mat MI_Tideborn_WoodMuted rgb=(0.34,0.22,0.12)
+mat MI_Tideborn_CreatureMuted rgb=(0.28,0.32,0.18)
+mat M_Tideborn_RockShore rgb=(0.38,0.36,0.32)
+mat M_Tideborn_GateSolid rgb=(0.30,0.20,0.12)
+mat M_Tideborn_Ground rgb=(0.28,0.34,0.18)
+mat M_Tideborn_WaterOpaque rgb=(0.06,0.14,0.22)
+mat M_Tideborn_Bark rgb=(0.30,0.16,0.08)
+import ramp -> ['/Game/Tideborn/Art/Meshes/SM_TidebornSandRamp.SM_TidebornSandRamp']
+warm sand -> TidebornEnv_SandBase
+gather muted -> Tideborn_Gather_Stone_A
+gather muted -> Tideborn_Gather_Wood_B
+gate wood muted -> Tideborn_P2_ShoreGate
+gate light desaturated
+gather muted -> Tideborn_Gather_Wood_A
+creature muted olive -> Tideborn_P2_KelpBack
+water muted -> TidebornEnv_Ocean
+water muted -> TidebornEnv_Shallows
+creature muted olive -> Tideborn_P2_BurrHound
+ground -> TidebornEnv_Ground
+warm sand -> TidebornEnv_SandRamp
+ramp mesh reassigned
+SandRamp placed (1000,500,105) sc=(1.6,1.1,1)
+Shallows center Y=420 scY=6.5 Z=100
+waterline boulder 00 @ (720,620)
+waterline boulder 01 @ (780,680)
+waterline boulder 02 @ (820,640)
+waterline boulder 03 @ (1180,660)
+waterline boulder 04 @ (1240,610)
+waterline boulder 05 @ (1300,690)
+PP unbound warm temp~5500 exposure_bias~0.9 contrast soft
+DirectionalLight warm 2.2 soft shadows
+Fog density~0.135 warm-grey inscatter
+SkyLight 9.0 warm
+Fill PointLight warm weak
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500,106) Y[600..2400] sc=(45.0,18.0,1.0) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm,MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+CONFIRM Tideborn_Gather_Stone_A Z=130 loc=(1380,1700,130) Y[1650..1750] sc=(1.0,1.0,1.0) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM Tideborn_Gather_Wood_B Z=130 loc=(1420,1700,130) Y[1650..1750] sc=(1.0,1.0,1.0) mats=MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400,190) Y[2350..2450] sc=(1.0,1.0,1.0) mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid,M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM Tideborn_Gather_Wood_A Z=130 loc=(1550,1700,130) Y[1650..1750] sc=(1.0,1.0,1.0) mats=MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted,MI_Tideborn_WoodMuted
+CONFIRM Tideborn_P2_KelpBack Z=140 loc=(480,900,140) Y[850..950] sc=(1.0,1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900,99) Y[-1800..0] sc=(70.0,18.0,1.0) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,420,100) Y[95..745] sc=(55.0,6.5,1.0) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800,150) Y[1750..1850] sc=(1.0,1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_Ground Z=105 loc=(1000,2800,105) Y[2000..3600] sc=(45.0,16.0,1.0) mats=M_Tideborn_Ground,M_Tideborn_Ground,M_Tideborn_Ground,M_Tideborn_Ground
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,500,105) Y[445..555] sc=(1.6,1.1,1.0) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm,MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+CONFIRM TidebornEnv_WaterlineBoulder_00 Z=100 loc=(720,620,100) Y[500..740] sc=(2.4,2.4,2.0) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM TidebornEnv_WaterlineBoulder_01 Z=100 loc=(780,680,100) Y[575..785] sc=(2.1,2.1,1.8) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM TidebornEnv_WaterlineBoulder_02 Z=100 loc=(820,640,100) Y[510..770] sc=(2.6,2.6,2.2) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM TidebornEnv_WaterlineBoulder_03 Z=100 loc=(1180,660,100) Y[545..775] sc=(2.3,2.3,2.0) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM TidebornEnv_WaterlineBoulder_04 Z=100 loc=(1240,610,100) Y[485..735] sc=(2.5,2.5,2.1) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+CONFIRM TidebornEnv_WaterlineBoulder_05 Z=100 loc=(1300,690,100) Y[580..800] sc=(2.2,2.2,1.9) mats=M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore,M_Tideborn_RockShore
+LOCK SandBase OK=True Z=106 sc=(45.0,18.0)
+LOCK water TidebornEnv_Ocean OK=True Z=99 scY=18.0
+LOCK water TidebornEnv_Shallows OK=True Z=100 scY=6.5
+save_current_level -> True
+save_dirty -> True
+DONE

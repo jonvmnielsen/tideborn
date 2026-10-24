@@ -1,0 +1,54 @@
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (grey pillar)
+x  (env)
+x  (grey pillar)
+x  (env)
+x  (env)
+x  (env)
+x  (env)
+x  (grey pillar)
+mats sand=True rock=True bark=True water=True
+boulder=/Game/Tideborn/Art/Meshes/boulder_01_1k stump=/Game/Tideborn/Art/Meshes/dead_tree_trunk_1k
+baked /Game/Tideborn/Art/Meshes/boulder_01_1k slots=1
+baked /Game/Tideborn/Art/Meshes/dead_tree_trunk_1k slots=1
+shot MISS TidebornCoveVerify
+shot MISS TidebornCoveOverview
+---
+destroyed=41
+planes=7
+props=18
+moved=7
+baked=2
+DONE

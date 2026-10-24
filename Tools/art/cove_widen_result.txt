@@ -1,0 +1,1 @@
+props=26 destroyed=24 DONE

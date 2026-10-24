@@ -1,0 +1,44 @@
+mat MI_Tideborn_SandWarm rgb=(0.78,0.62,0.40)
+mat M_Tideborn_Sand rgb=(0.78,0.62,0.40)
+mat MI_Tideborn_WoodMuted rgb=(0.36,0.24,0.14)
+mat MI_Tideborn_CreatureMuted rgb=(0.42,0.34,0.22)
+mat M_Tideborn_CreatureSolid rgb=(0.40,0.32,0.20)
+mat M_Tideborn_GateSolid rgb=(0.32,0.22,0.13)
+mat M_Tideborn_RockShore rgb=(0.40,0.38,0.34)
+BEFORE TidebornEnv_SandBase | StaticMeshComponent[0]=WorldGridMaterial
+force_apply TidebornEnv_SandBase slots=16
+AFTER TidebornEnv_SandBase | StaticMeshComponent[0]=MI_Tideborn_SandWarm
+BEFORE Tideborn_Gather_Stone_A | -
+force_apply Tideborn_Gather_Stone_A slots=32
+AFTER Tideborn_Gather_Stone_A | StaticMeshComponent[0]=M_Tideborn_RockShore
+BEFORE Tideborn_Gather_Wood_B | -
+force_apply Tideborn_Gather_Wood_B slots=32
+AFTER Tideborn_Gather_Wood_B | StaticMeshComponent[0]=MI_Tideborn_WoodMuted
+BEFORE Tideborn_P2_ShoreGate | -
+force_apply Tideborn_P2_ShoreGate slots=48
+AFTER Tideborn_P2_ShoreGate | StaticMeshComponent[0]=M_Tideborn_GateSolid;StaticMeshComponent[1]=M_Tideborn_GateSolid
+BEFORE Tideborn_Gather_Wood_A | -
+force_apply Tideborn_Gather_Wood_A slots=32
+AFTER Tideborn_Gather_Wood_A | StaticMeshComponent[0]=MI_Tideborn_WoodMuted
+BEFORE Tideborn_P2_KelpBack | -
+force_apply Tideborn_P2_KelpBack slots=64
+AFTER Tideborn_P2_KelpBack | StaticMeshComponent[0]=MI_Tideborn_CreatureMuted;StaticMeshComponent[1]=MI_Tideborn_CreatureMuted
+BEFORE Tideborn_P2_BurrHound | -
+force_apply Tideborn_P2_BurrHound slots=64
+AFTER Tideborn_P2_BurrHound | StaticMeshComponent[0]=MI_Tideborn_CreatureMuted;StaticMeshComponent[1]=MI_Tideborn_CreatureMuted
+BEFORE TidebornEnv_SandRamp | StaticMeshComponent[1]=WorldGridMaterial
+force_apply TidebornEnv_SandRamp slots=16
+AFTER TidebornEnv_SandRamp | StaticMeshComponent[0]=MI_Tideborn_SandWarm;StaticMeshComponent[1]=MI_Tideborn_SandWarm
+PP keep bias 0.1 temp 5000
+DirLight keep 1.5
+SkyLight keep 2.5
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.0,18.0) mats=MI_Tideborn_SandWarm
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400) sc=(1.0,1.0) mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM Tideborn_P2_KelpBack Z=140 loc=(480,900) sc=(1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.0,18.0) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,420) sc=(55.0,6.5) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800) sc=(1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,500) sc=(1.6,1.1) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+save_current_level -> True
+save_dirty -> True
+DONE

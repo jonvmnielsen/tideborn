@@ -1,0 +1,35 @@
+sand LIT+em MI_Tideborn_SandWarm
+sand LIT+em M_Tideborn_Sand
+lit MI_Tideborn_WoodMuted
+lit MI_Tideborn_CreatureMuted
+lit M_Tideborn_GateSolid
+lit M_Tideborn_RockShore
+lit M_Tideborn_WaterOpaque
+lit M_Tideborn_Ground
+lit M_Tideborn_Bark
+sand -> TidebornEnv_SandBase
+PP temp4000 bias0.6
+SkyAtmosphere HIDDEN
+DirLight
+Fog
+SkyLight
+creature -> Tideborn_P2_KelpBack
+creature -> Tideborn_P2_BurrHound
+sand -> TidebornEnv_SandRamp
+SandRamp
+WLB 00
+WLB 01
+WLB 02
+WLB 03
+WLB 04
+WLB 05
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.0,18.0) mats=MI_Tideborn_SandWarm
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400) sc=(1.0,1.0) mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.0,18.0) mats=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,420) sc=(55.0,6.5) mats=M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800) sc=(1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,560) sc=(2.4,1.6) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+wait shaders 28s
+SHOT begin TidebornCoveOverview
+SHOT end ok=False size=0
+DONE

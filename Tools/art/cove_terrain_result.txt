@@ -1,0 +1,15 @@
+import C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\Models\SM_TidebornBeach.fbx -> ['/Game/Tideborn/Art/Meshes/SM_TidebornBeach.SM_TidebornBeach']
+import C:\Users\User\Desktop\AI\Grok\Tideborn\RawArt\CC0\Models\SM_TidebornWater.fbx -> ['/Game/Tideborn/Art/Meshes/SM_TidebornWater.SM_TidebornWater']
+beach=True water=True sand=True
+x TidebornEnv_Ocean
+x TidebornEnv_Shallows
+x TidebornEnv_Sand_0
+x TidebornEnv_Sand_1
+x TidebornEnv_Ground
+x TidebornEnv_Sand_2
+x TidebornEnv_Sand_Lip
+x TidebornEnv_Sand_3
+placed beach
+placed water mesh
+playerstart
+DONE

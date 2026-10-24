@@ -1,0 +1,11 @@
+Phase1 wire start
+Inv=<class 'TidebornInventoryComponent'>
+Gather=<class 'TidebornGatherNode'>
+existing=None, FollowCamera, FollowCamera, CameraBoom, Mesh, CapsuleComponent, ArrowComponent, TidebornInteract, CharacterMovement
+added: TidebornInventory
+added: TidebornCrafting
+added: TidebornBuild
+added: TidebornSave
+character saved
+PlayerStart=<Struct 'Vector' (0x000001A59E8AD370) {x: 900.000000, y: 1110.000000, z: 92.012604}>
+placed: Tideborn_Gather_Wood_A@<Struct 'Vector' (0x000001A62B2D1190) {x: 1150.000000, y: 1190.000000, z: 92.012604}>->Wood; Tideborn_Gather_Wood_B@<Struct 'Vector' (0x000001A62B33E590) {x: 1220.000000, y: 1070.000000, z: 92.012604}>->Wood; Tideborn_Gather_Stone_A@<Struct 'Vector' (0x000001A62B33E680) {x: 1180.000000, y: 1290.000000, z: 92.012604}>->Stone

@@ -1,0 +1,11 @@
+mat M_Tideborn_SandSolid
+mat M_Tideborn_GroundSolid
+mat M_Tideborn_WaterSolid
+mat M_Tideborn_RockSolid
+mat M_Tideborn_BarkSolid
+mat M_Tideborn_CreatureSolid
+mat M_Tideborn_GateSolid
+material_slots_applied=140
+shot verify
+shot overview
+DONE

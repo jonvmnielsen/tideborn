@@ -1,0 +1,1 @@
+﻿TidebornCoveOverview|1100,2500,900|-35,-90,0

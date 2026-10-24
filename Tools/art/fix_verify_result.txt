@@ -1,0 +1,53 @@
+origin forced <Struct 'Vector' (0x00000274DEECDBE0) {x: 1000.000000, y: 1000.000000, z: 100.000000}>
+destroyed TidebornEnv_Boulder_18 (env rebuild)
+destroyed TidebornEnv_Sand_2 (env rebuild)
+destroyed TidebornEnv_Trunk_16 (env rebuild)
+destroyed TidebornEnv_Trunk_10 (env rebuild)
+destroyed TidebornEnv_Boulder_06 (env rebuild)
+destroyed TidebornEnv_Trunk_13 (env rebuild)
+destroyed TidebornEnv_Sand_3 (env rebuild)
+destroyed TidebornEnv_Boulder_09 (env rebuild)
+destroyed TidebornEnv_Sand_1 (env rebuild)
+destroyed TidebornEnv_Trunk_01 (env rebuild)
+destroyed TidebornEnv_Stone_02 (env rebuild)
+destroyed TidebornEnv_Stone_11 (env rebuild)
+destroyed TidebornEnv_Boulder_12 (env rebuild)
+destroyed TidebornEnv_Stone_17 (env rebuild)
+destroyed TidebornEnv_Stone_08 (env rebuild)
+destroyed TidebornEnv_Sand_0 (env rebuild)
+destroyed TidebornEnv_Boulder_00 (env rebuild)
+destroyed TidebornEnv_Boulder_03 (env rebuild)
+destroyed TidebornEnv_Trunk_19 (env rebuild)
+destroyed TidebornEnv_Stone_05 (env rebuild)
+destroyed TidebornEnv_Stone_14 (env rebuild)
+destroyed TidebornEnv_Trunk_04 (env rebuild)
+destroyed TidebornEnv_Boulder_15 (env rebuild)
+destroyed TidebornEnv_Trunk_07 (env rebuild)
+destroyed TidebornEnv_Ground (env rebuild)
+destroyed TidebornEnv_Ocean (env rebuild)
+solid mat M_Tideborn_SandSolid rgb=(0.76, 0.62, 0.38)
+solid mat M_Tideborn_GroundSolid rgb=(0.28, 0.34, 0.18)
+solid mat M_Tideborn_WaterSolid rgb=(0.12, 0.32, 0.48)
+solid mat M_Tideborn_RockSolid rgb=(0.35, 0.33, 0.3)
+solid mat M_Tideborn_BarkSolid rgb=(0.28, 0.16, 0.08)
+planes sand=5 water=1
+meshes boulder=/Game/Tideborn/Art/Meshes/boulder_01_1k.boulder_01_1k stump=/Game/Tideborn/Art/Meshes/dead_tree_trunk_1k.dead_tree_trunk_1k stone=/Game/Tideborn/Meshes/SM_StoneCluster.SM_StoneCluster
+Boulder r=183.1
+Trunk r=305.1
+Stone r=180.9
+props=20
+lights ok
+PlayerStart shore
+moved=7
+viewport cam set <Struct 'Vector' (0x00000274E2CC2040) {x: 1150.000000, y: 1080.000000, z: 260.000000}> <Struct 'Rotator' (0x00000274E2CC1FA0) {pitch: -8.000000, yaw: -90.000000, roll: 0.000000}>
+AutomationLibrary shot TidebornCoveVerify
+HighResShot
+--- counts ---
+destroyed=26
+sand=5
+water=1
+props=20
+moved=7
+mats=5
+SCRIPT_OK=True
+DONE

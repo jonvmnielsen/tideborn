@@ -1,0 +1,9 @@
+sand ok
+ocean scale28
+shallows scale14
+=== LAYOUT ===
+TidebornEnv_SandBase y=1200 cover=[200..2200] z=98
+TidebornEnv_Ocean y=-400 cover=[-1800..1000] z=100
+TidebornEnv_Shallows y=800 cover=[100..1500] z=101
+TidebornEnv_Ground y=2800 cover=[800..4800] z=97
+DONE

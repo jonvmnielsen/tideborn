@@ -1,0 +1,26 @@
+found planes: TidebornEnv_Ground,TidebornEnv_Ocean,TidebornEnv_SandBase,TidebornEnv_Shallows
+root xf warn SandBase: set_world_location() takes at most 3 arguments (4 given)
+SandBase -> loc=(1000,1500,106) sc=(45.0,18.0) X[-1250..3250] Y[600..2400]
+root xf warn Shallows: set_world_location() takes at most 3 arguments (4 given)
+Shallows -> loc=(1000,250,100) sc=(55.0,7.0) X[-1750..3750] Y[-100..600]
+root xf warn Ocean: set_world_location() takes at most 3 arguments (4 given)
+Ocean -> loc=(1000,-900,99) sc=(70.0,18.0) X[-2500..4500] Y[-1800..0]
+root xf warn Ground: set_world_location() takes at most 3 arguments (4 given)
+Ground -> loc=(1000,2800,105) sc=(45.0,16.0) X[-1250..3250] Y[2000..3600]
+pushed 0 props out of center corridor
+PlayerStart @ (1050,1600,210) yaw=-90
+Gather Tideborn_Gather_Stone_A nudged
+Gather Tideborn_Gather_Wood_B nudged
+ShoreGate -> (1100,2400,190)
+Gather Tideborn_Gather_Wood_A nudged
+KelpBack -> (480,900,140)
+BurrHound -> (1600,1800,150)
+CONFIRM TidebornEnv_SandBase Z=106 Y[600..2400] scY=18.0 scX=45.0
+CONFIRM TidebornEnv_Ocean Z=99 Y[-1800..0] scY=18.0 scX=70.0
+CONFIRM TidebornEnv_Shallows Z=100 Y[-100..600] scY=7.0 scX=55.0
+CONFIRM TidebornEnv_Ground Z=105 Y[2000..3600] scY=16.0 scX=45.0
+LevelEditorSubsystem.save_current_level -> True
+EditorLevelLibrary.save_current_level -> True
+save_dirty_packages -> True
+save_asset map -> True
+DONE

@@ -1,0 +1,27 @@
+sand tile=48 soft_blend=0.16
+gate wood mat recreated (muted brown, non-emissive)
+ShoreGate -> muted GateSolid wood
+ShoreGate VistaLight muted warm intensity~1200
+found planes: TidebornEnv_Ground,TidebornEnv_Ocean,TidebornEnv_SandBase,TidebornEnv_Shallows
+SandBase -> loc=(1000,1500,106) sc=(45.0,18.0) X[-1250..3250] Y[600..2400]
+Shallows -> loc=(1000,500,100) sc=(55.0,6.5) X[-1750..3750] Y[175..825]
+Ocean -> loc=(1000,-900,99) sc=(70.0,18.0) X[-2500..4500] Y[-1800..0]
+Ground -> loc=(1000,2800,105) sc=(45.0,16.0) X[-1250..3250] Y[2000..3600]
+DirectionalLight intensity~2.4 warm orange pitch=-48 yaw=40
+ExponentialHeightFog density~0.11 bluish inscatter
+SkyLight intensity~8.0
+import ramp -> ['/Game/Tideborn/Art/Meshes/SM_TidebornSandRamp.SM_TidebornSandRamp']
+x old TidebornEnv_SandRamp
+SandRamp bounds dx=5500 dy=1400 dz=24 loc=(1000,580,106)
+placed TidebornEnv_SandRamp
+CONFIRM TidebornEnv_SandBase Z=106 Y[600..2400] sc=(45.0,18.0,1.0) meshXY=(4500,1800)
+CONFIRM TidebornEnv_Shallows Z=100 Y[175..825] sc=(55.0,6.5,1.0) meshXY=(5500,650)
+CONFIRM TidebornEnv_Ocean Z=99 Y[-1800..0] sc=(70.0,18.0,1.0) meshXY=(7000,1800)
+CONFIRM TidebornEnv_Ground Z=105 Y[2000..3600] sc=(45.0,16.0,1.0) meshXY=(4500,1600)
+CONFIRM TidebornEnv_SandRamp Z=106 Y[-120..1280] sc=(1.0,1.0,1.0) meshXY=(5500,1400)
+OK sand Z 106.0 > shallows Z 100.0
+LevelEditorSubsystem.save_current_level -> True
+save_dirty_packages -> True
+save_asset map -> True
+light_ok=True
+DONE

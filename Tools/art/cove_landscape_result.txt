@@ -1,0 +1,9 @@
+gate out
+kelp out
+hound out
+Landscape class=<class 'Landscape'>
+no LandscapeImportHelper
+dune 0
+dune 1
+dune 2
+DONE

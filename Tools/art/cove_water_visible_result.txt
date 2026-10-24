@@ -1,0 +1,6 @@
+opaque water mat
+sand trimmed
+ocean visible
+x deep dune
+shallows visible
+DONE

@@ -1,0 +1,7 @@
+Keys attr: False
+mapping count=14
+key type=<class 'Key'> repr=<Struct 'Key' (0x00000407FAE48A80) {}> str=<Struct 'Key' (0x00000407FAE48A80) {}>
+key dir sample=assign,cast,copy,export_text,get_editor_property,import_text,set_editor_properties,set_editor_property,static_struct,to_tuple
+Key() works: <Struct 'Key' (0x00000407FAE53BC0) {}>
+set key_name ok -> <Struct 'Key' (0x00000407FAE53BC0) {}>
+set KeyName ok -> <Struct 'Key' (0x00000407FAE53BC0) {}>

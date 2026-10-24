@@ -1,0 +1,13 @@
+destroy Tideborn_Gather_Wood_B
+destroy Tideborn_Gather_Wood_A
+destroy Tideborn_Gather_Stone_A
+PlayerStart=<Struct 'Vector' (0x0000028329DC5370) {x: 900.000000, y: 1110.000000, z: 92.012604}>
+spawned Tideborn_Gather_Wood_A Wood @ <Struct 'Vector' (0x0000028329DC45B0) {x: 1120.000000, y: 1110.000000, z: 132.012604}>
+spawned Tideborn_Gather_Wood_B Wood @ <Struct 'Vector' (0x0000028329DC46A0) {x: 1120.000000, y: 1270.000000, z: 132.012604}>
+spawned Tideborn_Gather_Stone_A Stone @ <Struct 'Vector' (0x0000028329E24BA0) {x: 1120.000000, y: 950.000000, z: 132.012604}>
+BP comps: None, CameraBoom, FollowCamera, FollowCamera, Mesh, CapsuleComponent, ArrowComponent, TidebornInteract, TidebornInventory, TidebornCrafting, TidebornBuild, TidebornSave, CharacterMovement
+OK TidebornInventory
+OK TidebornCrafting
+OK TidebornBuild
+OK TidebornSave
+OK TidebornInteract

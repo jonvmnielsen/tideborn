@@ -1,0 +1,8 @@
+TidebornEnv_Dune_L0
+TidebornEnv_Dune_L1
+TidebornEnv_Dune_R0
+TidebornEnv_Dune_R1
+TidebornEnv_Dune_Lip
+ocean FOV
+shallows FOV
+DONE

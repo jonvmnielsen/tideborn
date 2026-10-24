@@ -1,0 +1,3 @@
+dark rock mat
+bake /Game/Tideborn/Art/Meshes/boulder_01_1k
+props=24 destroyed=18 DONE

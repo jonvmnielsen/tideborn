@@ -1,0 +1,174 @@
+LogInit: Display: Running engine for game: Tideborn
+LogCore: Warning: UTS: Unable to launch the Unreal Trace Server with '"../../../Engine/Binaries/Win64/UnrealTraceServer.exe" fork --sponsor 22824'. Adgang nægtet. Error: 0x5 (5)
+LogCore: Display: Requested channels: 'cpu,gpu,frame,log,bookmark,screenshot,region'
+LogCsvProfiler: Display: Metadata set : platform="Windows"
+LogCsvProfiler: Display: Metadata set : config="Development"
+LogCsvProfiler: Display: Metadata set : buildversion="++UE5+Release-5.4-CL-35576357"
+LogCsvProfiler: Display: Metadata set : engineversion="5.4.4-35576357+++UE5+Release-5.4"
+LogCsvProfiler: Display: Metadata set : os="Windows 10 (22H2) [10.0.19045.6466] "
+LogCsvProfiler: Display: Metadata set : cpu="GenuineIntel|Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz"
+LogCsvProfiler: Display: Metadata set : pgoenabled="0"
+LogCsvProfiler: Display: Metadata set : pgoprofilingenabled="0"
+LogCsvProfiler: Display: Metadata set : ltoenabled="0"
+LogCsvProfiler: Display: Metadata set : asan="0"
+LogCsvProfiler: Display: Metadata set : commandline="" C:\Users\User\Desktop\AI\Grok\Tideborn\Tideborn.uproject -ExecutePythonScript=C:\Users\User\Desktop\AI\Grok\Tideborn\Tools\art\cove_living_v4b.py -unattended -nop4 -nosplash -stdout -NullRHI""
+LogCsvProfiler: Display: Metadata set : loginid="da9915ad45ff8b3992e19cb6605a8805"
+LogCsvProfiler: Display: Metadata set : llm="0"
+LogConfig: Display: Loading Android ini files took 0.04 seconds
+LogConfig: Display: Loading IOS ini files took 0.05 seconds
+LogAssetRegistry: Display: Asset registry cache read as 25.5 MiB from ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Intermediate/CachedAssetRegistry_0.bin
+LogConfig: Display: Loading Mac ini files took 0.05 seconds
+LogConfig: Display: Loading Linux ini files took 0.07 seconds
+LogConfig: Display: Loading LinuxArm64 ini files took 0.08 seconds
+LogConfig: Display: Loading VulkanPC ini files took 0.04 seconds
+LogConfig: Display: Loading TVOS ini files took 0.06 seconds
+LogConfig: Display: Loading Unix ini files took 0.05 seconds
+LogConfig: Display: Loading Windows ini files took 0.04 seconds
+LogConfig: Display: Loading VisionOS ini files took 0.04 seconds
+LogStudioTelemetry: Display: Starting StudioTelemetry Module
+LogStudioTelemetry: Display: Created an analytics provider LogAnalytics from module AnalyticsLog configuration Engine [StudioTelemetry.Log]
+RenderDocPlugin: Display: RenderDoc plugin will not be loaded. Use '-AttachRenderDoc' on the cmd line or enable 'renderdoc.AutoAttach' in the plugin settings.
+[2026.09.25-15.40.42:234][  0]LogHAL: Display: Platform has ~ 32 GB [34265108480 / 34359738368 / 32], which maps to Largest [LargestMinGB=32, LargerMinGB=12, DefaultMinGB=8, SmallerMinGB=6, SmallestMinGB=0)
+[2026.09.25-15.40.45:102][  0]LogCsvProfiler: Display: Metadata set : extradevelopmentmemorymb="0"
+[2026.09.25-15.40.45:631][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatASTC
+[2026.09.25-15.40.45:631][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatDXT
+[2026.09.25-15.40.45:631][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatETC2
+[2026.09.25-15.40.45:632][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatIntelISPCTexComp
+[2026.09.25-15.40.45:632][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatUncompressed
+[2026.09.25-15.40.45:633][  0]LogTextureFormatOodle: Display: Oodle Texture TFO init; latest sdk version = 2.9.12
+[2026.09.25-15.40.45:633][  0]LogTextureFormatOodle: Display: Oodle Texture loading DLL: oo2tex_win64_2.9.12.dll
+[2026.09.25-15.40.45:634][  0]LogTextureFormatOodle: Display: Oodle Texture loading DLL: oo2tex_win64_2.9.5.dll
+[2026.09.25-15.40.45:634][  0]LogTextureFormatManager: Display: Loaded Base TextureFormat: TextureFormatOodle
+[2026.09.25-15.40.45:656][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android'
+[2026.09.25-15.40.45:657][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTC'
+[2026.09.25-15.40.45:657][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXT'
+[2026.09.25-15.40.45:657][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2'
+[2026.09.25-15.40.45:658][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'AndroidClient'
+[2026.09.25-15.40.45:658][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ASTCClient'
+[2026.09.25-15.40.45:658][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_DXTClient'
+[2026.09.25-15.40.45:658][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_ETC2Client'
+[2026.09.25-15.40.45:659][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_Multi'
+[2026.09.25-15.40.45:659][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Android_MultiClient'
+[2026.09.25-15.40.45:661][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'IOS'
+[2026.09.25-15.40.45:661][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'IOSClient'
+[2026.09.25-15.40.45:664][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Linux'
+[2026.09.25-15.40.45:665][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxEditor'
+[2026.09.25-15.40.45:665][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxServer'
+[2026.09.25-15.40.45:665][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxClient'
+[2026.09.25-15.40.45:668][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64'
+[2026.09.25-15.40.45:668][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Server'
+[2026.09.25-15.40.45:668][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'LinuxArm64Client'
+[2026.09.25-15.40.45:671][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Mac'
+[2026.09.25-15.40.45:672][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacEditor'
+[2026.09.25-15.40.45:672][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacServer'
+[2026.09.25-15.40.45:672][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'MacClient'
+[2026.09.25-15.40.45:675][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'TVOS'
+[2026.09.25-15.40.45:675][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'TVOSClient'
+[2026.09.25-15.40.45:681][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'Windows'
+[2026.09.25-15.40.45:681][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsEditor'
+[2026.09.25-15.40.45:681][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsServer'
+[2026.09.25-15.40.45:682][  0]LogTargetPlatformManager: Display: Loaded TargetPlatform 'WindowsClient'
+[2026.09.25-15.40.45:682][  0]LogTargetPlatformManager: Display: Building Assets For WindowsEditor
+[2026.09.25-15.40.45:694][  0]LogAudioDebug: Display: Lib vorbis DLL was dynamically loaded.
+[2026.09.25-15.40.45:764][  0]LogDerivedDataCache: Display: Memory: Max Cache Size: -1 MB
+[2026.09.25-15.40.45:797][  0]LogDerivedDataCache: Display: ../../../Engine/DerivedDataCache/Compressed.ddp: Opened pak cache for reading. (2464 MiB)
+[2026.09.25-15.40.45:799][  0]LogZenServiceInstance: Display: Launching executable 'C:/Users/User/AppData/Local/UnrealEngine/Common/Zen/Install/zenserver.exe', working dir 'C:/Users/User/AppData/Local/UnrealEngine/Common/Zen/Install', data dir 'C:/Users/User/AppData/Local/UnrealEngine/Common/Zen/Data', args '--port 8558 --data-dir "C:\Users\User\AppData\Local\UnrealEngine\Common\Zen\Data" --http asio --gc-cache-duration-seconds 1209600 --gc-interval-seconds 21600 --gc-low-diskspace-threshold 2147483648 --http-forceloopback --quiet --owner-pid 22824'
+[2026.09.25-15.40.45:896][  0]LogZenServiceInstance: Display: Unreal Zen Storage Server HTTP service at [::1]:8558 status: OK!.
+[2026.09.25-15.40.45:907][  0]LogDerivedDataCache: Display: ZenLocal: Using ZenServer HTTP service at http://[::1]:8558/ with namespace ue.ddc status: OK!.
+[2026.09.25-15.40.45:914][  0]LogDerivedDataCache: Display: C:/Users/User/AppData/Local/UnrealEngine/Common/DerivedDataCache: Performance: Latency=0.03ms. RandomReadSpeed=920.57MBs, RandomWriteSpeed=185.95MBs. Assigned SpeedClass 'Local'
+[2026.09.25-15.40.45:916][  0]LogShaderCompilers: Display: Using Local Shader Compiler with 5 workers.
+[2026.09.25-15.40.45:917][  0]LogShaderCompilers: Display: Compiling shader autogen file: ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Intermediate/ShaderAutogen/PCD3D_SM5/AutogenShaderHeaders.ush
+[2026.09.25-15.40.45:917][  0]LogShaderCompilers: Display: Autogen file is unchanged, skipping write.
+[2026.09.25-15.40.47:983][  0]LogEditorDomain: Display: EditorDomain is Disabled
+[2026.09.25-15.40.47:986][  0]LogAssetRegistry: Display: AssetDataGatherer spent 0.000s loading caches ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Intermediate/CachedAssetRegistry_*.bin.
+[2026.09.25-15.40.48:191][  0]LogDeviceProfileManager: Display: Deviceprofile LinuxArm64Editor not found.
+[2026.09.25-15.40.48:191][  0]LogDeviceProfileManager: Display: Deviceprofile LinuxArm64 not found.
+[2026.09.25-15.40.48:223][  0]LogCsvProfiler: Display: Metadata set : deviceprofile="WindowsEditor"
+[2026.09.25-15.40.48:223][  0]LogShaderCompilers: Display: Compiling shader autogen file: ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Intermediate/ShaderAutogen/PCD3D_SM6/AutogenShaderHeaders.ush
+[2026.09.25-15.40.48:223][  0]LogShaderCompilers: Display: Autogen file is unchanged, skipping write.
+[2026.09.25-15.40.48:293][  0]LogMeshReduction: Display: Using QuadricMeshReduction for automatic static mesh reduction
+[2026.09.25-15.40.48:293][  0]LogMeshReduction: Display: Using SkeletalMeshReduction for automatic skeletal mesh reduction
+[2026.09.25-15.40.48:293][  0]LogMeshReduction: Display: Using ProxyLODMeshReduction for automatic mesh merging
+[2026.09.25-15.40.48:293][  0]LogMeshReduction: Display: No distributed automatic mesh merging module available
+[2026.09.25-15.40.48:325][  0]LogTextureEncodingSettings: Display: Texture Encode Speed: FinalIfAvailable (editor).
+[2026.09.25-15.40.48:326][  0]LogTextureEncodingSettings: Display: Oodle Texture Encode Speed settings: Fast: RDO Off Lambda=0, Effort=Normal Final: RDO Off Lambda=0, Effort=Normal
+[2026.09.25-15.40.48:326][  0]LogTextureEncodingSettings: Display: Shared linear texture encoding: Disabled
+[2026.09.25-15.40.48:602][  0]LogVirtualization: Display: VirtualizationSystem name found in ini file: None
+[2026.09.25-15.40.48:602][  0]LogVirtualization: Display: FNullVirtualizationSystem mounted, virtualization will be disabled
+[2026.09.25-15.40.48:718][  0]LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize started...
+[2026.09.25-15.40.48:720][  0]LogWorldPartition: Display: FWorldPartitionClassDescRegistry::Initialize took 2.059 ms
+[2026.09.25-15.40.48:768][  0]LogUdpMessaging: Display: Unicast socket bound to '0.0.0.0:51083'.
+[2026.09.25-15.40.48:771][  0]LogUdpMessaging: Display: Added local interface '100.124.139.37' to multicast group '230.0.0.1:6666'
+[2026.09.25-15.40.49:870][  0]LogPython: Display: No enabled plugins with python dependencies found, skipping
+[2026.09.25-15.40.50:081][  0]LogAudio: Display: Registering Engine Module Parameter Interfaces...
+[2026.09.25-15.40.51:111][  0]LogAudioCaptureCore: Display: No Audio Capture implementations found. Audio input will be silent.
+[2026.09.25-15.40.51:112][  0]LogAudioCaptureCore: Display: No Audio Capture implementations found. Audio input will be silent.
+[2026.09.25-15.40.51:736][  0]LogAnalytics: Display: [UEEditor.Rocket.Release] APIServer = https://datarouter.ol.epicgames.com/datarouter/api/v1/public/data. AppVersion = 5.4.4-35576357+++UE5+Release-5.4
+[2026.09.25-15.40.51:742][  0]LogAudio: Display: Initializing Audio Device Manager...
+[2026.09.25-15.40.51:746][  0]LogAudio: Display: Loading Default Audio Settings Objects...
+[2026.09.25-15.40.51:747][  0]LogAudio: Display: No default SoundConcurrencyObject specified (or failed to load).
+[2026.09.25-15.40.51:747][  0]LogAudio: Display: AudioInfo: 'OPUS' Registered
+[2026.09.25-15.40.51:748][  0]LogAudio: Display: AudioInfo: 'OGG' Registered
+[2026.09.25-15.40.51:751][  0]LogAudio: Display: AudioInfo: 'ADPCM' Registered
+[2026.09.25-15.40.51:751][  0]LogAudio: Display: AudioInfo: 'PCM' Registered
+[2026.09.25-15.40.51:755][  0]LogAudio: Display: AudioInfo: 'BINKA' Registered
+[2026.09.25-15.40.51:758][  0]LogAudio: Display: AudioInfo: 'RADA' Registered
+[2026.09.25-15.40.51:758][  0]LogAudio: Display: Audio Device Manager Initialized
+[2026.09.25-15.40.51:759][  0]LogAudio: Display: Creating Audio Device:                 Id: 1, Scope: Shared, Realtime: True
+[2026.09.25-15.40.51:759][  0]LogAudioMixer: Display: Audio Mixer Platform Settings:
+[2026.09.25-15.40.51:759][  0]LogAudioMixer: Display: 	Sample Rate:						  48000
+[2026.09.25-15.40.51:760][  0]LogAudioMixer: Display: 	Callback Buffer Frame Size Requested: 1024
+[2026.09.25-15.40.51:760][  0]LogAudioMixer: Display: 	Callback Buffer Frame Size To Use:	  1024
+[2026.09.25-15.40.51:760][  0]LogAudioMixer: Display: 	Number of buffers to queue:			  1
+[2026.09.25-15.40.51:760][  0]LogAudioMixer: Display: 	Max Channels (voices):				  32
+[2026.09.25-15.40.51:760][  0]LogAudioMixer: Display: 	Number of Async Source Workers:		  4
+[2026.09.25-15.40.51:760][  0]LogAudio: Display: AudioDevice MaxSources: 32
+[2026.09.25-15.40.51:761][  0]LogAudio: Display: Audio Spatialization Plugin: None (built-in).
+[2026.09.25-15.40.51:761][  0]LogAudio: Display: Audio Reverb Plugin: None (built-in).
+[2026.09.25-15.40.51:761][  0]LogAudio: Display: Audio Occlusion Plugin: None (built-in).
+[2026.09.25-15.40.51:764][  0]LogAudioMixer: Display: Initializing audio mixer using platform API: 'XAudio2'
+[2026.09.25-15.40.51:835][  0]LogAudioMixer: Display: Using Audio Hardware Device Øresnegl på headset (HyperX Virtual Surround Sound)
+[2026.09.25-15.40.51:836][  0]LogAudioMixer: Display: Initializing Sound Submixes...
+[2026.09.25-15.40.51:839][  0]LogAudioMixer: Display: Creating Master Submix 'MasterSubmixDefault'
+[2026.09.25-15.40.51:839][  0]LogAudioMixer: Display: Creating Master Submix 'MasterReverbSubmixDefault'
+[2026.09.25-15.40.51:840][  0]LogAudioMixer: Display: Output buffers initialized: Frames=1024, Channels=2, Samples=2048, InstanceID=1
+[2026.09.25-15.40.51:842][  0]LogAudioMixer: Display: Starting AudioMixerPlatformInterface::RunInternal(), InstanceID=1
+[2026.09.25-15.40.51:842][  0]LogAudioMixer: Display: FMixerPlatformXAudio2::SubmitBuffer() called for the first time. InstanceID=1
+[2026.09.25-15.40.51:843][  0]LogAudio: Display: Audio Device (ID: 1) registered with world 'Untitled'.
+[2026.09.25-15.40.51:848][  0]LogCsvProfiler: Display: Metadata set : largeworldcoordinates="1"
+[2026.09.25-15.40.51:886][  0]LogSourceControl: Display: Uncontrolled Changelist persistency file loaded ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Saved/SourceControl/UncontrolledChangelists.json
+[2026.09.25-15.40.52:340][  0]LogAssetRegistry: Display: Triggering cache save on discovery complete
+[2026.09.25-15.40.52:362][  0]LogInit: Display: Engine is initialized. Leaving FEngineLoop::Init()
+[2026.09.25-15.40.52:380][  0]LogAudio: Display: Audio Device unregistered from world 'None'.
+[2026.09.25-15.40.52:972][  0]LogAudio: Display: Audio Device (ID: 1) registered with world 'ThirdPersonMap'.
+[2026.09.25-15.40.52:974][  0]LogWorldPartition: Display: WorldPartition initialize started...
+[2026.09.25-15.40.52:977][  0]LogStreaming: Display: FlushAsyncLoading(1): 66 QueuedPackages, 0 AsyncPackages
+[2026.09.25-15.40.53:044][  0]LogWorldPartition: Display: WorldPartition initialize took 70.720 ms
+[2026.09.25-15.40.53:047][  0]LogAssetRegistry: Display: Asset registry cache written as 25.5 MiB to ../../../../../../Users/User/Desktop/AI/Grok/Tideborn/Intermediate/CachedAssetRegistry_*.bin
+[2026.09.25-15.40.53:233][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/StarterContent.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:234][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_FirstPerson.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:234][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_FirstPersonBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:235][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_HandheldARBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:236][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_ThirdPerson.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:237][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_ThirdPersonBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:237][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_TopDown.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:238][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_TopDownBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:238][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_VehicleAdvBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:239][  0]LogPakFile: Display: Mounted Pak file 'C:/Program Files/Epic Games/UE_5.4/FeaturePacks/TP_VirtualRealityBP.upack', mount point: 'root:/'
+[2026.09.25-15.40.53:712][  2]LogAudio: Display: Audio Device unregistered from world 'None'.
+[2026.09.25-15.40.53:726][  2]LogAudio: Display: Audio Device (ID: 1) registered with world 'ThirdPersonMap'.
+[2026.09.25-15.40.53:727][  2]LogWorldPartition: Display: WorldPartition initialize started...
+[2026.09.25-15.40.53:730][  2]LogStreaming: Display: FlushAsyncLoading(67): 66 QueuedPackages, 0 AsyncPackages
+[2026.09.25-15.40.53:778][  2]LogWorldPartition: Display: WorldPartition initialize took 50.996 ms (total: 121.717 ms)
+[2026.09.25-15.40.53:939][  3]LogContentValidation: Display: Starting to validate 5 assets
+[2026.09.25-15.40.53:939][  3]LogContentValidation: Display: Validating asset /Game/ThirdPerson/Maps/ThirdPersonMap.ThirdPersonMap
+[2026.09.25-15.40.54:004][  4]LogAnalytics: Display: [UEEditor.Rocket.Release] Destroying ET Analytics provider
+[2026.09.25-15.40.54:005][  4]LogAnalytics: Display: [UEEditor.Rocket.Release] Ended ET Analytics provider session
+[2026.09.25-15.40.54:005][  4]LogAnalytics: Display: [UEEditor.Rocket.Release] Destroyed ET Analytics provider
+[2026.09.25-15.40.54:005][  4]LogAudio: Display: Beginning Audio Device Manager Shutdown (Module: AudioMixerXAudio2)...
+[2026.09.25-15.40.54:005][  4]LogAudio: Display: Destroying 1 Remaining Audio Device(s)...
+[2026.09.25-15.40.54:005][  4]LogAudio: Display: Audio Device unregistered from world 'ThirdPersonMap'.
+[2026.09.25-15.40.54:005][  4]LogAudio: Display: Shutting down audio device while 1 references to it are still alive. For more information, compile with INSTRUMENT_AUDIODEVICE_HANDLES.
+[2026.09.25-15.40.54:012][  4]LogAudio: Display: Audio Device Manager Shutdown
+[2026.09.25-15.40.54:970][  4]LogShaderCompilers: Display: Shaders left to compile 0
+[2026.09.25-15.40.56:571][  4]LogStudioTelemetry: Display: Shutdown StudioTelemetry Module

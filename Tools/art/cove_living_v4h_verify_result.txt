@@ -1,0 +1,30 @@
+sand strong-em MI_Tideborn_SandWarm
+sand strong-em M_Tideborn_Sand
+sand -> TidebornEnv_SandBase
+PP warm 3800
+hide skyish VolumetricCloud/VolumetricCloud
+SkyAtmosphere HIDDEN
+DirLight
+Fog HIDDEN for shot
+SkyLight low no-realtime
+sand -> TidebornEnv_SandRamp
+CONFIRM TidebornEnv_SandBase Z=106 loc=(1000,1500) sc=(45.0,18.0) mats=MI_Tideborn_SandWarm
+CONFIRM Tideborn_P2_ShoreGate Z=190 loc=(1100,2400) sc=(1.0,1.0) mats=M_Tideborn_GateSolid,M_Tideborn_GateSolid
+CONFIRM TidebornEnv_Ocean Z=99 loc=(1000,-900) sc=(70.0,18.0) mats=M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 loc=(1000,420) sc=(55.0,6.5) mats=M_Tideborn_WaterOpaque
+CONFIRM Tideborn_P2_BurrHound Z=150 loc=(1600,1800) sc=(1.0,1.0) mats=MI_Tideborn_CreatureMuted,MI_Tideborn_CreatureMuted
+CONFIRM TidebornEnv_SandRamp Z=105 loc=(1000,560) sc=(2.4,1.6) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+wait shaders 25s
+cmd r.SkyAtmosphere 0
+cmd r.VolumetricCloud 0
+cmd r.Fog 0
+cmd ShowFlag.Atmosphere 0
+cmd ShowFlag.Fog 0
+cmd ShowFlag.Cloud 0
+cmd ShowFlag.ModeWidgets 0
+cmd ShowFlag.Selection 0
+cmd ShowFlag.SelectionOutline 0
+cmd ShowFlag.Bounds 0
+SHOT begin TidebornCoveVerify
+SHOT end ok=False size=0
+DONE

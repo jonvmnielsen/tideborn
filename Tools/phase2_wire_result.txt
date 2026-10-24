@@ -1,0 +1,10 @@
+destroy Tideborn_P2_BurrHound
+destroy Tideborn_P2_ShoreGate
+destroy Tideborn_P2_KelpBack
+PS=<Struct 'Vector' (0x0000021120675140) {x: 900.000000, y: 1110.000000, z: 92.012604}>
+hound
+kelp
+gate
+beacon_1 @ <Struct 'Vector' (0x00000211206C57D0) {x: 1208.000000, y: 1030.000000, z: 132.012604}>
+beacon_2 @ <Struct 'Vector' (0x00000211206C5820) {x: 1472.000000, y: 1200.000000, z: 132.012604}>
+beacon_3 @ <Struct 'Vector' (0x00000211206C57D0) {x: 1758.000000, y: 1030.000000, z: 132.012604}>

@@ -1,0 +1,12 @@
+beach bounds min=(-40.0,-50.0,-1.2) max=(40.0,50.0,3.6) size=(80.0,100.0,4.7)
+water bounds min=(-45.0,10.0,-0.8) max=(45.0,60.0,-0.8) size=(90.0,50.0,0.0)
+x TidebornEnv_WaterMesh
+x TidebornEnv_Beach
+plane TidebornEnv_SandBase
+plane TidebornEnv_Ground
+plane TidebornEnv_Ocean
+beach scale <Struct 'Vector' (0x00000250C537FDF0) {x: 112.499989, y: 109.999992, z: 73.782693}> from size 80.0 100.0 4.7
+beach placed
+water scale <Struct 'Vector' (0x00000250C949A630) {x: 133.333322, y: 159.999976, z: 1.000000}>
+water placed
+DONE

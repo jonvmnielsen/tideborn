@@ -1,0 +1,1 @@
+TidebornCoveVerify|1050,1550,200|-5,-90,0

@@ -1,0 +1,1 @@
+name=V10_Verify_20260925_223232 ok=True size=2058629 path=C:\Users\User\Desktop\AI\Grok\Tideborn\Saved\Screenshots\WindowsEditor\V10_Verify_20260925_221512.png

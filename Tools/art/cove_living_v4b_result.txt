@@ -1,0 +1,14 @@
+destroy TidebornEnv_FillLight
+reapply sand -> TidebornEnv_SandBase
+reapply sand -> TidebornEnv_SandRamp
+PP bias~0.15 white_temp~5200 bloom low
+DirectionalLight 1.4 warm
+Fog density~0.12 warm-grey
+SkyLight 2.8
+CONFIRM TidebornEnv_SandBase Z=106 Y[600..2400] sc=(45.0,18.0,1.0) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+CONFIRM TidebornEnv_Ocean Z=99 Y[-1800..0] sc=(70.0,18.0,1.0) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_Shallows Z=100 Y[95..745] sc=(55.0,6.5,1.0) mats=M_Tideborn_WaterOpaque,M_Tideborn_WaterOpaque
+CONFIRM TidebornEnv_SandRamp Z=105 Y[445..555] sc=(1.6,1.1,1.0) mats=MI_Tideborn_SandWarm,MI_Tideborn_SandWarm
+save_current_level -> True
+save_dirty -> True
+DONE

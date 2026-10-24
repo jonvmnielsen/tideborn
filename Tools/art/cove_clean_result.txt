@@ -1,0 +1,48 @@
+=== ACTOR DUMP ===
+TidebornArt_3 | StaticMeshActor | ["dead_tree_trunk_1k mats=['M_Tideborn_Bark', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_02 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Trunk_15 | StaticMeshActor | ["dead_tree_trunk_1k mats=['M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark']"]
+TidebornEnv_Shallows | StaticMeshActor | ["Plane mats=['M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple']"]
+TidebornEnv_Boulder_07 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Sand_0 | StaticMeshActor | ["Plane mats=['M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand']"]
+Tideborn_Gather_Stone_A | TidebornGatherNode | ["SM_WoodStump mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_06 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+Tideborn_Gather_Wood_B | TidebornGatherNode | ["SM_WoodStump mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Sand_2 | StaticMeshActor | ["Plane mats=['M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand']"]
+TidebornEnv_Boulder_09 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Boulder_04 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Sand_3 | StaticMeshActor | ["Plane mats=['M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand']"]
+TidebornEnv_Boulder_03 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Boulder_10 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornArt_2 | StaticMeshActor | ["coast_land_rocks_03_1k mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Ocean | StaticMeshActor | ["Plane mats=['M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple', 'M_Tideborn_WaterSimple']"]
+TidebornEnv_Trunk_16 | StaticMeshActor | ["dead_tree_trunk_1k mats=['M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark']"]
+TidebornEnv_Ground | StaticMeshActor | ["Plane mats=['M_Tideborn_Ground', 'M_Tideborn_Ground', 'M_Tideborn_Ground', 'M_Tideborn_Ground']"]
+Tideborn_P2_ShoreGate | TidebornShoreGate | ["SM_ShoreGate mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_01 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Trunk_17 | StaticMeshActor | ["dead_tree_trunk_1k mats=['M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark']"]
+Tideborn_Gather_Wood_A | TidebornGatherNode | ["SM_WoodStump mats=['None', 'None', 'None', 'None']"]
+Tideborn_P2_KelpBack | TidebornKelpBack | ["SM_KelpBack mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_13 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornArt_0 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'None', 'None', 'None']"]
+TidebornArt_1 | StaticMeshActor | ["coast_land_rocks_02_1k mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_12 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Trunk_14 | StaticMeshActor | ["dead_tree_trunk_1k mats=['M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark', 'M_Tideborn_Bark']"]
+TidebornEnv_Boulder_00 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Sand_1 | StaticMeshActor | ["Plane mats=['M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand', 'M_Tideborn_Sand']"]
+Tideborn_P2_BurrHound | TidebornBurrHound | ["SM_BurrHound mats=['None', 'None', 'None', 'None']"]
+TidebornEnv_Boulder_08 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+PlayerStart | PlayerStart | []
+TidebornEnv_Boulder_11 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+TidebornEnv_Boulder_05 | StaticMeshActor | ["boulder_01_1k mats=['M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder', 'M_Tideborn_RockBoulder']"]
+baked /Game/Tideborn/Art/Meshes/boulder_01_1k x1
+baked /Game/Tideborn/Art/Meshes/dead_tree_trunk_1k x1
+baked /Game/Tideborn/Meshes/SM_WoodStump x1
+baked /Game/Tideborn/Meshes/SM_StoneCluster x1
+baked /Game/Tideborn/Meshes/SM_BurrHound x2
+baked /Game/Tideborn/Meshes/SM_KelpBack x2
+baked /Game/Tideborn/Meshes/SM_ShoreGate x2
+baked /Game/Tideborn/Meshes/SM_Foundation x1
+baked /Game/Tideborn/Meshes/SM_PathPost x1
+shot miss TidebornCoveVerify
+shot miss TidebornCoveOverview

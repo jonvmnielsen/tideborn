@@ -1,0 +1,7 @@
+created HOT PINK unlit sand
+apply TidebornEnv_SandBase mesh=Plane mat0=MI_Tideborn_SandWarm
+apply TidebornEnv_SandRamp mesh=SM_TidebornSandRamp mat0=MI_Tideborn_SandWarm
+PP neutralized
+wait 20s shaders
+SHOT begin
+SHOT ok=False size=0
